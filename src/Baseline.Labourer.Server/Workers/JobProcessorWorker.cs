@@ -48,6 +48,8 @@ namespace Baseline.Labourer.Server
 
                 var dequeuedMessage = await _queue.DequeueAsync(cancellationToken);
                 
+                // Deserialize the jobs, then execute the jobs in a wrapped context logging when required and updating
+                // the job store along the way.
             }
         }
     }

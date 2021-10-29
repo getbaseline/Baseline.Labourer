@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 namespace Baseline.Labourer
 {
     /// <summary>
-    /// A contract that provides the API for all Baseline.Labourer job management functions (such as dispatching jobs).
+    /// A contract that provides the consumer level API for all Baseline.Labourer job management functions
+    /// (such as dispatching jobs and registering recurrent ones).
     /// </summary>
-    public interface IJobManager
+    public interface ILabourerClient
     {
         /// <summary>
         /// Dispatches a job to run immediately.

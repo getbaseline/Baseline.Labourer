@@ -5,15 +5,15 @@ using Baseline.Labourer.Internal.Utils;
 namespace Baseline.Labourer
 {
     /// <summary>
-    /// JobManager is the default (and ideally only) implementation of the <see cref="IJobManager"/> interface.
+    /// LabourerClient is the default (and ideally only) implementation of the <see cref="ILabourerClient"/> interface.
     /// </summary>
-    public class JobManager : IJobManager
+    public class LabourerClient : ILabourerClient
     {
         private readonly BaselineLabourerConfiguration _configuration;
         private readonly IDispatchedJobStore _dispatchedJobStore;
         private readonly IQueue _queue;
 
-        public JobManager(
+        public LabourerClient(
             BaselineLabourerConfiguration configuration, 
             IDispatchedJobStore dispatchedJobStore, 
             IQueue queue
