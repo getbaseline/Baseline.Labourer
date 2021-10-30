@@ -16,7 +16,7 @@ namespace Baseline.Labourer
         /// The parameters for the job, serialized to be stored and then deserialized to become the parameter for
         /// the HandleAsync method of the job.
         /// </param>
-        Task DispatchJobAsync<TJob, TParams>(
+        Task DispatchJobAsync<TParams, TJob>(
             TParams jobParameters,
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>;

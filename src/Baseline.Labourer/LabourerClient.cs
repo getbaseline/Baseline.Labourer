@@ -25,7 +25,7 @@ namespace Baseline.Labourer
         }
 
         /// <inheritdoc />
-        public async Task DispatchJobAsync<TJob, TParams>(
+        public async Task DispatchJobAsync<TParams, TJob>(
             TParams jobParameters, 
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>
