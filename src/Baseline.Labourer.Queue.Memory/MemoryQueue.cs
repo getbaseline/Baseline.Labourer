@@ -9,7 +9,7 @@ namespace Baseline.Labourer.Queue.Memory
 {
     public class MemoryQueue : IQueue
     {
-        private List<QueuedJob> _queue = new List<QueuedJob>();
+        protected List<QueuedJob> Queue = new List<QueuedJob>();
 
         private readonly SemaphoreSlim
             _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
@@ -25,7 +25,7 @@ namespace Baseline.Labourer.Queue.Memory
             {
                 await _semaphore.WaitAsync(cancellationToken);
                 
-                _queue.Add(new QueuedJob
+                Queue.Add(new QueuedJob
                 {
                     Type = queuedMessageType,
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(messageToQueue, cancellationToken)
@@ -47,15 +47,15 @@ namespace Baseline.Labourer.Queue.Memory
                     // This semaphore will prevent other queues from snatching up our messages!
                     await _semaphore.WaitAsync(cancellationToken);
 
-                    if (!_queue.Any())
+                    if (!Queue.Any())
                     {
                         _semaphore.Release();
                         await Task.Delay(1000, cancellationToken);
                         continue;
                     }
 
-                    var firstMessage = _queue.First();
-                    _queue = _queue.Skip(1).ToList();
+                    var firstMessage = Queue.First();
+                    Queue = Queue.Skip(1).ToList();
 
                     return firstMessage;
                 }

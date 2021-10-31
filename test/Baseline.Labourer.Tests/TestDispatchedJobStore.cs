@@ -1,27 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Baseline.Labourer.Store.Memory;
+using FluentAssertions;
 
 namespace Baseline.Labourer.Tests
 {
-    public class TestDispatchedJobStore : IDispatchedJobStore
+    public class TestDispatchedJobStore : MemoryJobStore
     {
-        private readonly List<DispatchedJobDefinition> _dispatchedJobs = new List<DispatchedJobDefinition>();
-        
-        public Task<DispatchedJobDefinition> SaveDispatchedJobDefinitionAsync(
-            DispatchedJobDefinition definition, 
-            CancellationToken cancellationToken
-        )
+        public void AssertJobHasFinishedAtValueWithin5SecondsOf(string jobId, DateTime closeToValue)
         {
-            _dispatchedJobs.Add(definition);
-            return Task.FromResult(definition);
+            var job = DispatchedJobs.FirstOrDefault(j => j.Id == jobId);
+            job.Should().NotBeNull();
+            job.FinishedAt!.Should().BeCloseTo(closeToValue, TimeSpan.FromSeconds(5));
         }
-
+        
+        public void AssertStatusForJobIs(string jobId, JobStatus status)
+        {
+            var job = DispatchedJobs.FirstOrDefault(j => j.Id == jobId);
+            job.Should().NotBeNull();
+            job!.Status.Should().Be(status);
+        }
+        
         public DispatchedJobDefinition AssertJobWithTypesStored(Type jobType, Type parametersType)
         {
-            var jobDefinition = _dispatchedJobs.FirstOrDefault(
+            var jobDefinition = DispatchedJobs.FirstOrDefault(
                 j => j.Type == jobType.AssemblyQualifiedName &&
                      j.ParametersType == parametersType.AssemblyQualifiedName
             );

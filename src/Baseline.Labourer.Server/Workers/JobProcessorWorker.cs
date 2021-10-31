@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
@@ -30,7 +29,6 @@ namespace Baseline.Labourer.Server.Workers
         /// <summary>
         /// Runs the worker, creating a number of parallel worker instances that process the jobs.
         /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
         public async Task RunAsync()
         {
             var processingTasks = Enumerable
@@ -82,12 +80,26 @@ namespace Baseline.Labourer.Server.Workers
                 cancellationToken
             );
             var jobInstance = Activator.CreateInstance(jobType);
-
+            
+            // Change the job to in progress.
+            await _dispatchedJobStore.UpdateJobAsync(
+                deserialisedJob.Id, 
+                new DispatchedJobDefinition { Status = JobStatus.InProgress }, 
+                cancellationToken
+            );
+            
+            // Invoke the job.
             var task = jobType
                 .GetMethod("HandleAsync")!
                 .Invoke(jobInstance, new[] { deserializedParameters, CancellationToken.None }) as Task;
-
             await task;
+
+            // Change the job to be complete.
+            await _dispatchedJobStore.UpdateJobAsync(
+                deserialisedJob.Id, 
+                new DispatchedJobDefinition { Status = JobStatus.Complete, FinishedAt = DateTime.UtcNow },
+                cancellationToken
+            );
         }
     }
 }

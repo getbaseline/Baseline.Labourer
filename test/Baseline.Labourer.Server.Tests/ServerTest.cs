@@ -1,13 +1,14 @@
 ﻿using Baseline.Labourer.Queue.Memory;
 using Baseline.Labourer.Store.Memory;
+using Baseline.Labourer.Tests;
 
 namespace Baseline.Labourer.Server.Tests
 {
     public class ServerTest
     {
-        protected MemoryJobStore MemoryJobStore = new MemoryJobStore();
+        protected TestDispatchedJobStore TestJobStore = new TestDispatchedJobStore();
 
-        protected MemoryQueue MemoryQueue = new MemoryQueue();
+        protected TestQueue TestQueue = new TestQueue();
         
         public LabourerClient Client { get; }
 
@@ -15,8 +16,8 @@ namespace Baseline.Labourer.Server.Tests
         {
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration(),
-                MemoryJobStore,
-                MemoryQueue
+                TestJobStore,
+                TestQueue
             );
         }
     }

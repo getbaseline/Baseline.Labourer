@@ -9,6 +9,16 @@ namespace Baseline.Labourer
     public class DispatchedJobDefinition : JobDefinition
     {
         /// <summary>
+        /// Gets or sets the identifier of the dispatched job.
+        /// </summary>
+        public string Id { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the status of the dispatched job.
+        /// </summary>
+        public JobStatus Status { get; set; }
+        
+        /// <summary>
         /// Gets or sets when the job finished or null if it hasn't yet.
         /// </summary>
         public DateTime? FinishedAt { get; set; }

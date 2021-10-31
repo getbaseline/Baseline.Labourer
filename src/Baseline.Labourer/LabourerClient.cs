@@ -25,7 +25,7 @@ namespace Baseline.Labourer
         }
 
         /// <inheritdoc />
-        public async Task DispatchJobAsync<TParams, TJob>(
+        public async Task<string> DispatchJobAsync<TParams, TJob>(
             TParams jobParameters, 
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>
@@ -34,11 +34,18 @@ namespace Baseline.Labourer
             {
                 Type = typeof(TJob).AssemblyQualifiedName,
                 ParametersType = typeof(TParams).AssemblyQualifiedName,
-                SerializedParameters = await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken)
+                SerializedParameters = await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken),
+                Status = JobStatus.Created
             };
             
-            await _dispatchedJobStore.SaveDispatchedJobDefinitionAsync(jobDefinition, cancellationToken);
+            var createdJob = await _dispatchedJobStore.SaveDispatchedJobDefinitionAsync(
+                jobDefinition, 
+                cancellationToken
+            );
+            
             await _queue.EnqueueAsync(QueuedMessageType.UserEnqueuedJob, jobDefinition, cancellationToken);
+
+            return createdJob.Id;
         }
     }
 }
