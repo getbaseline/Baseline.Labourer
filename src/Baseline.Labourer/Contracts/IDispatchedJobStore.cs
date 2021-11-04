@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer
 {
@@ -10,6 +11,20 @@ namespace Baseline.Labourer
     /// </summary>
     public interface IDispatchedJobStore
     {
+        /// <summary>
+        /// Creates and saves a log entry against a job specified by the job id parameter.
+        /// </summary>
+        /// <param name="jobId">The id of the job that should have a log entry created against it.</param>
+        /// <param name="logLevel">The logging level, i.e. the severity of the log.</param>
+        /// <param name="message">The message to log.</param>
+        /// <param name="exception">An optional exception, if there was one present.</param>
+        Task LogEntryForJob(
+            string jobId, 
+            LogLevel logLevel, 
+            string message, 
+            Exception? exception
+        );
+        
         /// <summary>
         /// Saves a dispatched job to the job store.
         /// </summary>

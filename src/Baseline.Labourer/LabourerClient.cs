@@ -32,6 +32,7 @@ namespace Baseline.Labourer
         {
             var jobDefinition = new DispatchedJobDefinition
             {
+                Id = StringGenerationUtils.GenerateUniqueRandomString(),
                 Type = typeof(TJob).AssemblyQualifiedName,
                 ParametersType = typeof(TParams).AssemblyQualifiedName,
                 SerializedParameters = await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken),
@@ -43,7 +44,7 @@ namespace Baseline.Labourer
                 cancellationToken
             );
             
-            await _queue.EnqueueAsync(QueuedMessageType.UserEnqueuedJob, jobDefinition, cancellationToken);
+            await _queue.EnqueueAsync(jobDefinition);
 
             return createdJob.Id;
         }

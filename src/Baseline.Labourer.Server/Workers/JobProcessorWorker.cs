@@ -3,103 +3,102 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Server.Contracts;
+using Baseline.Labourer.Server.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.Workers
 {
     /// <summary>
     /// A worker that processes jobs that need to be ran.
     /// </summary>
-    public class JobProcessorWorker
+    public class JobProcessorWorker : IWorker
     {
-        private readonly BaselineServerConfiguration _baselineServerConfiguration;
-        private readonly IDispatchedJobStore _dispatchedJobStore;
-        private readonly IQueue _queue;
+        private readonly ServerContext _serverContext;
+        private readonly ILogger<JobProcessorWorker> _logger;
 
         public JobProcessorWorker(
-            BaselineServerConfiguration baselineServerConfiguration,
-            IDispatchedJobStore dispatchedJobStore, 
-            IQueue queue
+            ServerContext serverContext
         )
         {
-            _baselineServerConfiguration = baselineServerConfiguration;
-            _dispatchedJobStore = dispatchedJobStore;
-            _queue = queue;
+            _serverContext = serverContext;
+            _logger = serverContext.LoggerFactory.CreateLogger<JobProcessorWorker>();
         }
 
         /// <summary>
-        /// Runs the worker, creating a number of parallel worker instances that process the jobs.
+        /// Boots and runs the job processing worker instances as a long running task.
         /// </summary>
         public async Task RunAsync()
         {
+            _logger.LogInformation(_serverContext, "Starting job processing tasks and booting the guinea pig treadmills.");
+            
             var processingTasks = Enumerable
-                .Range(1, _baselineServerConfiguration.JobProcessorTasksToRun)
-                .Select(async _ => await RunSingleAsync());
-
+                .Range(1, _serverContext.WorkersToRun)
+                .Select(async _ => await RunSingleWorkerAsync());
+            
             await Task.WhenAll(processingTasks);
+            
+            _logger.LogInformation(_serverContext, "Finished job processing tasks.");
         }
 
-        private async Task RunSingleAsync()
+        private async Task RunSingleWorkerAsync()
         {
-            while (true)
+            var worker = await _serverContext.ServerStore.CreateWorkerAsync(
+                new Worker
+                {
+                    Id = StringGenerationUtils.GenerateUniqueRandomString(),
+                    ServerInstanceId = _serverContext.ServerInstance.Id
+                },
+                CancellationToken.None
+            );
+
+            var workerContext = new WorkerContext { ServerContext = _serverContext, Worker = worker };
+
+            await ProcessJobsAsync(workerContext);
+        }
+
+        private async Task ProcessJobsAsync(WorkerContext workerContext)
+        {
+            _logger.LogDebug(workerContext, "Booting worker and entering infinite processing loop.");
+            
+            try
             {
-                if (_baselineServerConfiguration.ShutdownTokenSource.IsCancellationRequested)
+                while (true)
                 {
-                    return;
-                }
-                
-                var dequeuedMessage = await _queue.DequeueAsync(CancellationToken.None);
+                    if (_serverContext.ShutdownTokenSource.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    var dequeuedMessage = await _serverContext.Queue.DequeueAsync(_serverContext.ShutdownTokenSource.Token);
+                    if (dequeuedMessage == null)
+                    {
+                        continue;
+                    }
+                    
+                    var deserializedJobDefinition = await SerializationUtils.DeserializeFromStringAsync<DispatchedJobDefinition>(
+                        dequeuedMessage.SerializedDefinition
+                    );
+                    
+                    var jobContext = new JobContext
+                    {
+                        JobDefinition = deserializedJobDefinition,
+                        WorkerContext = workerContext,
+                        JobStateChanger = new JobStateChanger(deserializedJobDefinition.Id,
+                            workerContext.ServerContext.DispatchedJobStore)
+                    };
 
-                if (dequeuedMessage == null)
-                {
-                    continue;
-                }
-
-                if (dequeuedMessage.Type is QueuedMessageType.UserEnqueuedJob)
-                {
-                    await ProcessMessageAsJobAsync(dequeuedMessage);
+                    await new JobProcessor(jobContext).ProcessJobAsync(CancellationToken.None);
                 }
             }
-        }
-
-        private async Task ProcessMessageAsJobAsync(
-            QueuedJob dequeuedMessage, 
-            CancellationToken cancellationToken = default
-        )
-        {
-            var deserialisedJob = await SerializationUtils.DeserializeFromStringAsync<DispatchedJobDefinition>(
-                dequeuedMessage.SerializedDefinition,
-                cancellationToken
-            );
-
-            var parametersType = Type.GetType(deserialisedJob.ParametersType);
-            var jobType = Type.GetType(deserialisedJob.Type);
-
-            var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
-                deserialisedJob.SerializedParameters, 
-                parametersType,
-                cancellationToken
-            );
-            var jobInstance = Activator.CreateInstance(jobType);
-            
-            // Change the job to in progress.
-            await _dispatchedJobStore.UpdateJobAsync(
-                deserialisedJob.Id, 
-                new DispatchedJobDefinition { Status = JobStatus.InProgress }, 
-                cancellationToken
-            );
-            
-            // Invoke the job.
-            var task = jobType
-                .GetMethod("HandleAsync")!
-                .Invoke(jobInstance, new[] { deserializedParameters, CancellationToken.None }) as Task;
-            await task;
-
-            // Change the job to be complete.
-            await _dispatchedJobStore.UpdateJobAsync(
-                deserialisedJob.Id, 
-                new DispatchedJobDefinition { Status = JobStatus.Complete, FinishedAt = DateTime.UtcNow },
-                cancellationToken
-            );
+            catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
+            {
+                _logger.LogInformation(workerContext, "Shut down request received. Shutting down gracefully (hopefully).");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(workerContext, "Unexpected error received. Handling.", e);
+            }
         }
     }
 }

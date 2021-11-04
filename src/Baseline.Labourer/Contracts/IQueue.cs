@@ -11,17 +11,15 @@ namespace Baseline.Labourer
         /// <summary>
         /// Enqueues a message to the queue.
         /// </summary>
-        /// <param name="queuedMessageType">The type of the message being queued.</param>
         /// <param name="messageToQueue">A message that should be serialized and queued.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        Task EnqueueAsync<T>(QueuedMessageType queuedMessageType, T messageToQueue, CancellationToken cancellationToken);
+        Task EnqueueAsync<T>(T messageToQueue);
 
         /// <summary>
         /// Dequeues and returns a single message from the queue. This method long polls (i.e. waits a specified amount
         /// of time if no messages are available before returning) so there is no need to implement wait times on the
         /// consuming side.
         /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <param name="cancellationToken">A cancellation token used to safely shut down the server.</param>
         Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken);
     }
 }

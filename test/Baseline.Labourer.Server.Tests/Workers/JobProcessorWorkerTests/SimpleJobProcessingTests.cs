@@ -5,24 +5,20 @@ using Baseline.Labourer.Server.Workers;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Server.Tests.Workers
+namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 {
-    public class JobProcessorWorkerTests : ServerTest, IDisposable
+    public class SimpleJobProcessingTests : ServerTest
     {
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         
-        public JobProcessorWorkerTests() : base()
+        public SimpleJobProcessingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Task.Run(
-                async () => await new JobProcessorWorker(
-                    new BaselineServerConfiguration { ShutdownTokenSource = _cancellationTokenSource }, 
-                    TestJobStore, 
-                    TestQueue
-                ).RunAsync()
+                async () => await new JobProcessorWorker(await GenerateServerContextAsync()).RunAsync()
             );
         }
-        
+
         public class SimpleQueuedJobParams {}
         public class SimpleQueuedJob : IJob<SimpleQueuedJobParams>
         {
@@ -44,7 +40,7 @@ namespace Baseline.Labourer.Server.Tests.Workers
             );
             
             // Assert.
-            await AssertionUtils.Retry(() => SimpleQueuedJob.Handled.Should().BeTrue());
+            await AssertionUtils.RetryAsync(() => SimpleQueuedJob.Handled.Should().BeTrue());
         }
 
         public class SimpleQueuedJobWithParamsParams
@@ -72,7 +68,10 @@ namespace Baseline.Labourer.Server.Tests.Workers
             );
             
             // Assert.
-            await AssertionUtils.Retry(() => SimpleQueuedJobWithParams.Count.Should().Be(100));
+            await AssertionUtils.RetryAsync(() => SimpleQueuedJobWithParams.Count.Should().Be(100));
+            
+            var serverId = TestServerStore.AssertHasRegisteredAServer();
+            TestServerStore.AssertHasRegisteredWorkersForServer(serverId);
         }
         
         public class LateJobParams {}
@@ -100,7 +99,7 @@ namespace Baseline.Labourer.Server.Tests.Workers
             );
             
             // Assert.
-            await AssertionUtils.Retry(() => LateJob.Handled.Should().BeTrue());
+            await AssertionUtils.RetryAsync(() => LateJob.Handled.Should().BeTrue());
         }
         
         public class MarkedAsInProgressJobParams {}
@@ -122,20 +121,16 @@ namespace Baseline.Labourer.Server.Tests.Workers
             );
             
             // Assert.
-            await AssertionUtils.Retry(() => TestJobStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
-            await AssertionUtils.Retry(() =>
+            await AssertionUtils.RetryAsync(() => TestJobStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
+            await AssertionUtils.RetryAsync(() =>
             {
                 TestJobStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
                 TestJobStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
             });
         }
         
+        // Tests for heartbeat of server when running
         // Tests for multiple workers (need to add some sort of worker tracking to the job).
         // Tests for multiple jobs through workers being completed.
-
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Dispose();
-        }
     }
 }

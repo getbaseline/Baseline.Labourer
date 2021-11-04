@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
@@ -11,24 +10,20 @@ namespace Baseline.Labourer.Queue.Memory
     {
         protected List<QueuedJob> Queue = new List<QueuedJob>();
 
-        private readonly SemaphoreSlim
-            _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
 
         /// <inheritdoc />
         public async Task EnqueueAsync<T>(
-            QueuedMessageType queuedMessageType,
-            T messageToQueue,
-            CancellationToken cancellationToken
+            T messageToQueue
         )
         {
             try
             {
-                await _semaphore.WaitAsync(cancellationToken);
+                await _semaphore.WaitAsync();
                 
                 Queue.Add(new QueuedJob
                 {
-                    Type = queuedMessageType,
-                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(messageToQueue, cancellationToken)
+                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(messageToQueue)
                 });
             }
             finally
@@ -42,6 +37,8 @@ namespace Baseline.Labourer.Queue.Memory
         {
             for (var i = 0; i < 30; i++)
             {
+                var released = false; 
+                
                 try
                 {
                     // This semaphore will prevent other queues from snatching up our messages!
@@ -49,6 +46,7 @@ namespace Baseline.Labourer.Queue.Memory
 
                     if (!Queue.Any())
                     {
+                        released = true;
                         _semaphore.Release();
                         await Task.Delay(1000, cancellationToken);
                         continue;
@@ -61,7 +59,10 @@ namespace Baseline.Labourer.Queue.Memory
                 }
                 finally
                 {
-                    _semaphore.Release();
+                    if (!released)
+                    {
+                        _semaphore.Release();
+                    }
                 }
             }
 

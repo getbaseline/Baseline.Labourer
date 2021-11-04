@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer
 {
@@ -9,11 +10,6 @@ namespace Baseline.Labourer
     /// </summary>
     public class QueuedJob
     {
-        /// <summary>
-        /// Gets or sets the type of queued job that this is.
-        /// </summary>
-        public QueuedMessageType Type { get; set; }
-        
         /// <summary>
         /// Gets or sets the serialized definition of the job.
         /// </summary>
@@ -25,7 +21,7 @@ namespace Baseline.Labourer
         /// <param name="other">The other <see cref="QueuedJob" /> to compare.</param>
         protected bool Equals(QueuedJob other)
         {
-            return Type == other.Type && SerializedDefinition == other.SerializedDefinition;
+            return SerializedDefinition == other.SerializedDefinition;
         }
 
         /// <summary>
@@ -36,7 +32,7 @@ namespace Baseline.Labourer
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((QueuedJob) obj);
         }
 
@@ -45,16 +41,16 @@ namespace Baseline.Labourer
         /// </summary>
         public override int GetHashCode()
         {
-            return HashCode.Combine((int) Type, SerializedDefinition);
+            return HashCode.Combine(SerializedDefinition);
         }
 
         /// <summary>
         /// Deserializes the definition of the queued job into an object and then returns it.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task<T> DeserializeAsync<T>(CancellationToken cancellationToken)
+        public async Task<T> DeserializeAsync<T>()
         {
-            return default;
+            return await SerializationUtils.DeserializeFromStringAsync<T>(SerializedDefinition, CancellationToken.None);
         }
     }
 }

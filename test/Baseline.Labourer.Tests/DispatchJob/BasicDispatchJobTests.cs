@@ -38,7 +38,6 @@ namespace Baseline.Labourer.Tests.DispatchJob
             Queue.AssertMessageDispatched(
                 new QueuedJob
                 {
-                    Type = QueuedMessageType.UserEnqueuedJob,
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
                         jobDefinition, 
                         CancellationToken.None
