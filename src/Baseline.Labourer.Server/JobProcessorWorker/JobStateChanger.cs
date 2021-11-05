@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// JobStateChanger is an internal class that provides the ability to modify the state of a job whilst maintaining
@@ -22,7 +23,6 @@ namespace Baseline.Labourer.Server.Internal
         /// <summary>
         /// Changes the state of the job, logging appropriate messages and dispatching registered middleware(s).
         /// </summary>
-        /// <param name="jobId">The id of the job to have its state changed.</param>
         /// <param name="status">The new status of the job.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public async Task ChangeStateAsync(JobStatus status, CancellationToken cancellationToken)
@@ -36,6 +36,17 @@ namespace Baseline.Labourer.Server.Internal
                 },
                 cancellationToken
             );
+
+            _dispatchedJobStore.LogEntryForJob(_jobId, LogLevel.Information, HumanReadableStatus(status), null);
         }
+
+        private string HumanReadableStatus(JobStatus status) => status switch
+        {
+            JobStatus.Created => "Job created.",
+            JobStatus.InProgress => "Job started.",
+            JobStatus.Complete => "Job complete.",
+            JobStatus.Failed => "Job failed.",
+            _ => "Job has entered an unknown status."
+        };
     }
 }

@@ -4,10 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Workers
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// A worker that processes jobs that need to be ran.

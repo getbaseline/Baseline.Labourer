@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// JobProcessor contains the logic behind the processing of jobs. 
@@ -30,6 +30,8 @@ namespace Baseline.Labourer.Server.Internal
             
             var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType);
             var jobType = Type.GetType(_jobContext.JobDefinition.Type);
+            
+            // TODO - validate neither of these being null ^
 
             var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
                 _jobContext.JobDefinition.SerializedParameters, 
@@ -53,7 +55,12 @@ namespace Baseline.Labourer.Server.Internal
 
         private object ActivateJobWithDefaults(Type jobType)
         {
-            return _jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType);
+            var genericLogger = Activator.CreateInstance(
+                typeof(Logger<>).MakeGenericType(jobType), 
+                new JobLoggerFactory(_jobContext)
+            );
+            
+            return _jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
         }
     }
 }

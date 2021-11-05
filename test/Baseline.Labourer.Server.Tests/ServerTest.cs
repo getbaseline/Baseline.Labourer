@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Server.Internal;
 using Baseline.Labourer.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;

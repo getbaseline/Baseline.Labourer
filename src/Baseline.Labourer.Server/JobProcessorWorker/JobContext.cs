@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Server.Internal
+﻿namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// JobContext provides context and dependencies around a job that is running/is to be ran.

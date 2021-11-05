@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Baseline.Labourer.Server.Contracts;
 
 namespace Baseline.Labourer.Server
@@ -12,7 +13,34 @@ namespace Baseline.Labourer.Server
         /// <inheritdoc />
         public object ActivateJob(Type jobType, params object[] overrideParameters)
         {
-            return Activator.CreateInstance(jobType);
+            var parametersToUse = Array.Empty<object>();
+
+            // If there is only one constructor and that constructor is empty, we can just activate straight away
+            // without any dependencies.
+            if (jobType.GetConstructors().Length == 1 && jobType.GetConstructors().First().GetParameters().Length == 0)
+            {
+                return Activator.CreateInstance(jobType);
+            }
+
+            // Find the constructor that matches required override parameters.
+            foreach (var constructor in jobType.GetConstructors())
+            {
+                var constructorParameters = constructor.GetParameters();
+                var constructorParameterTypes = constructorParameters.Select(c => c.ParameterType).ToList();
+                
+                // If all constructor parameters are contained in our override parameters
+                if (constructorParameterTypes.All(cpt => overrideParameters.Any(cpt.IsInstanceOfType)))
+                {
+                    // Find the first provided override parameter that matches each constructor parameter.
+                    parametersToUse = constructorParameterTypes
+                        .Select(cpt => overrideParameters.First(cpt.IsInstanceOfType))
+                        .ToArray();
+                }
+            }
+
+            return parametersToUse.Any() 
+                ? Activator.CreateInstance(jobType, parametersToUse) 
+                : Activator.CreateInstance(jobType);
         }
     }
 }

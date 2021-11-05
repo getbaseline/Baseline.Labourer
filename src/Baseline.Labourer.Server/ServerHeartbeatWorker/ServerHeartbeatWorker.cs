@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Extensions;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Workers
+namespace Baseline.Labourer.Server.ServerHeartbeatWorker
 {
     public class ServerHeartbeatWorker : IWorker
     {

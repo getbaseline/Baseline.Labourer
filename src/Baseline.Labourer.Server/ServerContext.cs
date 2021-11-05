@@ -2,7 +2,7 @@
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server
 {
     /// <summary>
     /// ServerContext provides dependencies and information related to the entire server instance.

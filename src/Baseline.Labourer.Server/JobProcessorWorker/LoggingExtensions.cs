@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// Extension method class containing extensions related to logging for the server project.

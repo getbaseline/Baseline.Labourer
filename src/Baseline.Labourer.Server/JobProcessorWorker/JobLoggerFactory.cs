@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// JobLoggerFactory is an internal logger factory used to create <see cref="JobLogger"/> instances that optionally
@@ -12,15 +12,11 @@ namespace Baseline.Labourer.Server.Internal
         private readonly ILoggerFactory _wrappedLoggerFactory;
         private readonly IDispatchedJobStore _dispatchedJobStore;
         
-        public JobLoggerFactory(
-            string jobId,
-            ILoggerFactory wrappedLoggerFactory,
-            IDispatchedJobStore dispatchedJobStore
-        )
+        public JobLoggerFactory(JobContext jobContext)
         {
-            _jobId = jobId;
-            _wrappedLoggerFactory = wrappedLoggerFactory;
-            _dispatchedJobStore = dispatchedJobStore;
+            _jobId = jobContext.JobDefinition.Id;
+            _wrappedLoggerFactory = jobContext.WorkerContext.ServerContext.LoggerFactory;
+            _dispatchedJobStore = jobContext.WorkerContext.ServerContext.DispatchedJobStore;
         }
 
         /// <inheritdoc />
@@ -34,7 +30,7 @@ namespace Baseline.Labourer.Server.Internal
         {
             return new JobLogger(
                 _jobId,
-                _wrappedLoggerFactory?.CreateLogger(categoryName),
+                _wrappedLoggerFactory.CreateLogger(categoryName),
                 _dispatchedJobStore
             );
         }
@@ -42,7 +38,7 @@ namespace Baseline.Labourer.Server.Internal
         /// <inheritdoc />
         public void AddProvider(ILoggerProvider provider)
         {
-            _wrappedLoggerFactory?.AddProvider(provider);
+            _wrappedLoggerFactory.AddProvider(provider);
         }
     }
 }

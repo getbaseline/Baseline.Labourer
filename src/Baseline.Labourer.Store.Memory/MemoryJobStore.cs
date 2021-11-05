@@ -21,7 +21,7 @@ namespace Baseline.Labourer.Store.Memory
         protected readonly List<LogEntry> LogEntries = new List<LogEntry>();
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
-        public Task LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
+        public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
         {
             LogEntries.Add(new LogEntry
             {
@@ -30,7 +30,6 @@ namespace Baseline.Labourer.Store.Memory
                 Message = message,
                 Exception = exception
             });
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

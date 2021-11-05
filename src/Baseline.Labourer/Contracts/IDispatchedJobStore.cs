@@ -18,7 +18,7 @@ namespace Baseline.Labourer
         /// <param name="logLevel">The logging level, i.e. the severity of the log.</param>
         /// <param name="message">The message to log.</param>
         /// <param name="exception">An optional exception, if there was one present.</param>
-        Task LogEntryForJob(
+        void LogEntryForJob(
             string jobId, 
             LogLevel logLevel, 
             string message, 

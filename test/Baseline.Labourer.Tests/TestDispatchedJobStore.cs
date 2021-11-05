@@ -37,5 +37,10 @@ namespace Baseline.Labourer.Tests
 
             return jobDefinition;
         }
+
+        public void AssertMessageForJobLogged(string jobId, string message)
+        {
+            LogEntries.Should().Contain(l => l.JobId == jobId && l.Message == message);
+        }
     }
 }

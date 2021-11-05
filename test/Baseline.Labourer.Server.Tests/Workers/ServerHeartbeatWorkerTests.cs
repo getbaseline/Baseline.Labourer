@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Baseline.Labourer.Server.Workers;
 using Baseline.Labourer.Tests;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,7 +18,7 @@ namespace Baseline.Labourer.Server.Tests.Workers
             var context = await GenerateServerContextAsync();
 
             // Act.
-            Task.Run(async () => await new ServerHeartbeatWorker(context).RunAsync());
+            Task.Run(async () => await new ServerHeartbeatWorker.ServerHeartbeatWorker(context).RunAsync());
 
             // Assert.
             await AssertionUtils.RetryAsync(() => TestServerStore.AssertHeartbeatRegisteredForServer(ServerId));
