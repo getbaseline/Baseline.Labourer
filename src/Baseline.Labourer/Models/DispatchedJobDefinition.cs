@@ -14,6 +14,11 @@ namespace Baseline.Labourer
         public string Id { get; set; }
         
         /// <summary>
+        /// Gets or sets the amount of retries the job has had executed.
+        /// </summary>
+        public int Retries { get; set; }
+        
+        /// <summary>
         /// Gets or sets the status of the dispatched job.
         /// </summary>
         public JobStatus Status { get; set; }

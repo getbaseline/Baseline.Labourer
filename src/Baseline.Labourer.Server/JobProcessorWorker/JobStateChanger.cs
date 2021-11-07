@@ -27,13 +27,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async Task ChangeStateAsync(JobStatus status, CancellationToken cancellationToken)
         {
-            await _dispatchedJobStore.UpdateJobAsync(
+            await _dispatchedJobStore.UpdateJobStateAsync(
                 _jobId,
-                new DispatchedJobDefinition
-                {
-                    Status = status,
-                    FinishedAt = status == JobStatus.Complete || status == JobStatus.Failed ? (DateTime?) DateTime.UtcNow : null
-                },
+                status,
+                status == JobStatus.Complete || status == JobStatus.FailedExceededMaximumRetries ? (DateTime?)DateTime.UtcNow : null,
                 cancellationToken
             );
 

@@ -74,20 +74,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                     {
                         continue;
                     }
-                    
-                    var deserializedJobDefinition = await SerializationUtils.DeserializeFromStringAsync<DispatchedJobDefinition>(
-                        dequeuedMessage.SerializedDefinition
-                    );
-                    
-                    var jobContext = new JobContext
-                    {
-                        JobDefinition = deserializedJobDefinition,
-                        WorkerContext = workerContext,
-                        JobStateChanger = new JobStateChanger(deserializedJobDefinition.Id,
-                            workerContext.ServerContext.DispatchedJobStore)
-                    };
 
-                    await new JobProcessor(jobContext).ProcessJobAsync(CancellationToken.None);
+                    await new JobMessageHandler(workerContext).HandleMessageAsync(dequeuedMessage, CancellationToken.None);
                 }
             }
             catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))

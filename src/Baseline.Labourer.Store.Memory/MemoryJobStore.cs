@@ -51,26 +51,42 @@ namespace Baseline.Labourer.Store.Memory
             
             return definition;
         }
+        
+        /// <inheritdoc />
+        public async Task UpdateJobStateAsync(
+            string jobId, 
+            JobStatus jobStatus, 
+            DateTime? finishedDate, 
+            CancellationToken cancellationToken = default
+        )
+        {
+            await UpdateJobAsync(
+                jobId,
+                job =>
+                {
+                    job.Status = jobStatus;
+                    job.FinishedAt = finishedDate;
+                }, 
+                cancellationToken
+            );
+        }
 
         /// <inheritdoc />
-        public async Task UpdateJobAsync(
+        public async Task UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
+        {
+            await UpdateJobAsync(jobId, job => job.Retries = retries, cancellationToken);
+        }
+
+        private async Task UpdateJobAsync(
             string jobId, 
-            DispatchedJobDefinition jobDefinition, 
+            Action<DispatchedJobDefinition> updateAction, 
             CancellationToken cancellationToken
         )
         {
             try
             {
                 await _semaphore.WaitAsync(cancellationToken);
-
-                var relevantDispatchedJob = DispatchedJobs.FirstOrDefault(j => j.Id == jobId);
-                if (relevantDispatchedJob == null)
-                {
-                    return;
-                }
-
-                relevantDispatchedJob.Status = jobDefinition.Status;
-                relevantDispatchedJob.FinishedAt = jobDefinition.FinishedAt;
+                updateAction(DispatchedJobs.First(j => j.Id == jobId));
             }
             finally
             {

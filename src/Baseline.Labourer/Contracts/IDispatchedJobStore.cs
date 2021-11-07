@@ -36,15 +36,25 @@ namespace Baseline.Labourer
         );
 
         /// <summary>
-        /// Changes the state of the job within the job store.
+        /// Updates the state of a job.
         /// </summary>
-        /// <param name="dispatchedJobId">The id of the job that needs its state changing.</param>
-        /// <param name="definition">The new definition of the job.</param>
+        /// <param name="jobId">The id of the job to update the state of.</param>
+        /// <param name="jobStatus">The status to set against the job.</param>
+        /// <param name="finishedDate">The date the job finished (if the status is complete or failed).</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task UpdateJobAsync(
-            string dispatchedJobId, 
-            DispatchedJobDefinition definition,
-            CancellationToken cancellationToken
+        Task UpdateJobStateAsync(
+            string jobId, 
+            JobStatus jobStatus, 
+            DateTime? finishedDate, 
+            CancellationToken cancellationToken = default
         );
+
+        /// <summary>
+        /// Updates the persisted retries for a job.
+        /// </summary>
+        /// <param name="jobId">The job id to update the retries for.</param>
+        /// <param name="retries">The retries to save against the job.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken);
     }
 }

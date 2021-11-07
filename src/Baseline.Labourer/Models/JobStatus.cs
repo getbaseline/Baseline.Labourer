@@ -9,6 +9,7 @@
         Created,
         InProgress,
         Complete,
-        Failed
+        Failed,
+        FailedExceededMaximumRetries
     }
 }

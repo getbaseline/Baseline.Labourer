@@ -11,6 +11,11 @@ namespace Baseline.Labourer
     public class QueuedJob
     {
         /// <summary>
+        /// Gets or sets the id of the message.
+        /// </summary>
+        public string MessageId { get; set; }
+        
+        /// <summary>
         /// Gets or sets the serialized definition of the job.
         /// </summary>
         public string SerializedDefinition { get; set; }

@@ -23,6 +23,7 @@ namespace Baseline.Labourer.Queue.Memory
                 
                 Queue.Add(new QueuedJob
                 {
+                    MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(messageToQueue)
                 });
             }
@@ -67,6 +68,21 @@ namespace Baseline.Labourer.Queue.Memory
             }
 
             return null;
+        }
+
+        /// <inheritdoc />
+        public async Task DeleteMessageAsync(string messageId)
+        {
+            try
+            {
+                await _semaphore.WaitAsync();
+
+                Queue.RemoveAll(q => q.MessageId == messageId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
     }
 }
