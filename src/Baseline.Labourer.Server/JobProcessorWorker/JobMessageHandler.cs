@@ -27,22 +27,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken"></param>
         public async Task HandleMessageAsync(QueuedJob job, CancellationToken cancellationToken)
         {
-            var deserializedJobDefinition = await SerializationUtils.DeserializeFromStringAsync<DispatchedJobDefinition>(
-                job.SerializedDefinition,
-                cancellationToken
-            );
-                    
+            _logger.LogDebug(_workerContext, $"Handling job message with id of {job.MessageId}.");
+            
             var jobContext = new JobContext
             {
-                JobDefinition = deserializedJobDefinition,
-                WorkerContext = _workerContext,
-                JobStateChanger = new JobStateChanger(
-                    deserializedJobDefinition.Id,
-                    _workerContext.ServerContext.DispatchedJobStore
-                )
+                OriginalMessageId = job.MessageId,
+                JobDefinition = await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken),
+                WorkerContext = _workerContext
             };
 
-            await new JobExecutor(jobContext).ExecuteJobAsync();
+            await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Baseline.Labourer.Store.Memory
             return serverInstance;
         }
 
-        public async Task CreateServerHeartbeat(string serverId, CancellationToken cancellationToken)
+        public async Task CreateServerHeartbeatAsync(string serverId, CancellationToken cancellationToken)
         {
             try
             {

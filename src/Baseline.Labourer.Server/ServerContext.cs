@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -59,6 +60,18 @@ namespace Baseline.Labourer.Server
         public bool IsServerOwnedCancellationToken(CancellationToken cancellationToken)
         {
             return ShutdownTokenSource.Token == cancellationToken;
+        }
+
+        /// <summary>
+        /// Creates and stores a heartbeat indicating that this server is still alive.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async Task BeatAsync(CancellationToken cancellationToken)
+        {
+            await ServerStore.CreateServerHeartbeatAsync(
+                ServerInstance.Id,
+                CancellationToken.None
+            );
         }
     }
 }

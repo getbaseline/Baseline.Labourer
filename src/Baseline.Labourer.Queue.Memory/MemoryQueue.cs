@@ -13,18 +13,19 @@ namespace Baseline.Labourer.Queue.Memory
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
 
         /// <inheritdoc />
-        public async Task EnqueueAsync<T>(
-            T messageToQueue
-        )
+        public async Task EnqueueAsync<T>(T messageToQueue, CancellationToken cancellationToken)
         {
             try
             {
-                await _semaphore.WaitAsync();
+                await _semaphore.WaitAsync(cancellationToken);
                 
                 Queue.Add(new QueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
-                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(messageToQueue)
+                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
+                        messageToQueue, 
+                        cancellationToken
+                    )
                 });
             }
             finally
@@ -52,7 +53,8 @@ namespace Baseline.Labourer.Queue.Memory
                         await Task.Delay(1000, cancellationToken);
                         continue;
                     }
-
+                    
+                    // TODO: Mark message as invisible and timeout.
                     var firstMessage = Queue.First();
                     Queue = Queue.Skip(1).ToList();
 
@@ -71,12 +73,11 @@ namespace Baseline.Labourer.Queue.Memory
         }
 
         /// <inheritdoc />
-        public async Task DeleteMessageAsync(string messageId)
+        public async Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
         {
             try
             {
-                await _semaphore.WaitAsync();
-
+                await _semaphore.WaitAsync(cancellationToken);
                 Queue.RemoveAll(q => q.MessageId == messageId);
             }
             finally

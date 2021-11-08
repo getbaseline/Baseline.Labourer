@@ -30,7 +30,6 @@ namespace Baseline.Labourer.Server.Tests
             TestLoggerFactory = LoggerFactory.Create(logger =>
             {
                 logger
-                    .AddConsole()
                     .AddXUnit(testOutputHelper)
                     .SetMinimumLevel(LogLevel.Debug);
             });

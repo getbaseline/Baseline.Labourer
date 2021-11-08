@@ -69,11 +69,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             );
         }
 
-        public class LoggerTestJobParams
-        {
-        }
-
-        public class LoggerTestJob : IJob<LoggerTestJobParams>
+        public class LoggerTestJob : IJob
         {
             private readonly ILogger<LoggerTestJob> _logger;
 
@@ -82,7 +78,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 _logger = logger;
             }
             
-            public async Task HandleAsync(LoggerTestJobParams parameters, CancellationToken cancellationToken)
+            public async Task HandleAsync(CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Message one.");
 
@@ -100,7 +96,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             serverContext.LoggerFactory = new TestLoggerFactory();
             
             // Act.
-            var jobId = await Client.DispatchJobAsync<LoggerTestJobParams, LoggerTestJob>(new LoggerTestJobParams());
+            var jobId = await Client.DispatchJobAsync<LoggerTestJob>();
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>

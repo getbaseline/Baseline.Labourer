@@ -175,7 +175,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         {
             logger.Log(
                 logLevel, 
-                $"s:{jobContext.WorkerContext.ServerContext.ServerInstance.Id} w:{jobContext.WorkerContext.Worker.Id} j:{jobContext.JobDefinition.Id} - {message}",
+                $"s:{jobContext.WorkerContext.ServerContext.ServerInstance.Id} w:{jobContext.WorkerContext.Worker.Id} j:{jobContext.JobDefinition.Id} - {message}{(exception != null ? $" - {exception.Message}" : "")}",
                 exception
             );
         }

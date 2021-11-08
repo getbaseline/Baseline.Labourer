@@ -19,12 +19,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             );
         }
 
-        public class SimpleQueuedJobParams {}
-        public class SimpleQueuedJob : IJob<SimpleQueuedJobParams>
+        public class SimpleQueuedJob : IJob
         {
             internal static bool Handled = false;
             
-            public Task HandleAsync(SimpleQueuedJobParams parameters, CancellationToken cancellationToken)
+            public Task HandleAsync(CancellationToken cancellationToken)
             {
                 Handled = true;
                 return Task.CompletedTask;
@@ -35,9 +34,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Processes_A_Simple_Queued_Job()
         {
             // Act.
-            await Client.DispatchJobAsync<SimpleQueuedJobParams, SimpleQueuedJob>(
-                new SimpleQueuedJobParams()
-            );
+            await Client.DispatchJobAsync<SimpleQueuedJob>();
             
             // Assert.
             await AssertionUtils.RetryAsync(() => SimpleQueuedJob.Handled.Should().BeTrue());
@@ -74,13 +71,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             TestServerStore.AssertHasRegisteredWorkersForServer(serverId);
         }
         
-        public class LateJobParams {}
-
-        public class LateJob : IJob<LateJobParams>
+        public class LateJob : IJob
         {
             public static bool Handled = false;
             
-            public Task HandleAsync(LateJobParams parameters, CancellationToken cancellationToken)
+            public Task HandleAsync(CancellationToken cancellationToken)
             {
                 Handled = true;
                 return Task.CompletedTask;
@@ -94,19 +89,16 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await Task.Delay(3500);
             
             // Act.
-            await Client.DispatchJobAsync<LateJobParams, LateJob>(
-                new LateJobParams()
-            );
+            await Client.DispatchJobAsync<LateJob>();
             
             // Assert.
             await AssertionUtils.RetryAsync(() => LateJob.Handled.Should().BeTrue());
         }
         
-        public class MarkedAsInProgressJobParams {}
 
-        public class MarkedAsInProgressJob : IJob<MarkedAsInProgressJobParams>
+        public class MarkedAsInProgressJob : IJob
         {
-            public async Task HandleAsync(MarkedAsInProgressJobParams parameters, CancellationToken cancellationToken)
+            public async Task HandleAsync(CancellationToken cancellationToken)
             {
                 await Task.Delay(2500, cancellationToken);
             }
@@ -116,9 +108,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Marks_A_Job_As_In_Progress_And_Then_Complete()
         {
             // Act.
-            var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJobParams, MarkedAsInProgressJob>(
-                new MarkedAsInProgressJobParams()
-            );
+            var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJob>();
             
             // Assert.
             await AssertionUtils.RetryAsync(() => TestJobStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));

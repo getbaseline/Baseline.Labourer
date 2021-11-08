@@ -27,7 +27,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <summary>
         /// Boots and runs the job processing worker instances as a long running task.
         /// </summary>
-        public async Task RunAsync()
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async Task RunAsync(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation(_serverContext, "Starting job processing tasks and booting the guinea pig treadmills.");
             

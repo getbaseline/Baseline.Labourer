@@ -21,7 +21,7 @@ namespace Baseline.Labourer
         /// </summary>
         /// <param name="serverId">The server to create a heartbeat for.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task CreateServerHeartbeat(string serverId, CancellationToken cancellationToken);
+        Task CreateServerHeartbeatAsync(string serverId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates and persists a worker registration.

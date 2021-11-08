@@ -12,7 +12,8 @@ namespace Baseline.Labourer
         /// Enqueues a message to the queue.
         /// </summary>
         /// <param name="messageToQueue">A message that should be serialized and queued.</param>
-        Task EnqueueAsync<T>(T messageToQueue);
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task EnqueueAsync<T>(T messageToQueue, CancellationToken cancellationToken);
 
         /// <summary>
         /// Dequeues and returns a single message from the queue. This method long polls (i.e. waits a specified amount
@@ -26,6 +27,7 @@ namespace Baseline.Labourer
         /// Deletes a message from the queue provider.
         /// </summary>
         /// <param name="messageId">The message to remove from the queue.</param>
-        Task DeleteMessageAsync(string messageId);
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken);
     }
 }

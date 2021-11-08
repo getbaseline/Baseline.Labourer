@@ -53,9 +53,9 @@ namespace Baseline.Labourer
         /// Deserializes the definition of the queued job into an object and then returns it.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task<T> DeserializeAsync<T>()
+        public async Task<T> DeserializeAsync<T>(CancellationToken cancellationToken)
         {
-            return await SerializationUtils.DeserializeFromStringAsync<T>(SerializedDefinition, CancellationToken.None);
+            return await SerializationUtils.DeserializeFromStringAsync<T>(SerializedDefinition, cancellationToken);
         }
     }
 }

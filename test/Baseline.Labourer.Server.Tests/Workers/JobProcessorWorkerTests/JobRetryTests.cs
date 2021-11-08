@@ -15,11 +15,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             );
         }
         
-        public class CatastrophicErrorJobParameters {}
 
-        public class CatastrophicErrorJob : IJob<CatastrophicErrorJobParameters>
+        public class CatastrophicErrorJob : IJob
         {
-            public async Task HandleAsync(CatastrophicErrorJobParameters parameters, CancellationToken cancellationToken)
+            public async Task HandleAsync(CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
@@ -29,9 +28,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Retries_A_Job_A_Maximum_Of_Three_Times_Before_Marking_The_Job_As_A_Catastrophic_Failure()
         {
             // Act.
-            var jobId = await Client.DispatchJobAsync<CatastrophicErrorJobParameters, CatastrophicErrorJob>(
-                new CatastrophicErrorJobParameters()
-            );
+            var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>
@@ -41,14 +38,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             });
         }
 
-        public class FailedJobThatCompletesParameters
-        {
-        }
-
-        public class FailedJobThatCompletes : IJob<FailedJobThatCompletesParameters>
+        public class FailedJobThatCompletes : IJob
         {
             private static int _executions = 0;
-            public Task HandleAsync(FailedJobThatCompletesParameters parameters, CancellationToken cancellationToken)
+            public Task HandleAsync(CancellationToken cancellationToken)
             {
                 _executions++;
 
@@ -65,9 +58,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Completes_A_Job_Even_If_It_Fails_A_Couple_Of_Times()
         {
             // Act.
-            var jobId = await Client.DispatchJobAsync<FailedJobThatCompletesParameters, FailedJobThatCompletes>(
-                new FailedJobThatCompletesParameters()
-            );
+            var jobId = await Client.DispatchJobAsync<FailedJobThatCompletes>();
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>

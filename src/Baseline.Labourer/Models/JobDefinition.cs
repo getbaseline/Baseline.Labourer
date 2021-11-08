@@ -12,6 +12,11 @@ namespace Baseline.Labourer
         /// Gets or sets the fully qualified type of the job itself.
         /// </summary>
         public string Type { get; set; }
+        
+        /// <summary>
+        /// Gets whether the job has parameters or not.
+        /// </summary>
+        public bool HasParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the fully qualified type of the job's parameters.
