@@ -6,7 +6,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests;
 
 public class ServerAndWorkerRegistrationTests : ServerTest, IDisposable
 {
-    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    private CancellationTokenSource _cancellationTokenSource = new();
 
     public ServerAndWorkerRegistrationTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
@@ -19,6 +19,6 @@ public class ServerAndWorkerRegistrationTests : ServerTest, IDisposable
         Task.Run(async () => await new JobProcessorWorker.JobProcessorWorker(await GenerateServerContextAsync(10)).RunAsync());
 
         // Assert.
-        await AssertionUtils.RetryAsync(() => TestServerStore.AssertHasRegisteredWorkersForServer(ServerId, 10), 50);
+        await AssertionUtils.RetryAsync(() => TestStore.AssertHasRegisteredWorkersForServer(ServerId, 10), 50);
     }
 }

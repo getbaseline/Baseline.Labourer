@@ -30,23 +30,29 @@ public class JobProcessorWorker : IWorker
 
         var processingTasks = Enumerable
             .Range(1, _serverContext.WorkersToRun)
-            .Select(async _ => await RunSingleWorkerAsync());
+            .Select(async _ => await RunSingleWorkerAsync(cancellationToken));
 
         await Task.WhenAll(processingTasks);
 
         _logger.LogInformation(_serverContext, "Finished job processing tasks.");
     }
 
-    private async Task RunSingleWorkerAsync()
+    private async Task RunSingleWorkerAsync(CancellationToken cancellationToken)
     {
-        var worker = await _serverContext.ServerStore.CreateWorkerAsync(
-            new Worker
-            {
-                Id = StringGenerationUtils.GenerateUniqueRandomString(),
-                ServerInstanceId = _serverContext.ServerInstance.Id
-            },
-            CancellationToken.None
-        );
+        var worker = new Worker
+        {
+            Id = StringGenerationUtils.GenerateUniqueRandomString(),
+            ServerInstanceId = _serverContext.ServerInstance.Id
+        };
+
+        await using (var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction())
+        {
+            await writer.CreateWorkerAsync(
+                worker,
+                cancellationToken
+            );
+            await writer.CommitAsync(cancellationToken);
+        }
 
         var workerContext = new WorkerContext { ServerContext = _serverContext, Worker = worker };
 

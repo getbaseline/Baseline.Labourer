@@ -20,9 +20,9 @@ public class BasicDispatchJobTests : ClientTest
         await Client.DispatchJobAsync<BasicJob>();
 
         // Assert.
-        var jobDefinition = DispatchedJobStore.AssertJobWithTypesStored(typeof(BasicJob));
+        var jobDefinition = TestStore.AssertJobWithTypesStored(typeof(BasicJob));
 
-        Queue.AssertMessageDispatched(
+        TestQueue.AssertMessageDispatched(
             new QueuedJob
             {
                 SerializedDefinition = await SerializationUtils.SerializeToStringAsync(

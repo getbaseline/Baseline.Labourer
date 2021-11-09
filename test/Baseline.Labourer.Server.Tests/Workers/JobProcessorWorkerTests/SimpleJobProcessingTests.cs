@@ -62,8 +62,8 @@ public class SimpleJobProcessingTests : ServerTest
         // Assert.
         await AssertionUtils.RetryAsync(() => SimpleQueuedJobWithParams.Count.Should().Be(100));
 
-        var serverId = TestServerStore.AssertHasRegisteredAServer();
-        TestServerStore.AssertHasRegisteredWorkersForServer(serverId);
+        var serverId = TestStore.AssertHasRegisteredAServer();
+        TestStore.AssertHasRegisteredWorkersForServer(serverId);
     }
 
     public class LateJob : IJob
@@ -105,11 +105,11 @@ public class SimpleJobProcessingTests : ServerTest
         var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJob>();
 
         // Assert.
-        await AssertionUtils.RetryAsync(() => TestJobStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
+        await AssertionUtils.RetryAsync(() => TestStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
         await AssertionUtils.RetryAsync(() =>
         {
-            TestJobStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-            TestJobStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+            TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+            TestStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
         });
     }
 
@@ -135,8 +135,8 @@ public class SimpleJobProcessingTests : ServerTest
         {
             foreach (var jobId in jobIds)
             {
-                TestJobStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                TestJobStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
             }
         });
     }

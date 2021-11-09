@@ -1,4 +1,5 @@
-﻿using Baseline.Labourer.Internal.Utils;
+﻿using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer;
 
@@ -8,17 +9,17 @@ namespace Baseline.Labourer;
 public class LabourerClient : ILabourerClient
 {
     private readonly BaselineLabourerConfiguration _configuration;
-    private readonly IDispatchedJobStore _dispatchedJobStore;
+    private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
     private readonly IQueue _queue;
 
     public LabourerClient(
         BaselineLabourerConfiguration configuration,
-        IDispatchedJobStore dispatchedJobStore,
+        IStoreWriterTransactionManager storeWriterTransactionManager,
         IQueue queue
     )
     {
         _configuration = configuration;
-        _dispatchedJobStore = dispatchedJobStore;
+        _storeWriterTransactionManager = storeWriterTransactionManager;
         _queue = queue;
     }
 
@@ -60,13 +61,22 @@ public class LabourerClient : ILabourerClient
         CancellationToken cancellationToken
     )
     {
-        var createdJob = await _dispatchedJobStore.SaveDispatchedJobDefinitionAsync(
-            jobDefinition,
-            cancellationToken
-        );
+        string createdJobId;
+
+        await using (var storeWriter = _storeWriterTransactionManager.BeginTransaction())
+        {
+            var createdJob = await storeWriter.SaveDispatchedJobDefinitionAsync(
+                jobDefinition,
+                cancellationToken
+            );
+
+            createdJobId = createdJob.Id;
+
+            await storeWriter.CommitAsync(cancellationToken);
+        }
 
         await _queue.EnqueueAsync(jobDefinition, cancellationToken);
 
-        return createdJob.Id;
+        return createdJobId;
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Baseline.Labourer.Contracts;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker;
 
@@ -10,13 +11,13 @@ public class JobLoggerFactory : ILoggerFactory
 {
     private readonly string _jobId;
     private readonly ILoggerFactory _wrappedLoggerFactory;
-    private readonly IDispatchedJobStore _dispatchedJobStore;
+    private readonly IJobLogStore _jobLogStore;
 
     public JobLoggerFactory(JobContext jobContext)
     {
         _jobId = jobContext.JobDefinition.Id;
         _wrappedLoggerFactory = jobContext.WorkerContext.ServerContext.LoggerFactory;
-        _dispatchedJobStore = jobContext.WorkerContext.ServerContext.DispatchedJobStore;
+        _jobLogStore = jobContext.WorkerContext.ServerContext.JobLogStore;
     }
 
     /// <inheritdoc />
@@ -31,7 +32,7 @@ public class JobLoggerFactory : ILoggerFactory
         return new JobLogger(
             _jobId,
             _wrappedLoggerFactory.CreateLogger(categoryName),
-            _dispatchedJobStore
+            _jobLogStore
         );
     }
 

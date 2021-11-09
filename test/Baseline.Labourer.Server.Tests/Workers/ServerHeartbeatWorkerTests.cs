@@ -20,6 +20,6 @@ public class ServerHeartbeatWorkerTests : ServerTest
         Task.Run(async () => await new ServerHeartbeatWorker.ServerHeartbeatWorker(context).RunAsync());
 
         // Assert.
-        await AssertionUtils.RetryAsync(() => TestServerStore.AssertHeartbeatRegisteredForServer(ServerId));
+        await AssertionUtils.RetryAsync(() => TestStore.AssertHeartbeatRegisteredForServer(ServerId));
     }
 }

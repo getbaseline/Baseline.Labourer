@@ -1,4 +1,5 @@
-﻿using Baseline.Labourer.Server.Contracts;
+﻿using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server;
@@ -14,9 +15,9 @@ public class ServerContext
     public IJobActivator Activator { get; set; }
 
     /// <summary>
-    /// Gets or sets the dispatched job store to be utilised within the server.
+    /// Gets or sets the job log store to be utilised within the server.
     /// </summary>
-    public IDispatchedJobStore DispatchedJobStore { get; set; }
+    public IJobLogStore JobLogStore { get; set; }
 
     /// <summary>
     /// Gets or sets an optional logger factory instance to use to log messages to destinations configured by the
@@ -30,14 +31,19 @@ public class ServerContext
     public IQueue Queue { get; set; }
 
     /// <summary>
+    /// Gets or sets the reader to use to read the store.
+    /// </summary>
+    public IStoreReader StoreReader { get; set; }
+
+    /// <summary>
     /// Gets or sets the server instance this context relates to.
     /// </summary>
     public ServerInstance ServerInstance { get; set; }
 
     /// <summary>
-    /// Gets or sets the server store to be utilised within the server.
+    /// Gets or sets the writer transaction manager to use to transactionally write modifications to the relevant server store.
     /// </summary>
-    public IServerStore ServerStore { get; set; }
+    public IStoreWriterTransactionManager StoreWriterTransactionManager { get; set; }
 
     /// <summary>
     /// Gets or sets a <see cref="CancellationTokenSource"/> used to perform a graceful shutdown of all processing
@@ -63,12 +69,13 @@ public class ServerContext
     /// <summary>
     /// Creates and stores a heartbeat indicating that this server is still alive.
     /// </summary>
+    /// <param name="writer">A transactionized writer to use.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task BeatAsync(CancellationToken cancellationToken)
+    public async Task BeatAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
     {
-        await ServerStore.CreateServerHeartbeatAsync(
+        await writer.CreateServerHeartbeatAsync(
             ServerInstance.Id,
-            CancellationToken.None
+            cancellationToken
         );
     }
 }

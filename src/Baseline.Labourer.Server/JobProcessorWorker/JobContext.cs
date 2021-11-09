@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Baseline.Labourer.Contracts;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker;
 
@@ -25,14 +26,16 @@ public class JobContext
     /// <summary>
     /// Updates the job's state.
     /// </summary>
+    /// <param name="writer">A transactionized store writer to use.</param>
     /// <param name="status">The new status of the job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public async Task UpdateJobStateAsync(
+        ITransactionalStoreWriter writer,
         JobStatus status,
         CancellationToken cancellationToken
     )
     {
-        WorkerContext.ServerContext.DispatchedJobStore.LogEntryForJob(
+        WorkerContext.ServerContext.JobLogStore.LogEntryForJob(
             JobDefinition.Id,
             LogLevel.Information,
             $"Job status changed from {JobDefinition.Status} to {status}.",
@@ -41,7 +44,7 @@ public class JobContext
 
         JobDefinition.Status = status;
 
-        await WorkerContext.ServerContext.DispatchedJobStore.UpdateJobStateAsync(
+        await writer.UpdateJobStateAsync(
             JobDefinition.Id,
             status,
             status == JobStatus.Complete || status == JobStatus.FailedExceededMaximumRetries ? (DateTime?)DateTime.UtcNow : null,
@@ -52,12 +55,13 @@ public class JobContext
     /// <summary>
     /// Increments the number of retries the job has had.
     /// </summary>
+    /// <param name="writer">A transactionized store writer to use.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task IncrementJobRetriesAsync(CancellationToken cancellationToken)
+    public async Task IncrementJobRetriesAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
     {
         JobDefinition.Retries += 1;
 
-        await WorkerContext.ServerContext.DispatchedJobStore.UpdateJobRetriesAsync(
+        await writer.UpdateJobRetriesAsync(
             JobDefinition.Id,
             JobDefinition.Retries,
             cancellationToken

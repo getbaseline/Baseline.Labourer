@@ -97,10 +97,10 @@ public class JobLoggingTests : ServerTest
         await AssertionUtils.RetryAsync(() =>
         {
             TestLogger.HasLoggedMessage("Message one.");
-            TestJobStore.AssertMessageForJobLogged(jobId, "Message one.");
+            TestStore.AssertMessageForJobLogged(jobId, "Message one.");
 
             TestLogger.HasLoggedMessage("Message two.");
-            TestJobStore.AssertMessageForJobLogged(jobId, "Message two.");
+            TestStore.AssertMessageForJobLogged(jobId, "Message two.");
         });
     }
 }

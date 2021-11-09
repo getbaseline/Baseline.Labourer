@@ -31,8 +31,8 @@ public class JobRetryTests : ServerTest
         // Assert.
         await AssertionUtils.RetryAsync(() =>
         {
-            TestJobStore.AssertJobHasRetryCount(jobId, 3);
-            TestJobStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+            TestStore.AssertJobHasRetryCount(jobId, 3);
+            TestStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
         });
     }
 
@@ -61,8 +61,8 @@ public class JobRetryTests : ServerTest
         // Assert.
         await AssertionUtils.RetryAsync(() =>
         {
-            TestJobStore.AssertJobHasRetryCount(jobId, 2);
-            TestJobStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+            TestStore.AssertJobHasRetryCount(jobId, 2);
+            TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
         });
     }
 }

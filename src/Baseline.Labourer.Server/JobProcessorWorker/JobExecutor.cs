@@ -29,11 +29,19 @@ public class JobExecutor
 
         try
         {
-            await _jobContext.UpdateJobStateAsync(JobStatus.InProgress, cancellationToken);
+            await using (var writer = _jobContext.WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction())
+            {
+                await _jobContext.UpdateJobStateAsync(writer, JobStatus.InProgress, cancellationToken);
+                await writer.CommitAsync(cancellationToken);
+            }
 
             await ActivateAndExecuteJobAsync(cancellationToken);
 
-            await _jobContext.UpdateJobStateAsync(JobStatus.Complete, cancellationToken);
+            await using (var writer = _jobContext.WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction())
+            {
+                await _jobContext.UpdateJobStateAsync(writer, JobStatus.Complete, cancellationToken);
+                await writer.CommitAsync(cancellationToken);
+            }
 
             _logger.LogInformation(_jobContext, "Job processing complete.");
         }
@@ -115,9 +123,13 @@ public class JobExecutor
             $"Retrying job. Attempt {_jobContext.JobDefinition.Retries + 1} of 3."
         );
 
-        await _jobContext.UpdateJobStateAsync(JobStatus.Failed, cancellationToken);
-        await _jobContext.IncrementJobRetriesAsync(cancellationToken);
+        await using var writer = _jobContext.WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction();
+
+        await _jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
+        await _jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
         await _jobContext.RequeueJobAsync(cancellationToken);
+
+        await writer.CommitAsync(cancellationToken);
     }
 
     private async Task FailJobDueToRetriesBeingExceededAsync(CancellationToken cancellationToken)
@@ -127,6 +139,10 @@ public class JobExecutor
             "Job has exceeded its maximum amount of retries. Marking job as failed."
         );
 
-        await _jobContext.UpdateJobStateAsync(JobStatus.FailedExceededMaximumRetries, cancellationToken);
+        await using var writer = _jobContext.WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction();
+
+        await _jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries, cancellationToken);
+
+        await writer.CommitAsync(cancellationToken);
     }
 }

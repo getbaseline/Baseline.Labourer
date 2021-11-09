@@ -36,7 +36,12 @@ public class ServerHeartbeatWorker : IWorker
                     return;
                 }
 
-                await _serverContext.BeatAsync(cancellationToken);
+                await using (var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction())
+                { 
+                    await _serverContext.BeatAsync(writer, cancellationToken);
+                    await writer.CommitAsync(cancellationToken);
+                }
+
                 await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(TimeSpan.FromSeconds(30));
             }
         }
