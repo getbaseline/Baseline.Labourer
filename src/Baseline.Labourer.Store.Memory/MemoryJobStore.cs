@@ -1,97 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer.Store.Memory;
+
+/// <summary>
+/// <see cref="MemoryJobStore"/> is a job store that persists its stored entities in memory. Created entities and any changes are lost
+/// once the memory is cleared.
+/// </summary>
+public class MemoryJobStore : IDispatchedJobStore
 {
-    public class MemoryJobStore : IDispatchedJobStore
+    protected readonly List<DispatchedJobDefinition> DispatchedJobs = new List<DispatchedJobDefinition>();
+    protected readonly List<MemoryLogEntry> LogEntries = new List<MemoryLogEntry>();
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+
+    /// <inheritdoc />
+    public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
     {
-        protected class LogEntry
+        LogEntries.Add(new MemoryLogEntry
         {
-            public string JobId { get; set; }
-            public LogLevel LogLevel { get; set; }
-            public string Message { get; set; }
-            public Exception? Exception { get; set; }
-        }
-        
-        protected readonly List<DispatchedJobDefinition> DispatchedJobs = new List<DispatchedJobDefinition>();
-        protected readonly List<LogEntry> LogEntries = new List<LogEntry>();
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+            JobId = jobId,
+            LogLevel = logLevel,
+            Message = message,
+            Exception = exception
+        });
+    }
 
-        public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
+    /// <inheritdoc />
+    public async Task<DispatchedJobDefinition> SaveDispatchedJobDefinitionAsync(
+        DispatchedJobDefinition definition,
+        CancellationToken cancellationToken
+    )
+    {
+        try
         {
-            LogEntries.Add(new LogEntry
-            {
-                JobId = jobId,
-                LogLevel = logLevel,
-                Message = message,
-                Exception = exception
-            });
-        }
+            await _semaphore.WaitAsync(cancellationToken);
 
-        /// <inheritdoc />
-        public async Task<DispatchedJobDefinition> SaveDispatchedJobDefinitionAsync(
-            DispatchedJobDefinition definition, 
-            CancellationToken cancellationToken
-        )
-        {
-            try
-            {
-                await _semaphore.WaitAsync(cancellationToken);
-
-                DispatchedJobs.Add(definition);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-            
-            return definition;
+            DispatchedJobs.Add(definition);
         }
-        
-        /// <inheritdoc />
-        public async Task UpdateJobStateAsync(
-            string jobId, 
-            JobStatus jobStatus, 
-            DateTime? finishedDate, 
-            CancellationToken cancellationToken = default
-        )
+        finally
         {
-            await UpdateJobAsync(
-                jobId,
-                job =>
-                {
-                    job.Status = jobStatus;
-                    job.FinishedAt = finishedDate;
-                }, 
-                cancellationToken
-            );
+            _semaphore.Release();
         }
 
-        /// <inheritdoc />
-        public async Task UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
-        {
-            await UpdateJobAsync(jobId, job => job.Retries = retries, cancellationToken);
-        }
+        return definition;
+    }
 
-        private async Task UpdateJobAsync(
-            string jobId, 
-            Action<DispatchedJobDefinition> updateAction, 
-            CancellationToken cancellationToken
-        )
+    /// <inheritdoc />
+    public async Task UpdateJobStateAsync(
+        string jobId,
+        JobStatus jobStatus,
+        DateTime? finishedDate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await UpdateJobAsync(
+            jobId,
+            job =>
+            {
+                job.Status = jobStatus;
+                job.FinishedAt = finishedDate;
+            },
+            cancellationToken
+        );
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
+    {
+        await UpdateJobAsync(jobId, job => job.Retries = retries, cancellationToken);
+    }
+
+    private async Task UpdateJobAsync(
+        string jobId,
+        Action<DispatchedJobDefinition> updateAction,
+        CancellationToken cancellationToken
+    )
+    {
+        try
         {
-            try
-            {
-                await _semaphore.WaitAsync(cancellationToken);
-                updateAction(DispatchedJobs.First(j => j.Id == jobId));
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            await _semaphore.WaitAsync(cancellationToken);
+            updateAction(DispatchedJobs.First(j => j.Id == jobId));
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 }

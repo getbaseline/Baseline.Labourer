@@ -1,49 +1,35 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Utils;
+﻿using Baseline.Labourer.Internal.Utils;
 using Xunit;
 
-namespace Baseline.Labourer.Tests.DispatchJob
+namespace Baseline.Labourer.Tests.DispatchJob;
+
+public class BasicDispatchJobTests : ClientTest
 {
-    public class BasicDispatchJobTests : ClientTest
+    public class BasicJob : IJob
     {
-        public class BasicJobParameters
+        public Task HandleAsync(CancellationToken cancellationToken)
         {
-            
+            throw new System.NotImplementedException();
         }
-        
-        public class BasicJob : IJob<BasicJobParameters>
-        {
-            public Task HandleAsync(BasicJobParameters parameters, CancellationToken cancellationToken)
+    }
+
+    [Fact]
+    public async Task When_Dispatching_A_Job_It_Records_Its_Initial_State_And_Sends_It_To_A_Queue()
+    {
+        // Act.
+        await Client.DispatchJobAsync<BasicJob>();
+
+        // Assert.
+        var jobDefinition = DispatchedJobStore.AssertJobWithTypesStored(typeof(BasicJob));
+
+        Queue.AssertMessageDispatched(
+            new QueuedJob
             {
-                throw new System.NotImplementedException();
+                SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
+                    jobDefinition,
+                    CancellationToken.None
+                )
             }
-        }
-
-        [Fact]
-        public async Task When_Dispatching_A_Job_It_Records_Its_Initial_State_And_Sends_It_To_A_Queue()
-        {
-            // Act.
-            await Client.DispatchJobAsync<BasicJobParameters, BasicJob>(
-                new BasicJobParameters(),
-                CancellationToken.None
-            );
-            
-            // Assert.
-            var jobDefinition = DispatchedJobStore.AssertJobWithTypesStored(
-                typeof(BasicJob), 
-                typeof(BasicJobParameters)
-            );
-
-            Queue.AssertMessageDispatched(
-                new QueuedJob
-                {
-                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                        jobDefinition, 
-                        CancellationToken.None
-                    )
-                }
-            );
-        }
+        );
     }
 }

@@ -1,6 +1,5 @@
-﻿namespace Baseline.Labourer.DependencyInjection
+﻿namespace Baseline.Labourer.DependencyInjection;
+
+public class Class1
 {
-    public class Class1
-    {
-    }
 }

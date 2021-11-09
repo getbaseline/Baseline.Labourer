@@ -1,26 +1,25 @@
-﻿namespace Baseline.Labourer
+﻿namespace Baseline.Labourer;
+
+/// <summary>
+/// Server represents a single running instance of the Baseline.Labourer.Server project. 
+/// </summary>
+public class ServerInstance
 {
     /// <summary>
-    /// Server represents a single running instance of the Baseline.Labourer.Server project. 
+    /// Gets the unique id of the server.
     /// </summary>
-    public class ServerInstance
-    {
-        /// <summary>
-        /// Gets the unique id of the server.
-        /// </summary>
-        public string Id => $"{Hostname}-{Key}";
-        
-        /// <summary>
-        /// Gets or sets the hostname of the server that the server instance is running on.
-        /// </summary>
-        public string Hostname { get; set; }
-        
-        /// <summary>
-        /// Gets or sets the uniquely identifitable key of the server.
-        /// </summary>
-        public string Key { get; set; }
+    public string Id => $"{Hostname}-{Key}";
 
-        /// <inheritdoc />
-        public override string ToString() => $"server:{Id}";
-    }
+    /// <summary>
+    /// Gets or sets the hostname of the server that the server instance is running on.
+    /// </summary>
+    public string Hostname { get; set; }
+
+    /// <summary>
+    /// Gets or sets the uniquely identifitable key of the server.
+    /// </summary>
+    public string Key { get; set; }
+
+    /// <inheritdoc />
+    public override string ToString() => $"server:{Id}";
 }

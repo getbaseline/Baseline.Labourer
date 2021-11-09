@@ -1,136 +1,132 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Utils;
+﻿using Baseline.Labourer.Internal.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.JobProcessorWorker;
+
+/// <summary>
+/// <see cref="JobExecutor"/> is where the magic happens for job processing.
+/// </summary>
+public class JobExecutor
 {
-    /// <summary>
-    /// <see cref="JobExecutor"/> is where the magic happens for job processing.
-    /// </summary>
-    public class JobExecutor
+    private readonly JobContext _jobContext;
+    private readonly ILogger<JobExecutor> _logger;
+    private readonly ILogger<JobExecutor> _jobStoredLogger;
+
+    public JobExecutor(JobContext jobContext)
     {
-        private readonly JobContext _jobContext;
-        private readonly ILogger<JobExecutor> _logger;
-        private readonly ILogger<JobExecutor> _jobStoredLogger;
+        _jobContext = jobContext;
+        _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
+        _jobStoredLogger = new JobLoggerFactory(_jobContext).CreateLogger<JobExecutor>();
+    }
 
-        public JobExecutor(JobContext jobContext)
+    /// <summary>
+    /// Executes a job handling any associated tasks that need to be ran during it.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    public async Task ExecuteJobAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation(_jobContext, "Job processing started.");
+
+        try
         {
-            _jobContext = jobContext;
-            _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
-            _jobStoredLogger = new JobLoggerFactory(_jobContext).CreateLogger<JobExecutor>();
+            await _jobContext.UpdateJobStateAsync(JobStatus.InProgress, cancellationToken);
+
+            await ActivateAndExecuteJobAsync(cancellationToken);
+
+            await _jobContext.UpdateJobStateAsync(JobStatus.Complete, cancellationToken);
+
+            _logger.LogInformation(_jobContext, "Job processing complete.");
         }
-
-        /// <summary>
-        /// Executes a job handling any associated tasks that need to be ran during it.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        public async Task ExecuteJobAsync(CancellationToken cancellationToken)
+        catch (Exception e)
         {
-            _logger.LogInformation(_jobContext, "Job processing started.");
-            
-            try
+            _jobStoredLogger.LogError(_jobContext, "Job failed.", e);
+
+            if (_jobContext.JobDefinition.Retries == 3)
             {
-                await _jobContext.UpdateJobStateAsync(JobStatus.InProgress, cancellationToken);
-
-                await ActivateAndExecuteJobAsync(cancellationToken);
-
-                await _jobContext.UpdateJobStateAsync(JobStatus.Complete, cancellationToken);
-                
-                _logger.LogInformation(_jobContext, "Job processing complete.");
+                await FailJobDueToRetriesBeingExceededAsync(cancellationToken);
+                return;
             }
-            catch (Exception e)
-            {
-                _jobStoredLogger.LogError(_jobContext, "Job failed.", e);
 
-                if (_jobContext.JobDefinition.Retries == 3)
-                {
-                    await FailJobDueToRetriesBeingExceededAsync(cancellationToken);
-                    return;
-                }
-
-                await RetryJobAsync(cancellationToken);
-            }
-            finally
-            {
-                await _jobContext.RemoveMessageFromQueueAsync(cancellationToken);
-            }
+            await RetryJobAsync(cancellationToken);
         }
-
-        private async Task ActivateAndExecuteJobAsync(CancellationToken cancellationToken)
+        finally
         {
-            if (_jobContext.JobDefinition.HasParameters)
-            {
-                var deserializedParameters = await DeserializeParametersFromContextAsync();
-                await ActivateAndExecuteJobWithMethodParametersAsync(deserializedParameters, CancellationToken.None);
-            }
-            else
-            {
-                await ActivateAndExecuteJobWithMethodParametersAsync(CancellationToken.None);
-            }
+            await _jobContext.RemoveMessageFromQueueAsync(cancellationToken);
         }
+    }
 
-        private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
+    private async Task ActivateAndExecuteJobAsync(CancellationToken cancellationToken)
+    {
+        if (_jobContext.JobDefinition.HasParameters)
         {
-            var jobType = GetJobTypeFromContext();
-            var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
-                
-            await (
-                jobType
-                    .GetMethod(nameof(IJob.HandleAsync))!
-                    .Invoke(jobInstance, methodParameters) as Task
-            );
+            var deserializedParameters = await DeserializeParametersFromContextAsync();
+            await ActivateAndExecuteJobWithMethodParametersAsync(deserializedParameters, CancellationToken.None);
         }
-
-        private Type GetJobTypeFromContext()
+        else
         {
-            return Type.GetType(_jobContext.JobDefinition.Type);
+            await ActivateAndExecuteJobWithMethodParametersAsync(CancellationToken.None);
         }
+    }
 
-        private async Task<object> DeserializeParametersFromContextAsync()
-        {
-            var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType);
-            
-            var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
-                _jobContext.JobDefinition.SerializedParameters, 
-                parametersType,
-                CancellationToken.None
-            );
+    private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
+    {
+        var jobType = GetJobTypeFromContext();
+        var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
-            return deserializedParameters;
-        }
+        await (
+            jobType
+                .GetMethod(nameof(IJob.HandleAsync))!
+                .Invoke(jobInstance, methodParameters) as Task
+        );
+    }
 
-        private object ActivateJobWithDefaults(JobContext jobContext, Type jobType)
-        {
-            var genericLogger = Activator.CreateInstance(
-                typeof(Logger<>).MakeGenericType(jobType), 
-                new JobLoggerFactory(jobContext)
-            );
+    private Type GetJobTypeFromContext()
+    {
+        return Type.GetType(_jobContext.JobDefinition.Type);
+    }
 
-            return jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
-        }
+    private async Task<object> DeserializeParametersFromContextAsync()
+    {
+        var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType);
 
-        private async Task RetryJobAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogInformation(
-                _jobContext, 
-                $"Retrying job. Attempt {_jobContext.JobDefinition.Retries + 1} of 3."
-            );
+        var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
+            _jobContext.JobDefinition.SerializedParameters,
+            parametersType,
+            CancellationToken.None
+        );
 
-            await _jobContext.UpdateJobStateAsync(JobStatus.Failed, cancellationToken);
-            await _jobContext.IncrementJobRetriesAsync(cancellationToken);
-            await _jobContext.RequeueJobAsync(cancellationToken);
-        }
+        return deserializedParameters;
+    }
 
-        private async Task FailJobDueToRetriesBeingExceededAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogError(
-                _jobContext,
-                "Job has exceeded its maximum amount of retries. Marking job as failed."
-            );
+    private object ActivateJobWithDefaults(JobContext jobContext, Type jobType)
+    {
+        var genericLogger = Activator.CreateInstance(
+            typeof(Logger<>).MakeGenericType(jobType),
+            new JobLoggerFactory(jobContext)
+        );
 
-            await _jobContext.UpdateJobStateAsync(JobStatus.FailedExceededMaximumRetries, cancellationToken);
-        }
+        return jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
+    }
+
+    private async Task RetryJobAsync(CancellationToken cancellationToken)
+    {
+        _jobStoredLogger.LogInformation(
+            _jobContext,
+            $"Retrying job. Attempt {_jobContext.JobDefinition.Retries + 1} of 3."
+        );
+
+        await _jobContext.UpdateJobStateAsync(JobStatus.Failed, cancellationToken);
+        await _jobContext.IncrementJobRetriesAsync(cancellationToken);
+        await _jobContext.RequeueJobAsync(cancellationToken);
+    }
+
+    private async Task FailJobDueToRetriesBeingExceededAsync(CancellationToken cancellationToken)
+    {
+        _jobStoredLogger.LogError(
+            _jobContext,
+            "Job has exceeded its maximum amount of retries. Marking job as failed."
+        );
+
+        await _jobContext.UpdateJobStateAsync(JobStatus.FailedExceededMaximumRetries, cancellationToken);
     }
 }

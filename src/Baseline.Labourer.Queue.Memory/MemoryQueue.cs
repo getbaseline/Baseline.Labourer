@@ -6,6 +6,9 @@ using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer.Queue.Memory
 {
+    /// <summary>
+    /// <see cref="MemoryQueue"/> is an <see cref="IQueue"/> implementation that persists and processes queue messages in memory.
+    /// </summary>
     public class MemoryQueue : IQueue
     {
         protected List<QueuedJob> Queue = new List<QueuedJob>();

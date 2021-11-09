@@ -1,20 +1,19 @@
-﻿namespace Baseline.Labourer.Tests
+﻿namespace Baseline.Labourer.Tests;
+
+public class ClientTest
 {
-    public class ClientTest
+    protected LabourerClient Client { get; }
+
+    protected TestDispatchedJobStore DispatchedJobStore { get; } = new TestDispatchedJobStore();
+
+    protected TestQueue Queue { get; } = new TestQueue();
+
+    public ClientTest()
     {
-        protected LabourerClient Client { get; }
-
-        protected TestDispatchedJobStore DispatchedJobStore { get; } = new TestDispatchedJobStore();
-
-        protected TestQueue Queue { get; } = new TestQueue();
-
-        public ClientTest()
-        {
-            Client = new LabourerClient(
-                new BaselineLabourerConfiguration(), 
-                DispatchedJobStore, 
-                Queue
-            );
-        }
+        Client = new LabourerClient(
+            new BaselineLabourerConfiguration(),
+            DispatchedJobStore,
+            Queue
+        );
     }
 }
