@@ -1,7 +1,8 @@
 ﻿namespace Baseline.Labourer.Contracts;
 
 /// <summary>
-/// <see cref="ITransactionalStoreWriter" /> provides a contract which transaction aware store writers must implement.
+/// Provides a contract which transaction aware store writers must implement. Should a failure occur prior to the call to <see cref="CommitAsync(CancellationToken)"/>, no
+/// changes will be performed. Where the store provider supports actual transactions, these will be used during the committing process to ensure that is atomic too.
 /// </summary>
 public interface ITransactionalStoreWriter : IAsyncDisposable
 {

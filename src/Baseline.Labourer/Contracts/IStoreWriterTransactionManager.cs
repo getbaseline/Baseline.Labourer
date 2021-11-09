@@ -1,7 +1,7 @@
 ﻿namespace Baseline.Labourer.Contracts;
 
 /// <summary>
-/// <see cref="IStoreWriterTransactionManager"/> allows a write transaction to be created. This ensures writes only occur when every operation completes successfully.
+/// Allows a write transaction to be created. This ensures writes only occur when every operation completes successfully.
 /// </summary>
 public interface IStoreWriterTransactionManager
 {

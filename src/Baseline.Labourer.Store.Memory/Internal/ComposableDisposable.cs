@@ -1,6 +1,6 @@
-﻿namespace Baseline.Labourer.Store.Memory;
+﻿namespace Baseline.Labourer.Store.Memory.Internal;
 
-public class ComposableDisposable : IDisposable
+internal class ComposableDisposable : IDisposable
 {
     private readonly Action _action;
 

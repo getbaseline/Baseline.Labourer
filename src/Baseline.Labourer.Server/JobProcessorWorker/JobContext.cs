@@ -24,6 +24,15 @@ public class JobContext
     public DispatchedJobDefinition JobDefinition { get; set; }
 
     /// <summary>
+    /// Alias to the server context's <see cref="IStoreWriterTransactionManager.BeginTransaction"/> method.
+    /// </summary>
+    /// <returns></returns>
+    public ITransactionalStoreWriter BeginTransaction()
+    {
+        return WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction();
+    }
+
+    /// <summary>
     /// Updates the job's state.
     /// </summary>
     /// <param name="writer">A transactionized store writer to use.</param>

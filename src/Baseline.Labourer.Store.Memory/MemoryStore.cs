@@ -1,23 +1,44 @@
-﻿namespace Baseline.Labourer.Store.Memory;
+﻿using Baseline.Labourer.Store.Memory.Internal;
+
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
-/// <see cref="MemoryStore"/> is a collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place
+/// A collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place
 /// to manage store state.
 /// </summary>
 public class MemoryStore
 {
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public List<DispatchedJobDefinition> DispatchedJobs = new();
+    /// <summary>
+    /// Gets the jobs that have been dispatched.
+    /// </summary>
+    public List<DispatchedJobDefinition> DispatchedJobs { get; } = new();
 
-    public List<MemoryLogEntry> LogEntries = new();
+    /// <summary>
+    /// Gets the log entries that have been created.
+    /// </summary>
+    public List<MemoryLogEntry> LogEntries { get; } = new();
 
-    public List<ServerInstance> Servers = new();
+    /// <summary>
+    /// Gets the servers that have been created.
+    /// </summary>
+    public List<ServerInstance> Servers { get; } = new();
 
-    public Dictionary<string, List<Worker>> ServerWorkers = new();
+    /// <summary>
+    /// Gets the server workers that have been created.
+    /// </summary>
+    public Dictionary<string, List<Worker>> ServerWorkers { get; } = new();
 
-    public Dictionary<string, List<DateTime>> ServerHeartbeats = new();
+    /// <summary>
+    /// Gets the server heartbeats that have been created.
+    /// </summary>
+    public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } = new();
 
+    /// <summary>
+    /// Acquires a lock on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
+    /// This isn't "idiot proof" - someone could just bypass this if they weren't to bother calling it. Don't do that. Please.
+    /// </summary>
     public async Task<IDisposable> AcquireLockAsync()
     {
         await _semaphore.WaitAsync();

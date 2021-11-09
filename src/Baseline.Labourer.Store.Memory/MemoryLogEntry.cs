@@ -26,5 +26,5 @@ public record MemoryLogEntry
     /// <summary>
     /// Gets or sets the exception of the log (if applicable).
     /// </summary>
-    public Exception? Exception { get; init; }
+    public Exception Exception { get; init; }
 }
