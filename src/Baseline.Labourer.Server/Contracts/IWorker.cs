@@ -1,12 +1,16 @@
-﻿namespace Baseline.Labourer.Server.Contracts;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
-/// <summary>
-/// IWorker defines what all server workers must implement.
-/// </summary>
-public interface IWorker
+namespace Baseline.Labourer.Server.Contracts
 {
     /// <summary>
-    /// Runs the worker as a long running task.
+    /// IWorker defines what all server workers must implement.
     /// </summary>
-    Task RunAsync(CancellationToken cancellationToken = default);
+    public interface IWorker
+    {
+        /// <summary>
+        /// Runs the worker as a long running task.
+        /// </summary>
+        Task RunAsync(CancellationToken cancellationToken = default);
+    }
 }

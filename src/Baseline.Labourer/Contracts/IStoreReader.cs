@@ -1,5 +1,9 @@
-﻿namespace Baseline.Labourer.Contracts;
-
-public interface IStoreReader
+﻿namespace Baseline.Labourer.Contracts
 {
+    /// <summary>
+    /// Allows the querying of the store without engaging in transactions.
+    /// </summary>
+    public interface IStoreReader
+    {
+    }
 }

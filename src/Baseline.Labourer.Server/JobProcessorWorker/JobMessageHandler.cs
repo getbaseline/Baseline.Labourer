@@ -1,37 +1,40 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker;
-
-/// <summary>
-/// <see cref="JobMessageHandler"/> contains logic related to the handling of any job messages.
-/// </summary>
-public class JobMessageHandler
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
-    private readonly WorkerContext _workerContext;
-    private readonly ILogger _logger;
-
-    public JobMessageHandler(WorkerContext workerContext)
-    {
-        _workerContext = workerContext;
-        _logger = workerContext.ServerContext.LoggerFactory.CreateLogger<JobMessageHandler>();
-    }
-
     /// <summary>
-    /// Handles a job message, executing the job if it is applicable.
+    /// <see cref="JobMessageHandler"/> contains logic related to the handling of any job messages.
     /// </summary>
-    /// <param name="job">A queued job that needs to be processed.</param>
-    /// <param name="cancellationToken"></param>
-    public async Task HandleMessageAsync(QueuedJob job, CancellationToken cancellationToken)
+    public class JobMessageHandler
     {
-        _logger.LogDebug(_workerContext, $"Handling job message with id of {job.MessageId}.");
+        private readonly WorkerContext _workerContext;
+        private readonly ILogger _logger;
 
-        var jobContext = new JobContext
+        public JobMessageHandler(WorkerContext workerContext)
         {
-            OriginalMessageId = job.MessageId,
-            JobDefinition = await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken),
-            WorkerContext = _workerContext
-        };
+            _workerContext = workerContext;
+            _logger = workerContext.ServerContext.LoggerFactory.CreateLogger<JobMessageHandler>();
+        }
 
-        await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
+        /// <summary>
+        /// Handles a job message, executing the job if it is applicable.
+        /// </summary>
+        /// <param name="job">A queued job that needs to be processed.</param>
+        /// <param name="cancellationToken"></param>
+        public async Task HandleMessageAsync(QueuedJob job, CancellationToken cancellationToken)
+        {
+            _logger.LogDebug(_workerContext, $"Handling job message with id of {job.MessageId}.");
+
+            var jobContext = new JobContext
+            {
+                OriginalMessageId = job.MessageId,
+                JobDefinition = await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken),
+                WorkerContext = _workerContext
+            };
+
+            await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
+        }
     }
 }

@@ -1,25 +1,29 @@
-﻿namespace Baseline.Labourer.Tests;
+﻿using System;
+using System.Threading.Tasks;
 
-public class AssertionUtils
+namespace Baseline.Labourer.Tests
 {
-    public static async Task RetryAsync(Action action, int times = 25, int delay = 100)
+    public class AssertionUtils
     {
-        for (var i = 0; i < times; i++)
+        public static async Task RetryAsync(Action action, int times = 25, int delay = 100)
         {
-            try
+            for (var i = 0; i < times; i++)
             {
-                action();
-                return;
-            }
-            catch (Exception e)
-            {
-                if (i == (times - 1))
+                try
                 {
-                    throw;
+                    action();
+                    return;
                 }
-            }
+                catch (Exception)
+                {
+                    if (i == (times - 1))
+                    {
+                        throw;
+                    }
+                }
 
-            await Task.Delay(delay);
+                await Task.Delay(delay);
+            }
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Baseline.Labourer.Queue.Memory;
 using FluentAssertions;
 
-namespace Baseline.Labourer.Tests;
-
-public class TestQueue : MemoryQueue
+namespace Baseline.Labourer.Tests
 {
-    public void AssertMessageDispatched(QueuedJob message)
+    public class TestQueue : MemoryQueue
     {
-        Queue.Should().ContainSingle(j => j.Equals(message));
+        public void AssertMessageDispatched(QueuedJob message)
+        {
+            Queue.Should().ContainSingle(j => j.Equals(message));
+        }
     }
 }

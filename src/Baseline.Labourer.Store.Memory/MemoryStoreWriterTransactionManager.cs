@@ -1,18 +1,23 @@
 ﻿using Baseline.Labourer.Contracts;
 
-namespace Baseline.Labourer.Store.Memory;
-
-public class MemoryStoreWriterTransactionManager : IStoreWriterTransactionManager
+namespace Baseline.Labourer.Store.Memory
 {
-    private readonly MemoryStore _memoryStore;
-
-    public MemoryStoreWriterTransactionManager(MemoryStore memoryStore)
+    /// <summary>
+    /// Memory store based transaction manager that handles the creation of a transaction.
+    /// </summary>
+    public class MemoryStoreWriterTransactionManager : IStoreWriterTransactionManager
     {
-        _memoryStore = memoryStore;
-    }
+        private readonly MemoryStore _memoryStore;
 
-    public ITransactionalStoreWriter BeginTransaction()
-    {
-        return new MemoryTransactionalStoreWriter(_memoryStore);
+        public MemoryStoreWriterTransactionManager(MemoryStore memoryStore)
+        {
+            _memoryStore = memoryStore;
+        }
+
+        /// <inheritdoc />
+        public ITransactionalStoreWriter BeginTransaction()
+        {
+            return new MemoryTransactionalStoreWriter(_memoryStore);
+        }
     }
 }

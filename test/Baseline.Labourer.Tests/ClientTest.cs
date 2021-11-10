@@ -1,21 +1,22 @@
 ﻿using Baseline.Labourer.Store.Memory;
 
-namespace Baseline.Labourer.Tests;
-
-public class ClientTest
+namespace Baseline.Labourer.Tests
 {
-    protected LabourerClient Client { get; }
-
-    protected TestMemoryStore TestStore { get; } = new TestMemoryStore();
-
-    protected TestQueue TestQueue { get; } = new TestQueue();
-
-    public ClientTest()
+    public class ClientTest
     {
-        Client = new LabourerClient(
-            new BaselineLabourerConfiguration(),
-            new MemoryStoreWriterTransactionManager(TestStore),
-            TestQueue
-        );
+        protected LabourerClient Client { get; }
+
+        protected TestMemoryStore TestStore { get; } = new TestMemoryStore();
+
+        protected TestQueue TestQueue { get; } = new TestQueue();
+
+        public ClientTest()
+        {
+            Client = new LabourerClient(
+                new BaselineLabourerConfiguration(),
+                new MemoryStoreWriterTransactionManager(TestStore),
+                TestQueue
+            );
+        }
     }
 }

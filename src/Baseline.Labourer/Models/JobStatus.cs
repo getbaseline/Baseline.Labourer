@@ -1,14 +1,15 @@
-﻿namespace Baseline.Labourer;
-
-/// <summary>
-/// Job status represents each status that a job can be in.
-/// </summary>
-public enum JobStatus
+﻿namespace Baseline.Labourer
 {
-    Unknown,
-    Created,
-    InProgress,
-    Complete,
-    Failed,
-    FailedExceededMaximumRetries
+    /// <summary>
+    /// Job status represents each status that a job can be in.
+    /// </summary>
+    public enum JobStatus
+    {
+        Unknown,
+        Created,
+        InProgress,
+        Complete,
+        Failed,
+        FailedExceededMaximumRetries
+    }
 }

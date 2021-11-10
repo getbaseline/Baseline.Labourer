@@ -1,47 +1,52 @@
-﻿using Baseline.Labourer.Store.Memory.Internal;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Baseline.Labourer.Store.Memory.Internal;
 
-namespace Baseline.Labourer.Store.Memory;
-
-/// <summary>
-/// A collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place
-/// to manage store state.
-/// </summary>
-public class MemoryStore
+namespace Baseline.Labourer.Store.Memory
 {
-    private readonly SemaphoreSlim _semaphore = new(1);
-
     /// <summary>
-    /// Gets the jobs that have been dispatched.
+    /// A collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place
+    /// to manage store state.
     /// </summary>
-    public List<DispatchedJobDefinition> DispatchedJobs { get; } = new();
-
-    /// <summary>
-    /// Gets the log entries that have been created.
-    /// </summary>
-    public List<MemoryLogEntry> LogEntries { get; } = new();
-
-    /// <summary>
-    /// Gets the servers that have been created.
-    /// </summary>
-    public List<ServerInstance> Servers { get; } = new();
-
-    /// <summary>
-    /// Gets the server workers that have been created.
-    /// </summary>
-    public Dictionary<string, List<Worker>> ServerWorkers { get; } = new();
-
-    /// <summary>
-    /// Gets the server heartbeats that have been created.
-    /// </summary>
-    public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } = new();
-
-    /// <summary>
-    /// Acquires a lock on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
-    /// This isn't "idiot proof" - someone could just bypass this if they weren't to bother calling it. Don't do that. Please.
-    /// </summary>
-    public async Task<IDisposable> AcquireLockAsync()
+    public class MemoryStore
     {
-        await _semaphore.WaitAsync();
-        return new ComposableDisposable(() => _semaphore.Release());
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+
+        /// <summary>
+        /// Gets the jobs that have been dispatched.
+        /// </summary>
+        public List<DispatchedJobDefinition> DispatchedJobs { get; } = new List<DispatchedJobDefinition>();
+
+        /// <summary>
+        /// Gets the log entries that have been created.
+        /// </summary>
+        public List<MemoryLogEntry> LogEntries { get; } = new List<MemoryLogEntry>();
+
+        /// <summary>
+        /// Gets the servers that have been created.
+        /// </summary>
+        public List<ServerInstance> Servers { get; } = new List<ServerInstance>();
+
+        /// <summary>
+        /// Gets the server workers that have been created.
+        /// </summary>
+        public Dictionary<string, List<Worker>> ServerWorkers { get; } = new Dictionary<string, List<Worker>>();
+
+        /// <summary>
+        /// Gets the server heartbeats that have been created.
+        /// </summary>
+        public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } = new Dictionary<string, List<DateTime>>();
+
+        /// <summary>
+        /// Acquires a lock on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
+        /// This isn't "idiot proof" - someone could just bypass this if they weren't to bother calling it. Don't do that. Please.
+        /// </summary>
+        public async Task<IDisposable> AcquireLockAsync()
+        {
+            await _semaphore.WaitAsync();
+            return new ComposableDisposable(() => _semaphore.Release());
+        }
     }
 }

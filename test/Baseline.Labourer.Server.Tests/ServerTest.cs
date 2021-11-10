@@ -1,71 +1,75 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Store.Memory;
 using Baseline.Labourer.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Server.Tests;
-
-public class ServerTest : IDisposable
+namespace Baseline.Labourer.Server.Tests
 {
-    private CancellationTokenSource _cancellationTokenSource = new();
-
-    protected readonly TestQueue TestQueue = new();
-
-    protected readonly TestMemoryStore TestStore = new();
-
-    protected readonly ILoggerFactory TestLoggerFactory;
-
-    protected string ServerId;
-
-    public LabourerClient Client { get; }
-
-    public ServerTest(ITestOutputHelper testOutputHelper)
+    public class ServerTest : IDisposable
     {
-        TestLoggerFactory = LoggerFactory.Create(logger =>
-        {
-            logger
-                .AddXUnit(testOutputHelper)
-                .SetMinimumLevel(LogLevel.Debug);
-        });
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        Client = new LabourerClient(
-            new BaselineLabourerConfiguration
+        protected readonly TestQueue TestQueue = new TestQueue();
+
+        protected readonly TestMemoryStore TestStore = new TestMemoryStore();
+
+        protected readonly ILoggerFactory TestLoggerFactory;
+
+        protected string ServerId;
+
+        public LabourerClient Client { get; }
+
+        public ServerTest(ITestOutputHelper testOutputHelper)
+        {
+            TestLoggerFactory = LoggerFactory.Create(logger =>
             {
-                LoggerFactory = () => TestLoggerFactory
-            },
-            new MemoryStoreWriterTransactionManager(TestStore),
-            TestQueue
-        );
-    }
+                logger
+                    .AddXUnit(testOutputHelper)
+                    .SetMinimumLevel(LogLevel.Debug);
+            });
 
-    public async Task<ServerContext> GenerateServerContextAsync(int workers = 1)
-    {
-        var serverInstance = new ServerInstance
+            Client = new LabourerClient(
+                new BaselineLabourerConfiguration
+                {
+                    LoggerFactory = () => TestLoggerFactory
+                },
+                new MemoryStoreWriterTransactionManager(TestStore),
+                TestQueue
+            );
+        }
+
+        public async Task<ServerContext> GenerateServerContextAsync(int workers = 1)
         {
-            Hostname = Dns.GetHostName(),
-            Key = StringGenerationUtils.GenerateUniqueRandomString()
-        };
-        TestStore.Servers.Add(serverInstance);
+            var serverInstance = new ServerInstance
+            {
+                Hostname = Dns.GetHostName(),
+                Key = StringGenerationUtils.GenerateUniqueRandomString()
+            };
+            TestStore.Servers.Add(serverInstance);
 
-        ServerId = serverInstance.Id;
+            ServerId = serverInstance.Id;
 
-        return new ServerContext
+            return new ServerContext
+            {
+                Activator = new DefaultJobActivator(),
+                JobLogStore = new MemoryJobLogStore(TestStore),
+                Queue = TestQueue,
+                ServerInstance = serverInstance,
+                StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
+                ShutdownTokenSource = _cancellationTokenSource,
+                LoggerFactory = TestLoggerFactory,
+                WorkersToRun = workers
+            };
+        }
+
+        public void Dispose()
         {
-            Activator = new DefaultJobActivator(),
-            JobLogStore = new MemoryJobLogStore(TestStore),
-            Queue = TestQueue,
-            ServerInstance = serverInstance,
-            StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
-            ShutdownTokenSource = _cancellationTokenSource,
-            LoggerFactory = TestLoggerFactory,
-            WorkersToRun = workers
-        };
-    }
-
-    public void Dispose()
-    {
-        _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Cancel();
+        }
     }
 }

@@ -1,16 +1,22 @@
-﻿namespace Baseline.Labourer.Store.Memory.Internal;
+﻿using System;
 
-internal class ComposableDisposable : IDisposable
+namespace Baseline.Labourer.Store.Memory.Internal
 {
-    private readonly Action _action;
-
-    public ComposableDisposable(Action action)
+    /// <summary>
+    /// An <see cref="IDisposable"/> implementation that can perform a specific action when dispose is called.
+    /// </summary>
+    internal class ComposableDisposable : IDisposable
     {
-        _action = action;
-    }
+        private readonly Action _action;
 
-    public void Dispose()
-    {
-        _action();
+        public ComposableDisposable(Action action)
+        {
+            _action = action;
+        }
+
+        public void Dispose()
+        {
+            _action();
+        }
     }
 }

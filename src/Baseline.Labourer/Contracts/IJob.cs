@@ -1,15 +1,19 @@
-﻿namespace Baseline.Labourer;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
-/// <summary>
-/// A contract that all jobs without parameters and are to be used with Baseline.Labourer implement. Constrains
-/// job methods to ensure they don't do anything silly that makes handling them ridiculous like injecting run time
-/// dependencies.
-/// </summary>
-public interface IJob
+namespace Baseline.Labourer
 {
     /// <summary>
-    /// Executes the job.
+    /// A contract that all jobs without parameters and are to be used with Baseline.Labourer implement. Constrains
+    /// job methods to ensure they don't do anything silly that makes handling them ridiculous like injecting run time
+    /// dependencies.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    Task HandleAsync(CancellationToken cancellationToken);
+    public interface IJob
+    {
+        /// <summary>
+        /// Executes the job.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task HandleAsync(CancellationToken cancellationToken);
+    }
 }
