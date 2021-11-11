@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Baseline.Labourer.Internal.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer.Queue.Memory
 {
@@ -21,12 +21,12 @@ namespace Baseline.Labourer.Queue.Memory
             try
             {
                 await _semaphore.WaitAsync(cancellationToken);
-                
+
                 Queue.Add(new QueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                        messageToQueue, 
+                        messageToQueue,
                         cancellationToken
                     )
                 });
@@ -42,8 +42,8 @@ namespace Baseline.Labourer.Queue.Memory
         {
             for (var i = 0; i < 30; i++)
             {
-                var released = false; 
-                
+                var released = false;
+
                 try
                 {
                     // This semaphore will prevent other queues from snatching up our messages!
@@ -56,7 +56,7 @@ namespace Baseline.Labourer.Queue.Memory
                         await Task.Delay(1000, cancellationToken);
                         continue;
                     }
-                    
+
                     // TODO: Mark message as invisible and timeout.
                     var firstMessage = Queue.First();
                     Queue = Queue.Skip(1).ToList();

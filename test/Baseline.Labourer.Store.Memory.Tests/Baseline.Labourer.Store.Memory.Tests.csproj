@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>netcoreapp3.1</TargetFramework>
-        <IsPackable>false</IsPackable>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -20,9 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.Memory\Baseline.Labourer.Queue.Memory.csproj" />
     <ProjectReference Include="..\..\src\Baseline.Labourer.Store.Memory\Baseline.Labourer.Store.Memory.csproj" />
-    <ProjectReference Include="..\..\src\Baseline.Labourer\Baseline.Labourer.csproj" />
+    <ProjectReference Include="..\Baseline.Labourer.Tests\Baseline.Labourer.Tests.csproj" />
   </ItemGroup>
 
 </Project>

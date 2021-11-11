@@ -1,35 +1,38 @@
-﻿using Baseline.Labourer.Internal.Utils;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Baseline.Labourer.Internal.Utils;
 using Xunit;
 
-namespace Baseline.Labourer.Tests.DispatchJob;
-
-public class BasicDispatchJobTests : ClientTest
+namespace Baseline.Labourer.Tests.DispatchJob
 {
-    public class BasicJob : IJob
+    public class BasicDispatchJobTests : ClientTest
     {
-        public Task HandleAsync(CancellationToken cancellationToken)
+        public class BasicJob : IJob
         {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    [Fact]
-    public async Task When_Dispatching_A_Job_It_Records_Its_Initial_State_And_Sends_It_To_A_Queue()
-    {
-        // Act.
-        await Client.DispatchJobAsync<BasicJob>();
-
-        // Assert.
-        var jobDefinition = DispatchedJobStore.AssertJobWithTypesStored(typeof(BasicJob));
-
-        Queue.AssertMessageDispatched(
-            new QueuedJob
+            public Task HandleAsync(CancellationToken cancellationToken)
             {
-                SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                    jobDefinition,
-                    CancellationToken.None
-                )
+                throw new System.NotImplementedException();
             }
-        );
+        }
+
+        [Fact]
+        public async Task When_Dispatching_A_Job_It_Records_Its_Initial_State_And_Sends_It_To_A_Queue()
+        {
+            // Act.
+            await Client.DispatchJobAsync<BasicJob>();
+
+            // Assert.
+            var jobDefinition = TestStore.AssertJobWithTypesStored(typeof(BasicJob));
+
+            TestQueue.AssertMessageDispatched(
+                new QueuedJob
+                {
+                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
+                        jobDefinition,
+                        CancellationToken.None
+                    )
+                }
+            );
+        }
     }
 }

@@ -1,68 +1,71 @@
-﻿using Baseline.Labourer.Tests;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Baseline.Labourer.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests;
-
-public class JobRetryTests : ServerTest
+namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 {
-    public JobRetryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    public class JobRetryTests : ServerTest
     {
-        Task.Run(
-            async () => await new JobProcessorWorker.JobProcessorWorker(await GenerateServerContextAsync()).RunAsync()
-        );
-    }
-
-
-    public class CatastrophicErrorJob : IJob
-    {
-        public async Task HandleAsync(CancellationToken cancellationToken)
+        public JobRetryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            throw new System.NotImplementedException();
+            Task.Run(
+                async () => await new JobProcessorWorker.JobProcessorWorker(await GenerateServerContextAsync()).RunAsync()
+            );
         }
-    }
 
-    [Fact]
-    public async Task It_Retries_A_Job_A_Maximum_Of_Three_Times_Before_Marking_The_Job_As_A_Catastrophic_Failure()
-    {
-        // Act.
-        var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
 
-        // Assert.
-        await AssertionUtils.RetryAsync(() =>
+        public class CatastrophicErrorJob : IJob
         {
-            TestJobStore.AssertJobHasRetryCount(jobId, 3);
-            TestJobStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
-        });
-    }
-
-    public class FailedJobThatCompletes : IJob
-    {
-        private static int _executions = 0;
-        public Task HandleAsync(CancellationToken cancellationToken)
-        {
-            _executions++;
-
-            if (_executions != 3) // Pass on the third retry.
+            public async Task HandleAsync(CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
-
-            return Task.CompletedTask;
         }
-    }
 
-    [Fact]
-    public async Task It_Completes_A_Job_Even_If_It_Fails_A_Couple_Of_Times()
-    {
-        // Act.
-        var jobId = await Client.DispatchJobAsync<FailedJobThatCompletes>();
-
-        // Assert.
-        await AssertionUtils.RetryAsync(() =>
+        [Fact]
+        public async Task It_Retries_A_Job_A_Maximum_Of_Three_Times_Before_Marking_The_Job_As_A_Catastrophic_Failure()
         {
-            TestJobStore.AssertJobHasRetryCount(jobId, 2);
-            TestJobStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-        });
+            // Act.
+            var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
+
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertJobHasRetryCount(jobId, 3);
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+            });
+        }
+
+        public class FailedJobThatCompletes : IJob
+        {
+            private static int _executions = 0;
+            public Task HandleAsync(CancellationToken cancellationToken)
+            {
+                _executions++;
+
+                if (_executions != 3) // Pass on the third retry.
+                {
+                    throw new System.NotImplementedException();
+                }
+
+                return Task.CompletedTask;
+            }
+        }
+
+        [Fact]
+        public async Task It_Completes_A_Job_Even_If_It_Fails_A_Couple_Of_Times()
+        {
+            // Act.
+            var jobId = await Client.DispatchJobAsync<FailedJobThatCompletes>();
+
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertJobHasRetryCount(jobId, 2);
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+            });
+        }
     }
 }

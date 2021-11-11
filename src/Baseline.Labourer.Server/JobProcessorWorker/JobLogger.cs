@@ -1,66 +1,69 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Baseline.Labourer.Contracts;
+using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker;
-
-/// <summary>
-/// JobLogger is an internal logger used to log messages and exceptions to the relevant job store whilst optionally
-/// wrapping a consumer provided logger to log the messages in a way configured by them too.
-/// </summary>
-public class JobLogger : ILogger
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
-    private readonly string _jobId;
-    private readonly ILogger _wrappedLogger;
-    private readonly IDispatchedJobStore _dispatchedJobStore;
-
-    public JobLogger(
-        string jobId,
-        ILogger wrappedLogger,
-        IDispatchedJobStore dispatchedJobStore
-    )
+    /// <summary>
+    /// JobLogger is an internal logger used to log messages and exceptions to the relevant job store whilst optionally
+    /// wrapping a consumer provided logger to log the messages in a way configured by them too.
+    /// </summary>
+    public class JobLogger : ILogger
     {
-        _jobId = jobId;
-        _wrappedLogger = wrappedLogger;
-        _dispatchedJobStore = dispatchedJobStore;
-    }
+        private readonly string _jobId;
+        private readonly ILogger _wrappedLogger;
+        private readonly IJobLogStore _jobLogStore;
 
-    /// <inheritdoc />
-    public void Log<TState>(
-        LogLevel logLevel,
-        EventId eventId,
-        TState state,
-        Exception exception,
-        Func<TState, Exception, string> formatter
-    )
-    {
-        try
+        public JobLogger(
+            string jobId,
+            ILogger wrappedLogger,
+            IJobLogStore jobLogStore
+        )
         {
-            if (_wrappedLogger?.IsEnabled(logLevel) ?? false)
+            _jobId = jobId;
+            _wrappedLogger = wrappedLogger;
+            _jobLogStore = jobLogStore;
+        }
+
+        /// <inheritdoc />
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
+            Func<TState, Exception, string> formatter
+        )
+        {
+            try
             {
-                _wrappedLogger?.Log(logLevel, eventId, state, exception, formatter);
+                if (_wrappedLogger?.IsEnabled(logLevel) ?? false)
+                {
+                    _wrappedLogger?.Log(logLevel, eventId, state, exception, formatter);
+                }
+
+                _jobLogStore.LogEntryForJob(
+                    _jobId,
+                    logLevel,
+                    formatter(state, exception),
+                    exception
+                );
             }
-
-            _dispatchedJobStore.LogEntryForJob(
-                _jobId,
-                logLevel,
-                formatter(state, exception),
-                exception
-            );
+            catch (Exception e)
+            {
+                // Wrap all exceptions cos' the last thing you want to happen is your logger breaks your application!
+            }
         }
-        catch (Exception e)
+
+        /// <inheritdoc />
+        public bool IsEnabled(LogLevel logLevel)
         {
-            // Wrap all exceptions cos' the last thing you want to happen is your logger breaks your application!
+            return true;
         }
-    }
 
-    /// <inheritdoc />
-    public bool IsEnabled(LogLevel logLevel)
-    {
-        return true;
-    }
-
-    /// <inheritdoc />
-    public IDisposable BeginScope<TState>(TState state)
-    {
-        return null;
+        /// <inheritdoc />
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return null;
+        }
     }
 }
