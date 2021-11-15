@@ -14,6 +14,7 @@ namespace Baseline.Labourer.Tests
         {
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration(),
+                new MemoryResourceLocker(TestStore),
                 new MemoryStoreWriterTransactionManager(TestStore),
                 TestQueue
             );

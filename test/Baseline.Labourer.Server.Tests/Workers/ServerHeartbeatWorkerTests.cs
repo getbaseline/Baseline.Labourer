@@ -15,7 +15,7 @@ namespace Baseline.Labourer.Server.Tests.Workers
         public async Task It_Successfully_Registers_A_Server_Heartbeat()
         {
             // Arrange.
-            var context = await GenerateServerContextAsync();
+            var context = GenerateServerContextAsync();
 
             // Act.
             Task.Run(async () => await new ServerHeartbeatWorker.ServerHeartbeatWorker(context).RunAsync());

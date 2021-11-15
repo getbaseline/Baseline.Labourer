@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer
@@ -11,18 +13,21 @@ namespace Baseline.Labourer
     public class LabourerClient : ILabourerClient
     {
         private readonly BaselineLabourerConfiguration _configuration;
+        private readonly IResourceLocker _resourceLocker;
         private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
-        private readonly IQueue _queue;
+        private readonly JobDispatcher _jobDispatcher;
 
         public LabourerClient(
             BaselineLabourerConfiguration configuration,
+            IResourceLocker resourceLocker,
             IStoreWriterTransactionManager storeWriterTransactionManager,
             IQueue queue
         )
         {
             _configuration = configuration;
+            _resourceLocker = resourceLocker;
             _storeWriterTransactionManager = storeWriterTransactionManager;
-            _queue = queue;
+            _jobDispatcher = new JobDispatcher(storeWriterTransactionManager, queue);
         }
 
         /// <inheritdoc />
@@ -30,13 +35,14 @@ namespace Baseline.Labourer
         {
             var jobDefinition = new DispatchedJobDefinition
             {
-                Id = StringGenerationUtils.GenerateUniqueRandomString(),
                 Type = typeof(TJob).AssemblyQualifiedName,
                 HasParameters = false,
-                Status = JobStatus.Created
+                Status = JobStatus.Created,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
-            return await SaveAndDispatchJobAsync(jobDefinition, cancellationToken);
+            return await _jobDispatcher.DispatchJobAsync(jobDefinition, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -47,39 +53,40 @@ namespace Baseline.Labourer
         {
             var jobDefinition = new DispatchedJobDefinition
             {
-                Id = StringGenerationUtils.GenerateUniqueRandomString(),
                 Type = typeof(TJob).AssemblyQualifiedName,
                 HasParameters = true,
                 ParametersType = typeof(TParams).AssemblyQualifiedName,
                 SerializedParameters = await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken),
-                Status = JobStatus.Created
+                Status = JobStatus.Created,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
-            return await SaveAndDispatchJobAsync(jobDefinition, cancellationToken);
+            return await _jobDispatcher.DispatchJobAsync(jobDefinition, cancellationToken);
         }
 
-        private async Task<string> SaveAndDispatchJobAsync(
-            DispatchedJobDefinition jobDefinition,
-            CancellationToken cancellationToken
-        )
+        /// <inheritdoc />
+        public async Task<string> ScheduleJobAsync<TJob>(
+            string cronExpression, 
+            CancellationToken cancellationToken = default
+        ) where TJob : IJob
         {
-            string createdJobId;
-
-            await using (var storeWriter = _storeWriterTransactionManager.BeginTransaction())
+            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+            
+            var scheduledJobDefinition = new ScheduledJobDefinition
             {
-                var createdJob = await storeWriter.SaveDispatchedJobDefinitionAsync(
-                    jobDefinition,
-                    cancellationToken
-                );
+                CronExpression = cronExpression,
+                Type = typeof(TJob).AssemblyQualifiedName,
+                HasParameters = false,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-                createdJobId = createdJob.Id;
+            await storeWriter.CreateScheduledJobDefinitionAsync(scheduledJobDefinition, cancellationToken);
+            await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, cancellationToken);
+            await storeWriter.CommitAsync(cancellationToken);
 
-                await storeWriter.CommitAsync(cancellationToken);
-            }
-
-            await _queue.EnqueueAsync(jobDefinition, cancellationToken);
-
-            return createdJobId;
+            return scheduledJobDefinition.Id;
         }
     }
 }

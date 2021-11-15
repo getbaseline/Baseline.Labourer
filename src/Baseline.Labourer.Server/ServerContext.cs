@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Server.Contracts;
@@ -31,6 +32,16 @@ namespace Baseline.Labourer.Server
         /// Gets or sets the queue instance to be utilised within the server.
         /// </summary>
         public IQueue Queue { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a resource locker to use.
+        /// </summary>
+        public IResourceLocker ResourceLocker { get; set; }
+
+        /// <summary>
+        /// Gets or sets the interval between each run of the scheduled job processor.
+        /// </summary>
+        public TimeSpan ScheduledJobProcessorInterval { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Gets or sets the reader to use to read the store.

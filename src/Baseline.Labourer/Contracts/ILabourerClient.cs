@@ -13,7 +13,7 @@ namespace Baseline.Labourer
         /// Dispatches a job without parameters to run immediately and returns the created id of the job.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task<string> DispatchJobAsync<TJob>(CancellationToken cancellationToken) where TJob : IJob;
+        Task<string> DispatchJobAsync<TJob>(CancellationToken cancellationToken = default) where TJob : IJob;
 
         /// <summary>
         /// Dispatches a job with parameters to run immediately and returns the created id of the job.
@@ -27,5 +27,17 @@ namespace Baseline.Labourer
             TParams jobParameters,
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>;
+
+        /// <summary>
+        /// Creates a scheduled job (i.e. one that is in the future and can optionally recur).
+        /// </summary>
+        /// <param name="cronExpression">
+        /// A cron expression used to define when the scheduled job will run and if it will repeat.
+        /// </param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task<string> ScheduleJobAsync<TJob>(
+            string cronExpression,
+            CancellationToken cancellationToken = default
+        ) where TJob : IJob;
     }
 }

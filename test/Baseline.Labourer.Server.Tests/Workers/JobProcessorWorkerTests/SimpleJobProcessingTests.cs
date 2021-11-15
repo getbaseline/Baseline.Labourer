@@ -14,7 +14,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public SimpleJobProcessingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(await GenerateServerContextAsync()).RunAsync()
+                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
             );
         }
 

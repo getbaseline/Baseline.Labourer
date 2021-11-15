@@ -21,8 +21,14 @@ namespace Baseline.Labourer.Store.Memory
 
         private readonly List<Worker> _workersToCreate = new List<Worker>();
 
+        private readonly List<ScheduledJobDefinition> _scheduledJobsToCreate = new List<ScheduledJobDefinition>();
+
+        private readonly Dictionary<string, List<Action<ScheduledJobDefinition>>> _scheduledJobUpdates =
+            new Dictionary<string, List<Action<ScheduledJobDefinition>>>();
+
         private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate = new List<DispatchedJobDefinition>();
-        private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
+        private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = 
+            new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
 
         public MemoryTransactionalStoreWriter(MemoryStore memoryStore)
         {
@@ -54,6 +60,24 @@ namespace Baseline.Labourer.Store.Memory
                 }
 
                 _memoryStore.ServerWorkers[worker.ServerInstanceId].Add(worker);
+            }
+
+            _memoryStore.ScheduledJobs.AddRange(_scheduledJobsToCreate);
+
+            foreach (var scheduledJobUpdate in _scheduledJobUpdates)
+            {
+                var scheduledJobToUpdate =
+                    _memoryStore.ScheduledJobs.FirstOrDefault(job => job.Id == scheduledJobUpdate.Key);
+                
+                if (scheduledJobToUpdate == null)
+                {
+                    continue;
+                }
+
+                foreach (var update in scheduledJobUpdate.Value)
+                {
+                    update(scheduledJobToUpdate);
+                }
             }
 
             _memoryStore.DispatchedJobs.AddRange(_jobDefinitionsToCreate);
@@ -109,13 +133,30 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask<DispatchedJobDefinition> SaveDispatchedJobDefinitionAsync(
+        public ValueTask<DispatchedJobDefinition> CreateDispatchedJobDefinitionAsync(
             DispatchedJobDefinition definition,
             CancellationToken cancellationToken
         )
         {
             _jobDefinitionsToCreate.Add(definition);
             return new ValueTask<DispatchedJobDefinition>(definition);
+        }
+
+        /// <inheritdoc />
+        public ValueTask<ScheduledJobDefinition> CreateScheduledJobDefinitionAsync(
+            ScheduledJobDefinition scheduledJobDefinition,
+            CancellationToken cancellationToken
+        )
+        {
+            _scheduledJobsToCreate.Add(scheduledJobDefinition);
+            return new ValueTask<ScheduledJobDefinition>(scheduledJobDefinition);
+        }
+
+        /// <inheritdoc />
+        public ValueTask UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
+        {
+            UpdateJob(jobId, job => job.Retries = retries);
+            return new ValueTask();
         }
 
         /// <inheritdoc />
@@ -139,9 +180,19 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
+        public ValueTask UpdateScheduledJobNextRunDateAsync(
+            string jobId, 
+            DateTime nextRunDate, 
+            CancellationToken cancellationToken
+        )
         {
-            UpdateJob(jobId, job => job.Retries = retries);
+            UpdateScheduledJob(jobId, job => job.NextRunDate = nextRunDate);
+            return new ValueTask();
+        }
+
+        public ValueTask UpdateScheduledJobLastRunDateAsync(string jobId, DateTime? lastRunDate, CancellationToken cancellationToken)
+        {
+            UpdateScheduledJob(jobId, job => job.LastRunDate = lastRunDate);
             return new ValueTask();
         }
 
@@ -153,6 +204,16 @@ namespace Baseline.Labourer.Store.Memory
             }
 
             _jobDefinitionUpdates[jobId].Add(updateAction);
+        }
+
+        private void UpdateScheduledJob(string jobId, Action<ScheduledJobDefinition> updateAction)
+        {
+            if (!_scheduledJobUpdates.ContainsKey(jobId))
+            {
+                _scheduledJobUpdates[jobId] = new List<Action<ScheduledJobDefinition>>();
+            }
+            
+            _scheduledJobUpdates[jobId].Add(updateAction);
         }
     }
 }

@@ -38,12 +38,13 @@ namespace Baseline.Labourer.Server.Tests
                 {
                     LoggerFactory = () => TestLoggerFactory
                 },
+                new MemoryResourceLocker(TestStore),
                 new MemoryStoreWriterTransactionManager(TestStore),
                 TestQueue
             );
         }
 
-        public async Task<ServerContext> GenerateServerContextAsync(int workers = 1)
+        public ServerContext GenerateServerContextAsync(int workers = 1)
         {
             var serverInstance = new ServerInstance
             {
@@ -58,12 +59,15 @@ namespace Baseline.Labourer.Server.Tests
             {
                 Activator = new DefaultJobActivator(),
                 JobLogStore = new MemoryJobLogStore(TestStore),
+                StoreReader = new MemoryStoreReader(TestStore),
+                ResourceLocker = new MemoryResourceLocker(TestStore),
                 Queue = TestQueue,
                 ServerInstance = serverInstance,
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = TestLoggerFactory,
-                WorkersToRun = workers
+                WorkersToRun = workers,
+                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
             };
         }
 

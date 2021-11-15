@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer
 {
@@ -11,7 +14,7 @@ namespace Baseline.Labourer
         /// <summary>
         /// Gets or sets the identifier of the dispatched job.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; } = StringGenerationUtils.GenerateUniqueRandomString();
 
         /// <summary>
         /// Gets or sets the amount of retries the job has had executed.
@@ -27,5 +30,17 @@ namespace Baseline.Labourer
         /// Gets or sets when the job finished or null if it hasn't yet.
         /// </summary>
         public DateTime? FinishedAt { get; set; }
+
+        public DispatchedJobDefinition()
+        {
+        }
+
+        public DispatchedJobDefinition(JobDefinition jobDefinition)
+        {
+            Type = jobDefinition.Type;
+            HasParameters = jobDefinition.HasParameters;
+            ParametersType = jobDefinition.ParametersType;
+            SerializedParameters = jobDefinition.SerializedParameters;
+        }
     }
 }

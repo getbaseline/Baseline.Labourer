@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging;
 namespace Baseline.Labourer.Server.ServerHeartbeatWorker
 {
     /// <summary>
-    /// <see cref="ServerHeartbeatWorker" /> continuously dispatches heartbeat notifications to the server store,
-    /// ensuring it remains visible and providing accurate diagnostics to consumers of the application.
+    /// Continuously dispatches heartbeat notifications to the server store, ensuring it remains visible and providing
+    /// accurate diagnostics to consumers of the application.
     /// </summary>
     public class ServerHeartbeatWorker : IWorker
     {

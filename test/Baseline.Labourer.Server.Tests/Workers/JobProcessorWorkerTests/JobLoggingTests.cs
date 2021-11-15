@@ -64,7 +64,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public JobLoggingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(await GenerateServerContextAsync()).RunAsync()
+                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
             );
         }
 
@@ -91,7 +91,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Logs_Job_Messages_To_The_Wrapped_Logger_And_The_Server_Store()
         {
             // Arrange.
-            var serverContext = await GenerateServerContextAsync();
+            var serverContext = GenerateServerContextAsync();
             serverContext.LoggerFactory = new TestLoggerFactory();
 
             // Act.
