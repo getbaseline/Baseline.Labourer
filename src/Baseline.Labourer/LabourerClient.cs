@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer
@@ -16,6 +17,7 @@ namespace Baseline.Labourer
         private readonly IResourceLocker _resourceLocker;
         private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
         private readonly JobDispatcher _jobDispatcher;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public LabourerClient(
             BaselineLabourerConfiguration configuration,
@@ -28,6 +30,7 @@ namespace Baseline.Labourer
             _resourceLocker = resourceLocker;
             _storeWriterTransactionManager = storeWriterTransactionManager;
             _jobDispatcher = new JobDispatcher(storeWriterTransactionManager, queue);
+            _dateTimeProvider = new DateTimeProvider();
         }
 
         /// <inheritdoc />
@@ -83,7 +86,7 @@ namespace Baseline.Labourer
             };
 
             await storeWriter.CreateScheduledJobDefinitionAsync(scheduledJobDefinition, cancellationToken);
-            await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, cancellationToken);
+            await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);
             await storeWriter.CommitAsync(cancellationToken);
 
             return scheduledJobDefinition.Id;

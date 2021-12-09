@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Store.Memory;
 using Baseline.Labourer.Tests;
@@ -17,6 +18,8 @@ namespace Baseline.Labourer.Server.Tests
         protected readonly TestQueue TestQueue = new TestQueue();
 
         protected readonly TestMemoryStore TestStore = new TestMemoryStore();
+
+        protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
 
         protected readonly ILoggerFactory TestLoggerFactory;
 

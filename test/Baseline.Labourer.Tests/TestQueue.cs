@@ -1,4 +1,5 @@
-﻿using Baseline.Labourer.Queue.Memory;
+﻿using Baseline.Labourer.Internal;
+using Baseline.Labourer.Queue.Memory;
 using FluentAssertions;
 
 namespace Baseline.Labourer.Tests

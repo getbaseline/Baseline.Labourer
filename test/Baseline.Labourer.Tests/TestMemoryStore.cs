@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Store.Memory;
 using FluentAssertions;
 

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
 
-namespace Baseline.Labourer
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// A model that represents a dispatched job. Differs to other job models in that this is the only job definition

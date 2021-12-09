@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Store.Memory.Internal;
 
 namespace Baseline.Labourer.Store.Memory

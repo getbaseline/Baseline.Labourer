@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 

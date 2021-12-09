@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Tests;
 using Xunit;

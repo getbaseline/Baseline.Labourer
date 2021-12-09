@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Utils;
 using NCrontab;
 
-namespace Baseline.Labourer
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Represents a job that is scheduled to run in the future and potentially recurring basis.
@@ -56,10 +57,15 @@ namespace Baseline.Labourer
         /// Updates the last run date of the scheduled job within the store.
         /// </summary>
         /// <param name="writer">A transactional writer used to update the store.</param>
+        /// <param name="dateTimeProvider">A date time provider used to retrieve the current time.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task UpdateLastRunDateAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
+        public async Task UpdateLastRunDateAsync(
+            ITransactionalStoreWriter writer, 
+            IDateTimeProvider dateTimeProvider,
+            CancellationToken cancellationToken
+        )
         {
-            LastRunDate = DateTime.UtcNow;
+            LastRunDate = dateTimeProvider.UtcNow();
 
             await writer.UpdateScheduledJobLastRunDateAsync(Id, LastRunDate, cancellationToken);
         }
@@ -68,15 +74,17 @@ namespace Baseline.Labourer
         /// Updates the next run date of the scheduled job within the store.
         /// </summary>
         /// <param name="writer">A transactional writer used to update the store.</param>
+        /// <param name="dateTimeProvider">A date time provider used to retrieve the current time.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         public async Task UpdateNextRunDateAsync(
             ITransactionalStoreWriter writer,
+            IDateTimeProvider dateTimeProvider,
             CancellationToken cancellationToken
         )
         {
             NextRunDate = CrontabSchedule
                 .Parse(CronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = true })
-                .GetNextOccurrence(DateTime.UtcNow);
+                .GetNextOccurrence(dateTimeProvider.UtcNow());
 
             await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate, cancellationToken);
         }
