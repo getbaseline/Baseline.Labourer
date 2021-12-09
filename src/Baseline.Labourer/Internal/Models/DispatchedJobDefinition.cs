@@ -1,7 +1,7 @@
 ﻿using System;
 using Baseline.Labourer.Internal.Utils;
 
-namespace Baseline.Labourer.Internal
+namespace Baseline.Labourer.Internal.Models
 {
     /// <summary>
     /// A model that represents a dispatched job. Differs to other job models in that this is the only job definition

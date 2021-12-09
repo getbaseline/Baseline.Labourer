@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Contracts
 {

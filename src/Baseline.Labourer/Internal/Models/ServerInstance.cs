@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Internal
+﻿namespace Baseline.Labourer.Internal.Models
 {
     /// <summary>
     /// Server represents a single running instance of the Baseline.Labourer.Server project. 

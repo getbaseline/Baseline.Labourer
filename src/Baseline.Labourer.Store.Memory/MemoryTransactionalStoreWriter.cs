@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Store.Memory

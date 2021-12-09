@@ -5,6 +5,7 @@ using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Extensions;
+using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
 using Baseline.Labourer.Server.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
