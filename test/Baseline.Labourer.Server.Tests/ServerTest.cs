@@ -2,6 +2,8 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Store.Memory;
 using Baseline.Labourer.Tests;
@@ -17,6 +19,8 @@ namespace Baseline.Labourer.Server.Tests
         protected readonly TestQueue TestQueue = new TestQueue();
 
         protected readonly TestMemoryStore TestStore = new TestMemoryStore();
+
+        protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
 
         protected readonly ILoggerFactory TestLoggerFactory;
 
@@ -38,12 +42,13 @@ namespace Baseline.Labourer.Server.Tests
                 {
                     LoggerFactory = () => TestLoggerFactory
                 },
+                new MemoryResourceLocker(TestStore),
                 new MemoryStoreWriterTransactionManager(TestStore),
                 TestQueue
             );
         }
 
-        public async Task<ServerContext> GenerateServerContextAsync(int workers = 1)
+        public ServerContext GenerateServerContextAsync(int workers = 1)
         {
             var serverInstance = new ServerInstance
             {
@@ -58,12 +63,15 @@ namespace Baseline.Labourer.Server.Tests
             {
                 Activator = new DefaultJobActivator(),
                 JobLogStore = new MemoryJobLogStore(TestStore),
+                StoreReader = new MemoryStoreReader(TestStore),
+                ResourceLocker = new MemoryResourceLocker(TestStore),
                 Queue = TestQueue,
                 ServerInstance = serverInstance,
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = TestLoggerFactory,
-                WorkersToRun = workers
+                WorkersToRun = workers,
+                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
             };
         }
 

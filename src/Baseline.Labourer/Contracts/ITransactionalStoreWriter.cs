@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Contracts
 {
@@ -42,8 +44,18 @@ namespace Baseline.Labourer.Contracts
         /// </summary>
         /// <param name="definition">The definition object.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask<DispatchedJobDefinition> SaveDispatchedJobDefinitionAsync(
+        ValueTask<DispatchedJobDefinition> CreateDispatchedJobDefinitionAsync(
             DispatchedJobDefinition definition,
+            CancellationToken cancellationToken
+        );
+
+        /// <summary>
+        /// Saves a scheduled job to the job store.
+        /// </summary>
+        /// <param name="scheduledJobDefinition">The definition of the scheduled job.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        ValueTask<ScheduledJobDefinition> CreateScheduledJobDefinitionAsync(
+            ScheduledJobDefinition scheduledJobDefinition, 
             CancellationToken cancellationToken
         );
 
@@ -67,6 +79,30 @@ namespace Baseline.Labourer.Contracts
             JobStatus jobStatus,
             DateTime? finishedDate,
             CancellationToken cancellationToken = default
+        );
+
+        /// <summary>
+        /// Updates the next run date of the scheduled job in the relevant store.
+        /// </summary>
+        /// <param name="jobId">The id of the scheduled job that needs to be updated.</param>
+        /// <param name="nextRunDate">The next run date of the job.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        ValueTask UpdateScheduledJobNextRunDateAsync(
+            string jobId, 
+            DateTime nextRunDate, 
+            CancellationToken cancellationToken
+        );
+
+        /// <summary>
+        /// Updates the last run date of the scheduled job in the relevant store.
+        /// </summary>
+        /// <param name="jobId">The id of the scheduled job that needs to be updated.</param>
+        /// <param name="lastRunDate">The last run date of the job.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        ValueTask UpdateScheduledJobLastRunDateAsync(
+            string jobId, 
+            DateTime? lastRunDate, 
+            CancellationToken cancellationToken
         );
     }
 }

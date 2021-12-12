@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Tests;
 using Xunit;
@@ -23,7 +25,6 @@ namespace Baseline.Labourer.Store.Memory.Tests
             // Arrange.
             var jobDefinition = new DispatchedJobDefinition
             {
-                Id = StringGenerationUtils.GenerateUniqueRandomString(),
                 Status = JobStatus.Created
             };
 
@@ -58,7 +59,8 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 Key = StringGenerationUtils.GenerateUniqueRandomString()
             };
 
-            var jobId = StringGenerationUtils.GenerateUniqueRandomString();
+            var dispatchedJob = new DispatchedJobDefinition();
+            var scheduledJob = new ScheduledJobDefinition();
 
             // Act.
             await using var writer = _transactionManager.BeginTransaction();
@@ -69,9 +71,12 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateWorkerAsync(new Worker { ServerInstanceId = server.Id }, CancellationToken.None);
-            await writer.SaveDispatchedJobDefinitionAsync(new DispatchedJobDefinition { Id = jobId }, CancellationToken.None);
-            await writer.UpdateJobRetriesAsync(jobId, 25, CancellationToken.None);
-            await writer.UpdateJobStateAsync(jobId, JobStatus.Complete, DateTime.UtcNow, CancellationToken.None);
+            await writer.CreateScheduledJobDefinitionAsync(scheduledJob, CancellationToken.None);
+            await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(-1).Date, CancellationToken.None);
+            await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(1).Date, CancellationToken.None);
+            await writer.CreateDispatchedJobDefinitionAsync(dispatchedJob, CancellationToken.None);
+            await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 25, CancellationToken.None);
+            await writer.UpdateJobStateAsync(dispatchedJob.Id, JobStatus.Complete, DateTime.UtcNow, CancellationToken.None);
 
             await writer.CommitAsync(CancellationToken.None);
 
@@ -79,8 +84,10 @@ namespace Baseline.Labourer.Store.Memory.Tests
             _memoryStore.AssertHasRegisteredAServer();
             _memoryStore.AssertHeartbeatRegisteredForServer(server.Id, 4);
             _memoryStore.AssertHasRegisteredWorkersForServer(server.Id, 1);
-            _memoryStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-            _memoryStore.AssertJobHasRetryCount(jobId, 25);
+            _memoryStore.AssertScheduledJobCreated(scheduledJob.Id);
+            _memoryStore.AssertNextRunDateForScheduledJobIsCloseTo(scheduledJob.Id, DateTime.Now.AddDays(1).Date);
+            _memoryStore.AssertStatusForJobIs(dispatchedJob.Id, JobStatus.Complete);
+            _memoryStore.AssertJobHasRetryCount(dispatchedJob.Id, 25);
         }
     }
 }

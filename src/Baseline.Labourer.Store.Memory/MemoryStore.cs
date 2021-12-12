@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Memory.Internal;
 
 namespace Baseline.Labourer.Store.Memory
@@ -20,9 +22,19 @@ namespace Baseline.Labourer.Store.Memory
         public List<DispatchedJobDefinition> DispatchedJobs { get; } = new List<DispatchedJobDefinition>();
 
         /// <summary>
+        /// Gets or sets the locks that have been made against resources.
+        /// </summary>
+        public Dictionary<string, List<MemoryLock>> Locks { get; } = new Dictionary<string, List<MemoryLock>>();
+
+        /// <summary>
         /// Gets the log entries that have been created.
         /// </summary>
         public List<MemoryLogEntry> LogEntries { get; } = new List<MemoryLogEntry>();
+
+        /// <summary>
+        /// Gets the scheduled jobs that have been created.
+        /// </summary>
+        public List<ScheduledJobDefinition> ScheduledJobs { get; } = new List<ScheduledJobDefinition>();
 
         /// <summary>
         /// Gets the servers that have been created.
@@ -40,7 +52,7 @@ namespace Baseline.Labourer.Store.Memory
         public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } = new Dictionary<string, List<DateTime>>();
 
         /// <summary>
-        /// Acquires a lock on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
+        /// Acquires a "lock" on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
         /// This isn't "idiot proof" - someone could just bypass this if they weren't to bother calling it. Don't do that. Please.
         /// </summary>
         public async Task<IDisposable> AcquireLockAsync()

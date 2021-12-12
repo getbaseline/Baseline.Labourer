@@ -1,4 +1,7 @@
-﻿namespace Baseline.Labourer.Server.JobProcessorWorker
+﻿using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
+
+namespace Baseline.Labourer.Server.JobProcessorWorker
 {
     /// <summary>
     /// WorkerContext provides worker-level related information and dependencies to jobs. Information that might be

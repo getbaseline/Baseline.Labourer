@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Memory;
 using FluentAssertions;
 
@@ -72,6 +74,20 @@ namespace Baseline.Labourer.Tests
         {
             ServerHeartbeats.ContainsKey(server).Should().BeTrue();
             ServerHeartbeats[server].Count.Should().Be(count);
+        }
+
+        public void AssertScheduledJobCreated(string id, string cronExpression = null)
+        {
+            ScheduledJobs.Should().ContainSingle(
+                j => j.Id == id && 
+                     (cronExpression == null || j.CronExpression == cronExpression)
+            );
+        }
+
+        public void AssertNextRunDateForScheduledJobIsCloseTo(string id, DateTime nextRunDate)
+        {
+            var scheduledJob = ScheduledJobs.First(job => job.Id == id);
+            scheduledJob.NextRunDate.Should().BeCloseTo(nextRunDate, TimeSpan.FromSeconds(1));
         }
     }
 }
