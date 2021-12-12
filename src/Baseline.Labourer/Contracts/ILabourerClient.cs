@@ -39,5 +39,22 @@ namespace Baseline.Labourer
             string cronExpression,
             CancellationToken cancellationToken = default
         ) where TJob : IJob;
+
+        /// <summary>
+        /// Creates a scheduled job (i.e. one that is in the future and can optionally recur).
+        /// </summary>
+        /// <param name="cronExpression">
+        /// A cron expression used to define when the scheduled job will run and if it will repeat.
+        /// </param>
+        /// <param name="jobParameters">
+        /// The parameters for the job, serialized to be stored and then deserialized to become the parameter for
+        /// the HandleAsync method of the job.
+        /// </param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        Task<string> ScheduleJobAsync<TParams, TJob>(
+            string cronExpression,
+            TParams jobParameters,
+            CancellationToken cancellationToken = default
+        ) where TJob : IJob<TParams>;
     }
 }

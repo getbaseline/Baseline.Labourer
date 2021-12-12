@@ -69,7 +69,6 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         {
             // Arrange.
             var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
-            var currentUtcDateTime = DateTime.UtcNow;
 
             // Act.
             Task.Run(async () =>
