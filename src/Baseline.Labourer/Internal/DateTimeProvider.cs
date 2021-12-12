@@ -8,6 +8,9 @@ namespace Baseline.Labourer.Internal
     /// </summary>
     public class DateTimeProvider : IDateTimeProvider
     {
+        /// <summary>
+        /// Gets the current date and time in UTC format.
+        /// </summary>
         public DateTime UtcNow()
         {
             return DateTime.UtcNow;

@@ -63,6 +63,8 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
                                 TimeSpan.FromSeconds(10), 
                                 cancellationToken
                             );
+                            
+                            _logger.LogInformation($"Dispatching scheduled job {job.Id}.");
                         
                             await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job), cancellationToken);
 

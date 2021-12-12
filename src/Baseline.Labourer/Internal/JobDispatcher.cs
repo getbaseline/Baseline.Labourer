@@ -5,6 +5,9 @@ using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Internal
 {
+    /// <summary>
+    /// JobDispatcher provides the ability to dispatch jobs and have them immediately ran.
+    /// </summary>
     public class JobDispatcher
     {
         private readonly IStoreWriterTransactionManager _transactionManager;
@@ -16,6 +19,11 @@ namespace Baseline.Labourer.Internal
             _queue = queue;
         }
 
+        /// <summary>
+        /// Immediately dispatches a job.
+        /// </summary>
+        /// <param name="jobDefinition">The job definition to dispatch.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         public async Task<string> DispatchJobAsync(
             DispatchedJobDefinition jobDefinition, 
             CancellationToken cancellationToken

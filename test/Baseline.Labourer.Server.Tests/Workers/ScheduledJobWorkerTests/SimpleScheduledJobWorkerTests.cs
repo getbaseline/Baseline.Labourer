@@ -65,7 +65,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         }
 
         [Fact]
-        public async Task It_Processes_A_Scheduled_Task_That_Is_Due_To_Run_In_The_Future_When_Its_Next_Run_Date_Is_Passed()
+        public async Task It_Processes_A_Scheduled_Task_That_Is_Due_To_Run_In_The__Future_When_Its_Next_Run_Date_Is_Passed()
         {
             // Arrange.
             var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
