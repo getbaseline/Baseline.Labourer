@@ -65,7 +65,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         }
 
         [Fact]
-        public async Task It_Processes_A_Scheduled_Task_That_Is_Due_To_Run_In_The__Future_When_Its_Next_Run_Date_Is_Passed()
+        public async Task It_Processes_A_Scheduled_Job_That_Is_Due_To_Run_In_The__Future_When_Its_Next_Run_Date_Is_Passed()
         {
             // Arrange.
             var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
@@ -89,6 +89,32 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                 var scheduledJob = TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId);
                 scheduledJob.NextRunDate.Should().Be(nextRunShouldBe);
             });
+        }
+
+        [Fact]
+        public async Task It_Can_Process_A_Scheduled_Job_Multiple_Times()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
+
+            for (int i = 1; i < 4; i++)
+            {
+                // Act.
+                TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddDays(i).Date.AddSeconds(3));
+            
+                // Assert.
+                await AssertionUtils.RetryAsync(() =>
+                {
+                    TestScheduledJob.Ran.Should().BeTrue();
+                
+                    var nextRunShouldBe = CrontabSchedule
+                        .Parse("0 0 0 * * *", new CrontabSchedule.ParseOptions { IncludingSeconds = true })
+                        .GetNextOccurrence(DateTime.UtcNow.AddDays(i).Date.AddSeconds(3));
+                
+                    var scheduledJob = TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId);
+                    scheduledJob.NextRunDate.Should().Be(nextRunShouldBe);
+                });
+            }
         }
     }
 }
