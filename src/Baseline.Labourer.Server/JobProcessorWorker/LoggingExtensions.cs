@@ -145,8 +145,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         {
             logger.Log(
                 logLevel,
-                $"s:{serverContext.ServerInstance.Id} - {message}",
-                exception
+                exception,
+                $"s:{serverContext.ServerInstance.Id} - {message}"
             );
         }
 
@@ -160,8 +160,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         {
             logger.Log(
                 logLevel,
-                $"s:{workerContext.ServerContext.ServerInstance.Id} w:{workerContext.Worker.Id} - {message}",
-                exception
+                exception,
+                $"s:{workerContext.ServerContext.ServerInstance.Id} w:{workerContext.Worker.Id} - {message}"
             );
         }
 
@@ -175,8 +175,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         {
             logger.Log(
                 logLevel,
-                $"s:{jobContext.WorkerContext.ServerContext.ServerInstance.Id} w:{jobContext.WorkerContext.Worker.Id} j:{jobContext.JobDefinition.Id} - {message}{(exception != null ? $" - {exception.Message}" : "")}",
-                exception
+                exception,
+                $"s:{jobContext.WorkerContext.ServerContext.ServerInstance.Id} w:{jobContext.WorkerContext.Worker.Id} j:{jobContext.JobDefinition.Id} - {message}{(exception != null ? $" - {exception.Message}" : "")}"
             );
         }
     }

@@ -54,13 +54,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             {
                 _jobStoredLogger.LogError(_jobContext, "Job failed.", e);
 
-                if (_jobContext.JobDefinition.Retries == 3)
-                {
-                    await FailJobDueToRetriesBeingExceededAsync(cancellationToken);
-                    return;
-                }
-
-                await RetryJobAsync(cancellationToken);
+                // Run failure pipelines.
             }
             finally
             {
@@ -119,36 +113,6 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             );
 
             return jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
-        }
-
-        private async Task RetryJobAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogInformation(
-                _jobContext,
-                $"Retrying job. Attempt {_jobContext.JobDefinition.Retries + 1} of 3."
-            );
-
-            await using var writer = _jobContext.BeginTransaction();
-
-            await _jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
-            await _jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
-            await _jobContext.RequeueJobAsync(cancellationToken);
-
-            await writer.CommitAsync(cancellationToken);
-        }
-
-        private async Task FailJobDueToRetriesBeingExceededAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogError(
-                _jobContext,
-                "Job has exceeded its maximum amount of retries. Marking job as failed."
-            );
-
-            await using var writer = _jobContext.BeginTransaction();
-
-            await _jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries, cancellationToken);
-
-            await writer.CommitAsync(cancellationToken);
         }
     }
 }
