@@ -68,9 +68,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
             await (
-                jobType
+                (ValueTask)jobType
                     .GetMethod(nameof(IJob.HandleAsync))!
-                    .Invoke(jobInstance, methodParameters) as Task
+                    .Invoke(jobInstance, methodParameters)
             );
         }
 

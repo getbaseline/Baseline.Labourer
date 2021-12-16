@@ -14,6 +14,6 @@ namespace Baseline.Labourer
         /// Executes the job.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task HandleAsync(CancellationToken cancellationToken);
+        ValueTask HandleAsync(CancellationToken cancellationToken);
     }
 }

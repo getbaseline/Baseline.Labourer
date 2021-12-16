@@ -12,13 +12,6 @@ namespace Baseline.Labourer.Server.Contracts
     public interface IJobMiddleware
     {
         /// <summary>
-        /// Called when a job is started.
-        /// </summary>
-        /// <param name="jobContext">The job that is being started's context.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Called when a job is completed.
         /// </summary>
         /// <param name="jobContext">The job that is completed's context.</param>
@@ -32,5 +25,24 @@ namespace Baseline.Labourer.Server.Contracts
         /// <param name="exception">The exception that occurred as a result of the job failing, if there is one.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
         ValueTask JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Called when a job fails and exceeds its maximum amount of retries.
+        /// </summary>
+        /// <param name="jobContext">The job that failed's context.</param>
+        /// <param name="exception">The exception that occurred as a result of the job failing, if there is one.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        ValueTask JobFailedAndExceededRetriesAsync(
+            JobContext jobContext,
+            Exception? exception,
+            CancellationToken cancellationToken
+        );
+        
+        /// <summary>
+        /// Called when a job is started.
+        /// </summary>
+        /// <param name="jobContext">The job that is being started's context.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken);
     }
 }

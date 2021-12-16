@@ -25,18 +25,24 @@ namespace Baseline.Labourer.Server.Middleware
             
             jobStoredLogger.LogError(jobContext, "Job failed.", exception);
             
-            await using var writer = jobContext.BeginTransaction();
-            
             // We only want to retry this job if it's not exceeded its retry limit.
             if (jobContext.JobDefinition.Retries >= 3)
             { 
+                // Should perform this after the rest of the failures occur really.
+                // Perhaps an `AdditionalTasksToRun` within the base middleware? `AfterMiddlewareRan` method perhaps?
+                // Otherwise we could be signalling the job has failed and exceeded its retries before the middlewares have picked up the first failure?
+                // Alternatively we could just stop the propagation of any further middlewares at this point as its 
+                // status is no longer a failure, it's something else entirely. <<< I like this!
                 jobStoredLogger.LogError(
                     jobContext,
                     "Job has exceeded its maximum amount of retries. Marking job as failed and exceeded maximum retries."
                 );
 
-                await jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries, cancellationToken);
-                await writer.CommitAsync(cancellationToken);
+                await new JobMiddlewareRunner(jobContext.WorkerContext.ServerContext).JobFailedAndExceededRetriesAsync(
+                    jobContext,
+                    exception,
+                    cancellationToken
+                );
 
                 return;
             }
@@ -45,7 +51,9 @@ namespace Baseline.Labourer.Server.Middleware
                 jobContext,
                 $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of 3."
             );
-
+            
+            await using var writer = jobContext.BeginTransaction();
+            
             await jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
             await jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
             await jobContext.RequeueJobAsync(cancellationToken);

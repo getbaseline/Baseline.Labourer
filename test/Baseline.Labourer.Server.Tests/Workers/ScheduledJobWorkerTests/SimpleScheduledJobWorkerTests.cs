@@ -16,10 +16,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         {
             public static bool Ran = false;
 
-            public Task HandleAsync(CancellationToken cancellationToken)
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 Ran = true;
-                return Task.CompletedTask;
+                return new ValueTask();
             }
         }
 

@@ -37,17 +37,6 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         }
 
         /// <summary>
-        /// Runs the relevant middleware when a job is started. System based middlewares are ran first followed by any
-        /// user provided ones.
-        /// </summary>
-        /// <param name="jobContext">The job that is being ran's context.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        public async ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
-        {
-            await ExecuteAllMiddlewaresAsync(m => m.JobStartedAsync(jobContext, cancellationToken));
-        }
-
-        /// <summary>
         /// Runs the relevant middleware when a job fails. System based middlewares are ran first followed by any
         /// user provided ones.
         /// </summary>
@@ -61,6 +50,34 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         )
         {
             await ExecuteAllMiddlewaresAsync(m => m.JobFailedAsync(jobContext, exception, cancellationToken));
+        }
+
+        /// <summary>
+        /// Called when a job fails and exceeds its maximum amount of retries.
+        /// </summary>
+        /// <param name="jobContext">The job that failed's context.</param>
+        /// <param name="exception">The exception that occurred as a result of the job failing, if there is one.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async ValueTask JobFailedAndExceededRetriesAsync(
+            JobContext jobContext,
+            Exception? exception,
+            CancellationToken cancellationToken
+        )
+        {
+            await ExecuteAllMiddlewaresAsync(
+                m => m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken)
+            );
+        }
+
+        /// <summary>
+        /// Runs the relevant middleware when a job is started. System based middlewares are ran first followed by any
+        /// user provided ones.
+        /// </summary>
+        /// <param name="jobContext">The job that is being ran's context.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
+        {
+            await ExecuteAllMiddlewaresAsync(m => m.JobStartedAsync(jobContext, cancellationToken));
         }
 
         private async ValueTask ExecuteAllMiddlewaresAsync(Func<IJobMiddleware, ValueTask> toExecute)

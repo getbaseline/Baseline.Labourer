@@ -77,7 +77,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 _logger = logger;
             }
 
-            public async Task HandleAsync(CancellationToken cancellationToken)
+            public async ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 _logger.LogInformation("Message one.");
 

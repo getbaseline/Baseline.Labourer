@@ -12,12 +12,6 @@ namespace Baseline.Labourer.Server.Contracts
     public abstract class JobMiddleware : IJobMiddleware
     {
         /// <inheritdoc />
-        public virtual ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
-        {
-            return new ValueTask();
-        }
-
-        /// <inheritdoc />
         public virtual ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
             return new ValueTask();
@@ -29,6 +23,22 @@ namespace Baseline.Labourer.Server.Contracts
             Exception? exception, 
             CancellationToken cancellationToken
         )
+        {
+            return new ValueTask();
+        }
+
+        /// <inheritdoc />
+        public virtual ValueTask JobFailedAndExceededRetriesAsync(
+            JobContext jobContext, 
+            Exception? exception,
+            CancellationToken cancellationToken
+        )
+        {
+            return new ValueTask();
+        }
+        
+        /// <inheritdoc />
+        public virtual ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
             return new ValueTask();
         }
