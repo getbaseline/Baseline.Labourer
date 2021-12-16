@@ -48,7 +48,7 @@ namespace Baseline.Labourer.Server.Tests
             );
         }
 
-        public ServerContext GenerateServerContextAsync(int workers = 1)
+        public ServerContext GenerateServerContextAsync(Action<ServerContext>? configuror = null)
         {
             var serverInstance = new ServerInstance
             {
@@ -59,7 +59,7 @@ namespace Baseline.Labourer.Server.Tests
 
             ServerId = serverInstance.Id;
 
-            return new ServerContext
+            var serverContext = new ServerContext
             {
                 Activator = new DefaultJobActivator(),
                 JobLogStore = new MemoryJobLogStore(TestStore),
@@ -70,9 +70,12 @@ namespace Baseline.Labourer.Server.Tests
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = TestLoggerFactory,
-                WorkersToRun = workers,
                 ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
             };
+
+            configuror?.Invoke(serverContext);
+
+            return serverContext;
         }
 
         public void Dispose()

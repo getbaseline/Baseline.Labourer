@@ -9,10 +9,10 @@ using Microsoft.Extensions.Logging;
 namespace Baseline.Labourer.Server.Middleware
 {
     /// <summary>
-    /// DispatchedJobFailureRetryMiddleware is a middleware for retrying failed jobs. It determines whether or not they
+    /// JobFailureRetryMiddleware is a middleware for retrying failed jobs. It determines whether or not they
     /// have exceeded their maximum amount of retries and, if they have not, schedules them to be executed again.
     /// </summary>
-    public class DispatchedJobFailureRetryMiddleware : DispatchedJobMiddleware
+    public class JobFailureRetryMiddleware : JobMiddleware
     {
         /// <inheritdoc />
         public override async ValueTask JobFailedAsync(
@@ -21,7 +21,7 @@ namespace Baseline.Labourer.Server.Middleware
             CancellationToken cancellationToken
         )
         {
-            var jobStoredLogger = new JobLoggerFactory(jobContext).CreateLogger<DispatchedJobFailureRetryMiddleware>();
+            var jobStoredLogger = new JobLoggerFactory(jobContext).CreateLogger<JobFailureRetryMiddleware>();
             
             jobStoredLogger.LogError(jobContext, "Job failed.", exception);
             

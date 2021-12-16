@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
@@ -25,6 +26,11 @@ namespace Baseline.Labourer.Server
         /// the server and related projects.
         /// </summary>
         public Func<ILoggerFactory> LoggerFactory { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the middlewares used for dispatched jobs.
+        /// </summary>
+        public IEnumerable<IJobMiddleware>? DispatchedJobMiddlewares { get; set; }
 
         /// <summary>
         /// Gets a cancellation token source used to gracefully shutdown workers.

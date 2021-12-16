@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
@@ -29,6 +31,11 @@ namespace Baseline.Labourer.Server
         /// user of the library.
         /// </summary>
         public ILoggerFactory LoggerFactory { get; set; }
+
+        /// <summary>
+        /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
+        /// </summary>
+        public List<IJobMiddleware> AdditionalDispatchedJobMiddlewares { get; set; } = new List<IJobMiddleware>();
 
         /// <summary>
         /// Gets or sets the queue instance to be utilised within the server.
@@ -72,16 +79,6 @@ namespace Baseline.Labourer.Server
         public int WorkersToRun { get; set; } = 1;
 
         /// <summary>
-        /// Identifies and returns whether a specified cancellation token is one owned by the server (and used for things
-        /// such as safe shutdowns).
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        public bool IsServerOwnedCancellationToken(CancellationToken cancellationToken)
-        {
-            return ShutdownTokenSource.Token == cancellationToken;
-        }
-
-        /// <summary>
         /// Creates and stores a heartbeat indicating that this server is still alive.
         /// </summary>
         /// <param name="writer">A transactionized writer to use.</param>
@@ -92,6 +89,24 @@ namespace Baseline.Labourer.Server
                 ServerInstance.Id,
                 cancellationToken
             );
+        }
+
+        /// <summary>
+        /// Identies and returns whether any additional dispatched job middlewares have been configured.
+        /// </summary>
+        public bool HasAdditionalDispatchedJobMiddlewares()
+        {
+            return AdditionalDispatchedJobMiddlewares.Count > 0;
+        }
+
+        /// <summary>
+        /// Identifies and returns whether a specified cancellation token is one owned by the server (and used for things
+        /// such as safe shutdowns).
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public bool IsServerOwnedCancellationToken(CancellationToken cancellationToken)
+        {
+            return ShutdownTokenSource.Token == cancellationToken;
         }
     }
 }

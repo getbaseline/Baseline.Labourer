@@ -6,7 +6,10 @@ using Baseline.Labourer.Server.JobProcessorWorker;
 
 namespace Baseline.Labourer.Server.Middleware
 {
-    public class DispatchedJobUpdateProgressAndCompletionStatusMiddleware : DispatchedJobMiddleware
+    /// <summary>
+    /// Middleware for updating the status of the relevant job based on events that occur.
+    /// </summary>
+    public class JobUpdateProgressAndCompletionStatusMiddleware : JobMiddleware
     {
         /// <summary>
         /// Updates the job's status to mark it as completed.

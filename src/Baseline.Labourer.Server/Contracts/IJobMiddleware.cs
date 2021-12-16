@@ -9,7 +9,7 @@ namespace Baseline.Labourer.Server.Contracts
     /// <summary>
     /// Represents what all dispatched job middlewares must implement.
     /// </summary>
-    public interface IDispatchedJobMiddleware
+    public interface IJobMiddleware
     {
         /// <summary>
         /// Called when a job is started.

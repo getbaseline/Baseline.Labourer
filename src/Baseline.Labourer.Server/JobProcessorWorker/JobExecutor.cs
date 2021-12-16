@@ -13,11 +13,13 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
     public class JobExecutor
     {
         private readonly JobContext _jobContext;
+        private readonly JobMiddlewareRunner _jobMiddlewareRunner;
         private readonly ILogger<JobExecutor> _logger;
 
         public JobExecutor(JobContext jobContext)
         {
             _jobContext = jobContext;
+            _jobMiddlewareRunner = new JobMiddlewareRunner(jobContext.WorkerContext.ServerContext);
             _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
         }
 
@@ -30,18 +32,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             try
             {
                 _logger.LogInformation(_jobContext, "Job processing started.");
-                await new DispatchedJobUpdateProgressAndCompletionStatusMiddleware().JobStartedAsync(_jobContext,
-                    cancellationToken);
+                await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
 
                 await ActivateAndExecuteJobAsync(cancellationToken);
 
                 _logger.LogInformation(_jobContext, "Job processing complete.");
-                await new DispatchedJobUpdateProgressAndCompletionStatusMiddleware().JobCompletedAsync(_jobContext,
-                    cancellationToken);
+                await _jobMiddlewareRunner.JobCompletedAsync(_jobContext, cancellationToken);
             }
             catch (Exception e)
             {
-                await new DispatchedJobFailureRetryMiddleware().JobFailedAsync(_jobContext, e, CancellationToken.None);
+                await _jobMiddlewareRunner.JobFailedAsync(_jobContext, e, cancellationToken);
             }
             finally
             {

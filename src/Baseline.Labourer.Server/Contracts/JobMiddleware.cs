@@ -9,7 +9,7 @@ namespace Baseline.Labourer.Server.Contracts
     /// Helper base class for dispatched job middlewares. Allows relevant implementations to only implement middleware
     /// functions that they care about.
     /// </summary>
-    public abstract class DispatchedJobMiddleware : IDispatchedJobMiddleware
+    public abstract class JobMiddleware : IJobMiddleware
     {
         /// <inheritdoc />
         public virtual ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
