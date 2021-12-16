@@ -42,7 +42,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Processes_A_Scheduled_Task_That_Is_Past_Due_To_Run_And_Updates_The_Next_Run_Date()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 * * * *");
+            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 * * * *");
 
             TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId).NextRunDate =
                 DateTime.UtcNow.AddHours(-1); // Force the job to run.
@@ -68,7 +68,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Processes_A_Scheduled_Job_That_Is_Due_To_Run_In_The__Future_When_Its_Next_Run_Date_Is_Passed()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
+            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 * * *");
 
             // Act.
             Task.Run(async () =>
@@ -95,7 +95,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Can_Process_A_Scheduled_Job_Multiple_Times()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 0 * * *");
+            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 * * *");
 
             for (int i = 1; i < 4; i++)
             {

@@ -4,14 +4,15 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
 using Baseline.Labourer.Server.JobProcessorWorker;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.Middleware
 {
     /// <summary>
-    /// DispatchedJobRetryMiddleware is a middleware for retrying failed jobs. It determines whether or not they have
-    /// exceeded their maximum amount of retries and, if they have not, schedules them to be executed again.
+    /// DispatchedJobFailureRetryMiddleware is a middleware for retrying failed jobs. It determines whether or not they
+    /// have exceeded their maximum amount of retries and, if they have not, schedules them to be executed again.
     /// </summary>
-    public class DispatchedJobRetryMiddleware : DispatchedJobMiddleware
+    public class DispatchedJobFailureRetryMiddleware : DispatchedJobMiddleware
     {
         /// <inheritdoc />
         public override async ValueTask JobFailedAsync(
@@ -20,14 +21,18 @@ namespace Baseline.Labourer.Server.Middleware
             CancellationToken cancellationToken
         )
         {
+            var jobStoredLogger = new JobLoggerFactory(jobContext).CreateLogger<DispatchedJobFailureRetryMiddleware>();
+            
+            jobStoredLogger.LogError(jobContext, "Job failed.", exception);
+            
             await using var writer = jobContext.BeginTransaction();
             
             // We only want to retry this job if it's not exceeded its retry limit.
             if (jobContext.JobDefinition.Retries >= 3)
             { 
-                _jobStoredLogger.LogError(
-                    _jobContext,
-                    "Job has exceeded its maximum amount of retries. Marking job as failed."
+                jobStoredLogger.LogError(
+                    jobContext,
+                    "Job has exceeded its maximum amount of retries. Marking job as failed and exceeded maximum retries."
                 );
 
                 await jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries, cancellationToken);
@@ -36,7 +41,7 @@ namespace Baseline.Labourer.Server.Middleware
                 return;
             }
             
-            _jobStoredLogger.LogInformation(
+            jobStoredLogger.LogInformation(
                 jobContext,
                 $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of 3."
             );

@@ -34,6 +34,8 @@ namespace Baseline.Labourer.Internal
             await writer.CreateDispatchedJobDefinitionAsync(jobDefinition, cancellationToken);
             await _queue.EnqueueAsync(jobDefinition, cancellationToken);
 
+            await writer.CommitAsync(cancellationToken);
+
             return jobDefinition.Id;
         }
     }

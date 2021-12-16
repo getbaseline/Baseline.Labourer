@@ -124,7 +124,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             this ILogger logger,
             JobContext jobContext,
             string message,
-            Exception exception = null
+            Exception? exception = null
         )
         {
             logger.LogInternal(
@@ -170,7 +170,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             JobContext jobContext,
             LogLevel logLevel,
             string message,
-            Exception exception = null
+            Exception? exception = null
         )
         {
             logger.Log(

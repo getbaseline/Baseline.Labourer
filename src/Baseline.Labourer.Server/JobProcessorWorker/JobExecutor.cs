@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Server.Middleware;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker
@@ -15,13 +14,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
     {
         private readonly JobContext _jobContext;
         private readonly ILogger<JobExecutor> _logger;
-        private readonly ILogger<JobExecutor> _jobStoredLogger;
 
         public JobExecutor(JobContext jobContext)
         {
             _jobContext = jobContext;
             _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
-            _jobStoredLogger = new JobLoggerFactory(_jobContext).CreateLogger<JobExecutor>();
         }
 
         /// <summary>
@@ -30,31 +27,21 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken"></param>
         public async Task ExecuteJobAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation(_jobContext, "Job processing started.");
-
             try
             {
-                await using (var writer = _jobContext.BeginTransaction())
-                {
-                    await _jobContext.UpdateJobStateAsync(writer, JobStatus.InProgress, cancellationToken);
-                    await writer.CommitAsync(cancellationToken);
-                }
+                _logger.LogInformation(_jobContext, "Job processing started.");
+                await new DispatchedJobUpdateProgressAndCompletionStatusMiddleware().JobStartedAsync(_jobContext,
+                    cancellationToken);
 
                 await ActivateAndExecuteJobAsync(cancellationToken);
 
-                await using (var writer = _jobContext.BeginTransaction())
-                {
-                    await _jobContext.UpdateJobStateAsync(writer, JobStatus.Complete, cancellationToken);
-                    await writer.CommitAsync(cancellationToken);
-                }
-
                 _logger.LogInformation(_jobContext, "Job processing complete.");
+                await new DispatchedJobUpdateProgressAndCompletionStatusMiddleware().JobCompletedAsync(_jobContext,
+                    cancellationToken);
             }
             catch (Exception e)
             {
-                _jobStoredLogger.LogError(_jobContext, "Job failed.", e);
-
-                // Run failure pipelines.
+                await new DispatchedJobFailureRetryMiddleware().JobFailedAsync(_jobContext, e, CancellationToken.None);
             }
             finally
             {

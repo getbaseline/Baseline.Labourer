@@ -83,7 +83,7 @@ namespace Baseline.Labourer.Internal.Models
         )
         {
             NextRunDate = CrontabSchedule
-                .Parse(CronExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = true })
+                .Parse(CronExpression)
                 .GetNextOccurrence(dateTimeProvider.UtcNow());
 
             await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate, cancellationToken);

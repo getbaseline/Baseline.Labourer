@@ -12,7 +12,7 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the identifier of the dispatched job.
         /// </summary>
-        public string Id { get; } = StringGenerationUtils.GenerateUniqueRandomString();
+        public string Id { get; set; } = StringGenerationUtils.GenerateUniqueRandomString();
 
         /// <summary>
         /// Gets or sets the amount of retries the job has had executed.
