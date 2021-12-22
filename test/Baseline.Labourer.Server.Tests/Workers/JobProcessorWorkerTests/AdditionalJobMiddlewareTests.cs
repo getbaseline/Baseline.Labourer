@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server.Contracts;
@@ -26,10 +26,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 return new ValueTask();
             }
 
-            public override ValueTask JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken)
+            public override ValueTask<MiddlewareContinuation> JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken)
             {
                 JobFailed = true;
-                return new ValueTask();
+                return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
             }
 
             public override ValueTask JobFailedAndExceededRetriesAsync(JobContext jobContext, Exception? exception,
@@ -64,23 +64,14 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         
         public AdditionalJobMiddlewareTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Task.Run(
-                async () => await new JobProcessorWorker
-                        .JobProcessorWorker(
-                            GenerateServerContextAsync(
-                                s => s.AdditionalDispatchedJobMiddlewares = new List<IJobMiddleware>
-                                {
-                                    new TestJobMiddleware()
-                                }
-                            )
-                        )
-                        .RunAsync()
-            );
         }
 
         [Fact]
         public async Task It_Dispatches_User_Defined_JobStarted_And_JobCompleted_Job_Middlewares()
         {
+            // Arrange.
+            RunWorker(typeof(TestJobMiddleware));
+            
             // Act.
             await Client.DispatchJobAsync<SimpleQueuedJob>();
             
@@ -93,8 +84,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         }
 
         [Fact]
-        public async Task It_Dispatches_User_Defines_JobFailure_Job_Middlewares()
+        public async Task It_Dispatches_User_Defined_JobFailure_Job_Middlewares()
         {
+            // Arrange.
+            RunWorker(typeof(TestJobMiddleware));
+            
             // Act.
             await Client.DispatchJobAsync<JobThatWillFail>();
             
@@ -104,6 +98,64 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 TestJobMiddleware.JobFailed.Should().BeTrue();
                 TestJobMiddleware.JobFailedAndExceededRetries.Should().BeTrue();
             });
+        }
+
+        public class NoContinueMiddleware : JobMiddleware
+        {
+            public static bool Ran;
+            
+            public override ValueTask<MiddlewareContinuation> JobFailedAsync(
+                JobContext jobContext, 
+                Exception? exception, 
+                CancellationToken cancellationToken
+            )
+            {
+                Ran = true;
+                return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Abort);
+            }
+        }
+
+        public class AfterContinueMiddleware : JobMiddleware
+        {
+            public static bool Ran;
+            
+            public override ValueTask<MiddlewareContinuation> JobFailedAsync(
+                JobContext jobContext, 
+                Exception? exception, 
+                CancellationToken cancellationToken
+            )
+            {
+                Ran = true;    
+                return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
+            }
+        }
+
+        [Fact]
+        public async Task It_Does_Not_Run_Any_Further_Middleware_If_A_Middleware_Says_Not_To_On_JobFailure()
+        {
+            // Arrange.
+            RunWorker(typeof(NoContinueMiddleware), typeof(AfterContinueMiddleware));
+            
+            // Act.
+            await Client.DispatchJobAsync<JobThatWillFail>();
+            
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                NoContinueMiddleware.Ran.Should().BeTrue();
+                AfterContinueMiddleware.Ran.Should().BeFalse();
+            });
+        }
+
+        private void RunWorker(params Type[] jobMiddlewares)
+        {
+            Task.Run(
+                async () => await new JobProcessorWorker
+                    .JobProcessorWorker(
+                        GenerateServerContextAsync(s => s.AdditionalDispatchedJobMiddlewares = jobMiddlewares.ToList())
+                    )
+                    .RunAsync()
+            );
         }
     }
 }

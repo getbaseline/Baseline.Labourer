@@ -9,13 +9,13 @@ using Microsoft.Extensions.Logging;
 namespace Baseline.Labourer.Server.Middleware
 {
     /// <summary>
-    /// JobFailureRetryMiddleware is a middleware for retrying failed jobs. It determines whether or not they
-    /// have exceeded their maximum amount of retries and, if they have not, schedules them to be executed again.
+    /// A middleware for retrying failed jobs. It determines whether or not they have exceeded their maximum amount of
+    /// retries and, if they have not, schedules them to be executed again.
     /// </summary>
     public class JobFailureRetryMiddleware : JobMiddleware
     {
         /// <inheritdoc />
-        public override async ValueTask JobFailedAsync(
+        public override async ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext, 
             Exception? exception, 
             CancellationToken cancellationToken
@@ -27,12 +27,7 @@ namespace Baseline.Labourer.Server.Middleware
             
             // We only want to retry this job if it's not exceeded its retry limit.
             if (jobContext.JobDefinition.Retries >= 3)
-            { 
-                // Should perform this after the rest of the failures occur really.
-                // Perhaps an `AdditionalTasksToRun` within the base middleware? `AfterMiddlewareRan` method perhaps?
-                // Otherwise we could be signalling the job has failed and exceeded its retries before the middlewares have picked up the first failure?
-                // Alternatively we could just stop the propagation of any further middlewares at this point as its 
-                // status is no longer a failure, it's something else entirely. <<< I like this!
+            {
                 jobStoredLogger.LogError(
                     jobContext,
                     "Job has exceeded its maximum amount of retries. Marking job as failed and exceeded maximum retries."
@@ -44,7 +39,7 @@ namespace Baseline.Labourer.Server.Middleware
                     cancellationToken
                 );
 
-                return;
+                return MiddlewareContinuation.Abort;
             }
             
             jobStoredLogger.LogInformation(
@@ -59,6 +54,8 @@ namespace Baseline.Labourer.Server.Middleware
             await jobContext.RequeueJobAsync(cancellationToken);
 
             await writer.CommitAsync(cancellationToken);
+
+            return MiddlewareContinuation.Continue;
         }
     }
 }

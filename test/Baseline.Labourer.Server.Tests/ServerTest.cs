@@ -61,7 +61,7 @@ namespace Baseline.Labourer.Server.Tests
 
             var serverContext = new ServerContext
             {
-                Activator = new DefaultJobActivator(),
+                Activator = new DefaultActivator(),
                 JobLogStore = new MemoryJobLogStore(TestStore),
                 StoreReader = new MemoryStoreReader(TestStore),
                 ResourceLocker = new MemoryResourceLocker(TestStore),

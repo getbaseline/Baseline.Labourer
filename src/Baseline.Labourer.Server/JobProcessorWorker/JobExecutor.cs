@@ -99,7 +99,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 new JobLoggerFactory(jobContext)
             );
 
-            return jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
+            return jobContext.WorkerContext.ServerContext.Activator.ActivateType(jobType, genericLogger);
         }
     }
 }

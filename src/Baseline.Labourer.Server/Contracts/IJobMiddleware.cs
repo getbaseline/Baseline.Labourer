@@ -24,7 +24,14 @@ namespace Baseline.Labourer.Server.Contracts
         /// <param name="jobContext">The job that failed's context.</param>
         /// <param name="exception">The exception that occurred as a result of the job failing, if there is one.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken);
+        /// <returns>
+        /// A <see cref="MiddlewareContinuation"/> value indicating whether the rest of the middlewares in the chain should run.
+        /// </returns>
+        ValueTask<MiddlewareContinuation> JobFailedAsync(
+            JobContext jobContext, 
+            Exception? exception, 
+            CancellationToken cancellationToken
+        );
 
         /// <summary>
         /// Called when a job fails and exceeds its maximum amount of retries.

@@ -12,9 +12,10 @@ namespace Baseline.Labourer.Server
     public class BaselineServerConfiguration
     {
         /// <summary>
-        /// Gets or sets the activator used to create instances of job definitions.
+        /// Gets or sets the activator used to create instances of Baseline.Labourer components such as jobs, middlewares
+        /// etc.
         /// </summary>
-        public IJobActivator JobActivator { get; set; } = new DefaultJobActivator();
+        public IActivator Activator { get; set; } = new DefaultActivator();
 
         /// <summary>
         /// Gets or sets the number of job processor tasks to run within this instance of the Baseline.Labourer server.

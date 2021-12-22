@@ -18,13 +18,13 @@ namespace Baseline.Labourer.Server.Contracts
         }
 
         /// <inheritdoc />
-        public virtual ValueTask JobFailedAsync(
+        public virtual ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext, 
             Exception? exception, 
             CancellationToken cancellationToken
         )
         {
-            return new ValueTask();
+            return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
         }
 
         /// <inheritdoc />

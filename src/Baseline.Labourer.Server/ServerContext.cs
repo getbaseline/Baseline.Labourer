@@ -19,7 +19,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets the configured activator used to create instances of jobs.
         /// </summary>
-        public IJobActivator Activator { get; set; }
+        public IActivator Activator { get; set; }
 
         /// <summary>
         /// Gets or sets the job log store to be utilised within the server.
@@ -35,7 +35,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
         /// </summary>
-        public List<IJobMiddleware> AdditionalDispatchedJobMiddlewares { get; set; } = new List<IJobMiddleware>();
+        public List<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
 
         /// <summary>
         /// Gets or sets the queue instance to be utilised within the server.

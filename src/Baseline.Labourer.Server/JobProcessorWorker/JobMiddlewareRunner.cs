@@ -33,7 +33,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
-            await ExecuteAllMiddlewaresAsync(m => m.JobCompletedAsync(jobContext, cancellationToken));
+            await ExecuteAllMiddlewaresAsync(async m =>
+            {
+                await m.JobCompletedAsync(jobContext, cancellationToken);
+                return MiddlewareContinuation.Continue;
+            });
         }
 
         /// <summary>
@@ -64,9 +68,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             CancellationToken cancellationToken
         )
         {
-            await ExecuteAllMiddlewaresAsync(
-                m => m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken)
-            );
+            await ExecuteAllMiddlewaresAsync(async m =>
+            {
+                await m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken);
+                return MiddlewareContinuation.Continue;
+            });
         }
 
         /// <summary>
@@ -77,10 +83,14 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
-            await ExecuteAllMiddlewaresAsync(m => m.JobStartedAsync(jobContext, cancellationToken));
+            await ExecuteAllMiddlewaresAsync(async m =>
+            {
+                await m.JobStartedAsync(jobContext, cancellationToken);
+                return MiddlewareContinuation.Continue;
+            });
         }
 
-        private async ValueTask ExecuteAllMiddlewaresAsync(Func<IJobMiddleware, ValueTask> toExecute)
+        private async ValueTask ExecuteAllMiddlewaresAsync(Func<IJobMiddleware, ValueTask<MiddlewareContinuation>> toExecute)
         {
             foreach (var middleware in SystemJobMiddlewares)
             {
@@ -91,7 +101,12 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             {
                 foreach (var middleware in _serverContext.AdditionalDispatchedJobMiddlewares)
                 {
-                    await toExecute(middleware);
+                    var cont = await toExecute((IJobMiddleware) _serverContext.Activator.ActivateType(middleware));
+                    
+                    if (cont == MiddlewareContinuation.Abort)
+                    {
+                        break;
+                    }
                 }
             }
         }
