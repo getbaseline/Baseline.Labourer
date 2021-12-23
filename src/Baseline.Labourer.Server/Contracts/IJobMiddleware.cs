@@ -12,6 +12,11 @@ namespace Baseline.Labourer.Server.Contracts
     public interface IJobMiddleware
     {
         /// <summary>
+        /// Gets whether or not further middlewares should be executed on failures of this one.
+        /// </summary>
+        bool ContinueExecutingMiddlewaresOnFailure { get; }
+        
+        /// <summary>
         /// Called when a job is completed.
         /// </summary>
         /// <param name="jobContext">The job that is completed's context.</param>

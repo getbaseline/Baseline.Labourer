@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server.Contracts;
 using Baseline.Labourer.Server.Middleware;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker
 {
@@ -19,10 +20,12 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         };
 
         private readonly ServerContext _serverContext;
+        private readonly ILogger<JobMiddlewareRunner> _logger;
 
         public JobMiddlewareRunner(ServerContext serverContext)
         {
             _serverContext = serverContext;
+            _logger = serverContext.LoggerFactory.CreateLogger<JobMiddlewareRunner>();
         }
 
         /// <summary>
@@ -33,11 +36,14 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
-            await ExecuteAllMiddlewaresAsync(async m =>
-            {
-                await m.JobCompletedAsync(jobContext, cancellationToken);
-                return MiddlewareContinuation.Continue;
-            });
+            await ExecuteAllMiddlewaresAsync(
+                async m =>
+                {
+                    await m.JobCompletedAsync(jobContext, cancellationToken);
+                    return MiddlewareContinuation.Continue;
+                },
+                jobContext
+            );
         }
 
         /// <summary>
@@ -53,7 +59,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             CancellationToken cancellationToken
         )
         {
-            await ExecuteAllMiddlewaresAsync(m => m.JobFailedAsync(jobContext, exception, cancellationToken));
+            await ExecuteAllMiddlewaresAsync(
+                m => m.JobFailedAsync(jobContext, exception, cancellationToken),
+                jobContext
+            );
         }
 
         /// <summary>
@@ -68,11 +77,14 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             CancellationToken cancellationToken
         )
         {
-            await ExecuteAllMiddlewaresAsync(async m =>
-            {
-                await m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken);
-                return MiddlewareContinuation.Continue;
-            });
+            await ExecuteAllMiddlewaresAsync(
+                async m =>
+                {
+                    await m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken);
+                    return MiddlewareContinuation.Continue;
+                },
+                jobContext
+            );
         }
 
         /// <summary>
@@ -83,29 +95,75 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
-            await ExecuteAllMiddlewaresAsync(async m =>
-            {
-                await m.JobStartedAsync(jobContext, cancellationToken);
-                return MiddlewareContinuation.Continue;
-            });
+            await ExecuteAllMiddlewaresAsync(
+                async m =>
+                {
+                    await m.JobStartedAsync(jobContext, cancellationToken);
+                    return MiddlewareContinuation.Continue;
+                },
+                jobContext
+            );
         }
 
-        private async ValueTask ExecuteAllMiddlewaresAsync(Func<IJobMiddleware, ValueTask<MiddlewareContinuation>> toExecute)
+        private async ValueTask ExecuteAllMiddlewaresAsync(
+            Func<IJobMiddleware, ValueTask<MiddlewareContinuation>> toExecute,
+            JobContext jobContext
+        )
         {
             foreach (var middleware in SystemJobMiddlewares)
             {
-                await toExecute(middleware);
+                try
+                {
+                    await toExecute(middleware);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(jobContext, $"Middleware {middleware.GetType().Name} failed to execute.", e);
+                    
+                    if (!middleware.ContinueExecutingMiddlewaresOnFailure)
+                    {
+                        _logger.LogInformation(
+                            $"Middleware {middleware.GetType().Name} failed and is configured not to continue " +
+                            $"executing middlewares. Returning."
+                        );
+
+                        return;
+                    }
+                }
             }
 
             if (_serverContext.HasAdditionalDispatchedJobMiddlewares())
             {
                 foreach (var middleware in _serverContext.AdditionalDispatchedJobMiddlewares)
                 {
-                    var cont = await toExecute((IJobMiddleware) _serverContext.Activator.ActivateType(middleware));
+                    var activatedMiddleware = (IJobMiddleware) _serverContext.Activator.ActivateType(middleware);
                     
-                    if (cont == MiddlewareContinuation.Abort)
+                    try
                     {
-                        break;
+                        var cont = await toExecute(activatedMiddleware);
+                        if (cont == MiddlewareContinuation.Abort)
+                        {
+                            break;
+                        }   
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(
+                            jobContext, 
+                            $"Consumer provided middleware {activatedMiddleware.GetType().Name} failed to " +
+                            $"execute.", 
+                            e
+                        );
+                    
+                        if (!activatedMiddleware.ContinueExecutingMiddlewaresOnFailure)
+                        {
+                            _logger.LogInformation(
+                                $"Middleware {activatedMiddleware.GetType().Name} failed and is configured not " +
+                                $"to continue executing middlewares. Returning."
+                            );
+
+                            return;
+                        }
                     }
                 }
             }

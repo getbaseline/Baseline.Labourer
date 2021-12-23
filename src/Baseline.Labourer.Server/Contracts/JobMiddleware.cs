@@ -12,6 +12,9 @@ namespace Baseline.Labourer.Server.Contracts
     public abstract class JobMiddleware : IJobMiddleware
     {
         /// <inheritdoc />
+        public virtual bool ContinueExecutingMiddlewaresOnFailure { get; } = true;
+
+        /// <inheritdoc />
         public virtual ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
         {
             return new ValueTask();
