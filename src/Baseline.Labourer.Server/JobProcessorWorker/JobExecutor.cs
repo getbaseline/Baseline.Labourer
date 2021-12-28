@@ -64,7 +64,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
 
         private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
         {
-            var jobType = GetJobTypeFromContext();
+            var jobType = _jobContext.JobType;
             var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
             await (
@@ -72,11 +72,6 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                     .GetMethod(nameof(IJob.HandleAsync))!
                     .Invoke(jobInstance, methodParameters)
             );
-        }
-
-        private Type GetJobTypeFromContext()
-        {
-            return Type.GetType(_jobContext.JobDefinition.Type);
         }
 
         private async Task<object> DeserializeParametersFromContextAsync()

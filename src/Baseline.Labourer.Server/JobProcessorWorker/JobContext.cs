@@ -37,6 +37,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         }
 
         /// <summary>
+        /// Gets the type of the job that this job context relates to.
+        /// </summary>
+        public Type JobType => Type.GetType(JobDefinition.Type);
+
+        /// <summary>
         /// Updates the job's state.
         /// </summary>
         /// <param name="writer">A transactionized store writer to use.</param>
@@ -82,6 +87,15 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         }
 
         /// <summary>
+        /// Removes the job from the queue to ensure it is not retried.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async Task RemoveMessageFromQueueAsync(CancellationToken cancellationToken)
+        {
+            await WorkerContext.ServerContext.Queue.DeleteMessageAsync(OriginalMessageId, cancellationToken);
+        }
+
+        /// <summary>
         /// Re-queues a job.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
@@ -91,12 +105,18 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         }
 
         /// <summary>
-        /// Removes the job from the queue to ensure it is not retried.
+        /// Gets the retry count for the current job (if one has been configured) or the default retry count.
         /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task RemoveMessageFromQueueAsync(CancellationToken cancellationToken)
+        public uint RetryCountForJob()
         {
-            await WorkerContext.ServerContext.Queue.DeleteMessageAsync(OriginalMessageId, cancellationToken);
+            var retryCount = WorkerContext.ServerContext.DefaultRetryConfiguration.Retries;
+
+            if (WorkerContext.ServerContext.JobRetryConfigurations.ContainsKey(JobType))
+            {
+                retryCount = WorkerContext.ServerContext.JobRetryConfigurations[JobType].Retries;
+            }
+
+            return retryCount;
         }
     }
 }

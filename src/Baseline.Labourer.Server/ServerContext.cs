@@ -22,20 +22,30 @@ namespace Baseline.Labourer.Server
         public IActivator Activator { get; set; }
 
         /// <summary>
+        /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
+        /// </summary>
+        public List<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
+        
+        /// <summary>
+        /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
+        /// </summary>
+        public RetryConfiguration DefaultRetryConfiguration { get; set; } = RetryConfiguration.Default;
+
+        /// <summary>
         /// Gets or sets the job log store to be utilised within the server.
         /// </summary>
         public IJobLogStore JobLogStore { get; set; }
+
+        /// <summary>
+        /// Gets or sets the custom retries for specific job types.
+        /// </summary>
+        public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } = new Dictionary<Type, RetryConfiguration>();
 
         /// <summary>
         /// Gets or sets an optional logger factory instance to use to log messages to destinations configured by the
         /// user of the library.
         /// </summary>
         public ILoggerFactory LoggerFactory { get; set; }
-
-        /// <summary>
-        /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
-        /// </summary>
-        public List<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
 
         /// <summary>
         /// Gets or sets the queue instance to be utilised within the server.
