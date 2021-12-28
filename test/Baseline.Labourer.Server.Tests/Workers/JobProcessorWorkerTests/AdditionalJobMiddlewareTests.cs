@@ -147,6 +147,36 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             });
         }
 
+        public class NoContinueOnErrorMiddleware : JobMiddleware
+        {
+            public static bool Ran;
+        
+            public override bool ContinueExecutingMiddlewaresOnFailure { get; } = false;
+
+            public override ValueTask<MiddlewareContinuation> JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken)
+            {
+                Ran = true;
+                throw new ArgumentException("Failure here.");
+            }
+        }
+
+        [Fact]
+        public async Task It_Does_Not_Run_Any_Further_Middleware_If_A_Middleware_Fails_And_It_Says_Not_To_Continue_On_Failure()
+        {
+            // Arrange.
+            RunWorker(typeof(NoContinueOnErrorMiddleware), typeof(AfterContinueMiddleware));
+            
+            // Act.
+            await Client.DispatchJobAsync<JobThatWillFail>();
+            
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                NoContinueOnErrorMiddleware.Ran.Should().BeTrue();
+                AfterContinueMiddleware.Ran.Should().BeFalse();
+            });
+        }
+
         private void RunWorker(params Type[] jobMiddlewares)
         {
             Task.Run(

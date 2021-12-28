@@ -122,7 +122,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                     
                     if (!middleware.ContinueExecutingMiddlewaresOnFailure)
                     {
-                        _logger.LogInformation(
+                        _logger.LogDebug(
                             $"Middleware {middleware.GetType().Name} failed and is configured not to continue " +
                             $"executing middlewares. Returning."
                         );
@@ -157,7 +157,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                     
                         if (!activatedMiddleware.ContinueExecutingMiddlewaresOnFailure)
                         {
-                            _logger.LogInformation(
+                            _logger.LogDebug(
                                 $"Middleware {activatedMiddleware.GetType().Name} failed and is configured not " +
                                 $"to continue executing middlewares. Returning."
                             );

@@ -42,7 +42,6 @@ namespace Baseline.Labourer.Server.Middleware
         /// <param name="jobContext">The jobs context.</param>
         /// <param name="exception">The exception (if there was one).</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        /// <returns></returns>
         public override async ValueTask JobFailedAndExceededRetriesAsync(
             JobContext jobContext, 
             Exception? exception,
