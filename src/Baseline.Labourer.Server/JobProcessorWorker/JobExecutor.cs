@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Server.Middleware;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker
@@ -14,14 +13,14 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
     public class JobExecutor
     {
         private readonly JobContext _jobContext;
+        private readonly JobMiddlewareRunner _jobMiddlewareRunner;
         private readonly ILogger<JobExecutor> _logger;
-        private readonly ILogger<JobExecutor> _jobStoredLogger;
 
         public JobExecutor(JobContext jobContext)
         {
             _jobContext = jobContext;
+            _jobMiddlewareRunner = new JobMiddlewareRunner(jobContext.WorkerContext.ServerContext);
             _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
-            _jobStoredLogger = new JobLoggerFactory(_jobContext).CreateLogger<JobExecutor>();
         }
 
         /// <summary>
@@ -30,37 +29,19 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken"></param>
         public async Task ExecuteJobAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation(_jobContext, "Job processing started.");
-
             try
             {
-                await using (var writer = _jobContext.BeginTransaction())
-                {
-                    await _jobContext.UpdateJobStateAsync(writer, JobStatus.InProgress, cancellationToken);
-                    await writer.CommitAsync(cancellationToken);
-                }
+                _logger.LogInformation(_jobContext, "Job processing started.");
+                await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
 
                 await ActivateAndExecuteJobAsync(cancellationToken);
 
-                await using (var writer = _jobContext.BeginTransaction())
-                {
-                    await _jobContext.UpdateJobStateAsync(writer, JobStatus.Complete, cancellationToken);
-                    await writer.CommitAsync(cancellationToken);
-                }
-
                 _logger.LogInformation(_jobContext, "Job processing complete.");
+                await _jobMiddlewareRunner.JobCompletedAsync(_jobContext, cancellationToken);
             }
             catch (Exception e)
             {
-                _jobStoredLogger.LogError(_jobContext, "Job failed.", e);
-
-                if (_jobContext.JobDefinition.Retries == 3)
-                {
-                    await FailJobDueToRetriesBeingExceededAsync(cancellationToken);
-                    return;
-                }
-
-                await RetryJobAsync(cancellationToken);
+                await _jobMiddlewareRunner.JobFailedAsync(_jobContext, e, cancellationToken);
             }
             finally
             {
@@ -87,9 +68,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
             await (
-                jobType
+                (ValueTask)jobType
                     .GetMethod(nameof(IJob.HandleAsync))!
-                    .Invoke(jobInstance, methodParameters) as Task
+                    .Invoke(jobInstance, methodParameters)
             );
         }
 
@@ -118,37 +99,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 new JobLoggerFactory(jobContext)
             );
 
-            return jobContext.WorkerContext.ServerContext.Activator.ActivateJob(jobType, genericLogger);
-        }
-
-        private async Task RetryJobAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogInformation(
-                _jobContext,
-                $"Retrying job. Attempt {_jobContext.JobDefinition.Retries + 1} of 3."
-            );
-
-            await using var writer = _jobContext.BeginTransaction();
-
-            await _jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
-            await _jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
-            await _jobContext.RequeueJobAsync(cancellationToken);
-
-            await writer.CommitAsync(cancellationToken);
-        }
-
-        private async Task FailJobDueToRetriesBeingExceededAsync(CancellationToken cancellationToken)
-        {
-            _jobStoredLogger.LogError(
-                _jobContext,
-                "Job has exceeded its maximum amount of retries. Marking job as failed."
-            );
-
-            await using var writer = _jobContext.BeginTransaction();
-
-            await _jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries, cancellationToken);
-
-            await writer.CommitAsync(cancellationToken);
+            return jobContext.WorkerContext.ServerContext.Activator.ActivateType(jobType, genericLogger);
         }
     }
 }

@@ -24,10 +24,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             internal static bool Handled = false;
 
-            public Task HandleAsync(CancellationToken cancellationToken)
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 Handled = true;
-                return Task.CompletedTask;
+                return new ValueTask();
             }
         }
 
@@ -76,10 +76,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             public static bool Handled = false;
 
-            public Task HandleAsync(CancellationToken cancellationToken)
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 Handled = true;
-                return Task.CompletedTask;
+                return new ValueTask();
             }
         }
 
@@ -98,7 +98,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class MarkedAsInProgressJob : IJob
         {
-            public async Task HandleAsync(CancellationToken cancellationToken)
+            public async ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 await Task.Delay(2500, cancellationToken);
             }
@@ -121,9 +121,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class MultipleJobsJob : IJob
         {
-            public Task HandleAsync(CancellationToken cancellationToken)
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
-                return Task.CompletedTask;
+                return new ValueTask();
             }
         }
 

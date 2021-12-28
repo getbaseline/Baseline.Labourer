@@ -5,7 +5,7 @@ namespace Baseline.Labourer.Tests
 {
     public class BasicJob : IJob
     {
-        public Task HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync(CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }

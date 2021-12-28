@@ -20,7 +20,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class CatastrophicErrorJob : IJob
         {
-            public async Task HandleAsync(CancellationToken cancellationToken)
+            public async ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }
@@ -43,7 +43,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public class FailedJobThatCompletes : IJob
         {
             private static int _executions = 0;
-            public Task HandleAsync(CancellationToken cancellationToken)
+            
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 _executions++;
 
@@ -52,7 +53,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                     throw new System.NotImplementedException();
                 }
 
-                return Task.CompletedTask;
+                return new ValueTask();
             }
         }
 

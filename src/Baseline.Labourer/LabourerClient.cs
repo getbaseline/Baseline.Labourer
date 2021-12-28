@@ -90,7 +90,7 @@ namespace Baseline.Labourer
         }
 
         private async Task<string> InternalScheduleJobAsync<TParams, TJob>(
-            string cronExpression,
+            string cronExpression,  
             TParams jobParameters,
             CancellationToken cancellationToken = default
         ) 

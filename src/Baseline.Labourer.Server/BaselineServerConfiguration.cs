@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
@@ -11,9 +12,10 @@ namespace Baseline.Labourer.Server
     public class BaselineServerConfiguration
     {
         /// <summary>
-        /// Gets or sets the activator used to create instances of job definitions.
+        /// Gets or sets the activator used to create instances of Baseline.Labourer components such as jobs, middlewares
+        /// etc.
         /// </summary>
-        public IJobActivator JobActivator { get; set; } = new DefaultJobActivator();
+        public IActivator Activator { get; set; } = new DefaultActivator();
 
         /// <summary>
         /// Gets or sets the number of job processor tasks to run within this instance of the Baseline.Labourer server.
@@ -25,6 +27,11 @@ namespace Baseline.Labourer.Server
         /// the server and related projects.
         /// </summary>
         public Func<ILoggerFactory> LoggerFactory { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the middlewares used for dispatched jobs.
+        /// </summary>
+        public IEnumerable<IJobMiddleware>? DispatchedJobMiddlewares { get; set; }
 
         /// <summary>
         /// Gets a cancellation token source used to gracefully shutdown workers.
