@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
@@ -12,9 +14,6 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
     {
         public JobRetryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
-            );
         }
 
 
@@ -29,6 +28,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         [Fact]
         public async Task It_Retries_A_Job_A_Maximum_Of_Three_Times_Before_Marking_The_Job_As_A_Catastrophic_Failure()
         {
+            // Arrange.
+            RunWorker();
+            
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
 
@@ -60,6 +62,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         [Fact]
         public async Task It_Completes_A_Job_Even_If_It_Fails_A_Couple_Of_Times()
         {
+            // Arrange.
+            RunWorker();
+            
             // Act.
             var jobId = await Client.DispatchJobAsync<FailedJobThatCompletes>();
 
@@ -69,6 +74,70 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 TestStore.AssertJobHasRetryCount(jobId, 2);
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
             });
+        }
+
+        [Fact]
+        public async Task The_Default_Retry_Amount_Can_Be_Changed()
+        {
+            // Arrange.
+            RunWorker(new RetryConfiguration(10));
+            
+            // Act.
+            var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
+            
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertJobHasRetryCount(jobId, 10);
+            });
+        }
+
+        public class JobWithChangedRetryAmountThatCatastrophicallyErrors : IJob
+        {
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Fact]
+        public async Task The_Default_Retry_Amount_Can_Be_Changed_Per_Job()
+        {
+            // Arrange.
+            RunWorker(
+                new RetryConfiguration(5), 
+                new Dictionary<Type, RetryConfiguration>
+                {
+                    { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(2) }
+                }
+            );
+            
+            // Act.
+            var standardJobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
+            var changedJobId = await Client.DispatchJobAsync<JobWithChangedRetryAmountThatCatastrophicallyErrors>();
+            
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertJobHasRetryCount(standardJobId, 5);
+                TestStore.AssertJobHasRetryCount(changedJobId, 2);
+            });
+        }
+
+        private void RunWorker(
+            RetryConfiguration defaultRetryConfiguration = null, 
+            Dictionary<Type, RetryConfiguration> jobRetryConfigurations = null
+        )
+        {
+            Task.Run(
+                async () => await new JobProcessorWorker.JobProcessorWorker(
+                    GenerateServerContextAsync(c =>
+                    {
+                        c.DefaultRetryConfiguration = defaultRetryConfiguration ?? RetryConfiguration.Default;
+                        c.JobRetryConfigurations = jobRetryConfigurations ?? new Dictionary<Type, RetryConfiguration>();
+                    })
+                ).RunAsync()
+            );
         }
     }
 }

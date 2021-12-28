@@ -22,11 +22,12 @@ namespace Baseline.Labourer.Server.Middleware
         )
         {
             var jobStoredLogger = new JobLoggerFactory(jobContext).CreateLogger<JobFailureRetryMiddleware>();
+            var retryCountForJob = jobContext.RetryCountForJob();
             
             jobStoredLogger.LogError(jobContext, "Job failed.", exception);
             
             // We only want to retry this job if it's not exceeded its retry limit.
-            if (jobContext.JobDefinition.Retries >= 3)
+            if (jobContext.JobDefinition.Retries >= retryCountForJob)
             {
                 jobStoredLogger.LogError(
                     jobContext,
@@ -44,7 +45,7 @@ namespace Baseline.Labourer.Server.Middleware
             
             jobStoredLogger.LogInformation(
                 jobContext,
-                $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of 3."
+                $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of {retryCountForJob}."
             );
             
             await using var writer = jobContext.BeginTransaction();
