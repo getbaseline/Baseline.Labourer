@@ -80,7 +80,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task The_Default_Retry_Amount_Can_Be_Changed()
         {
             // Arrange.
-            RunWorker(new RetryConfiguration(10));
+            RunWorker(new RetryConfiguration(10, TimeSpan.Zero));
             
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
@@ -105,7 +105,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker(
-                new RetryConfiguration(5), 
+                new RetryConfiguration(5, TimeSpan.Zero), 
                 new Dictionary<Type, RetryConfiguration>
                 {
                     { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(2) }
