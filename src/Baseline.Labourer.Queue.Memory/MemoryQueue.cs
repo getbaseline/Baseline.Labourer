@@ -1,4 +1,5 @@
-﻿using Baseline.Labourer.Internal.Utils;
+﻿using System;
+using Baseline.Labourer.Internal.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,24 +14,31 @@ namespace Baseline.Labourer.Queue.Memory
     /// </summary>
     public class MemoryQueue : IQueue
     {
-        protected List<QueuedJob> Queue = new List<QueuedJob>();
+        protected List<MemoryQueuedJob> Queue = new List<MemoryQueuedJob>();
+        protected List<MemoryQueuedJob> RemovedQueue = new List<MemoryQueuedJob>();
 
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
 
         /// <inheritdoc />
-        public async Task EnqueueAsync<T>(T messageToQueue, CancellationToken cancellationToken)
+        public async Task EnqueueAsync<T>(
+            T messageToQueue,
+            TimeSpan? visibilityDelay,
+            CancellationToken cancellationToken
+        )
         {
             try
             {
                 await _semaphore.WaitAsync(cancellationToken);
 
-                Queue.Add(new QueuedJob
+                Queue.Add(new MemoryQueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
                         messageToQueue,
                         cancellationToken
-                    )
+                    ),
+                    VisibilityDelay = visibilityDelay,
+                    EnqueuedAt = DateTime.UtcNow
                 });
             }
             finally
@@ -51,16 +59,19 @@ namespace Baseline.Labourer.Queue.Memory
                     // This semaphore will prevent other queues from snatching up our messages!
                     await _semaphore.WaitAsync(cancellationToken);
 
-                    if (!Queue.Any())
+                    var firstMessage = Queue.FirstOrDefault(
+                        q => q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero) <= DateTime.UtcNow
+                    );
+
+                    if (firstMessage == null)
                     {
                         released = true;
                         _semaphore.Release();
                         await Task.Delay(1000, cancellationToken);
                         continue;
                     }
-
-                    // TODO: Mark message as invisible and timeout.
-                    var firstMessage = Queue.First();
+                    
+                    RemovedQueue.Add(firstMessage);
                     Queue = Queue.Skip(1).ToList();
 
                     return firstMessage;

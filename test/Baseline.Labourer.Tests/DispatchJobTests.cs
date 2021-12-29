@@ -18,15 +18,12 @@ namespace Baseline.Labourer.Tests
             // Assert.
             var jobDefinition = TestStore.AssertJobWithTypesStored(typeof(BasicJob));
 
-            TestQueue.AssertMessageDispatched(
-                new QueuedJob
-                {
-                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                        jobDefinition,
-                        CancellationToken.None
-                    )
-                }
+            var serialisedJobDefinition = await SerializationUtils.SerializeToStringAsync(
+                jobDefinition,
+                CancellationToken.None
             );
+            
+            TestQueue.AssertMessageDispatched(j => j.SerializedDefinition == serialisedJobDefinition);
         }
     }
 }

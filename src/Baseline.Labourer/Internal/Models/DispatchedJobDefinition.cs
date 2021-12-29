@@ -17,7 +17,7 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the amount of retries the job has had executed.
         /// </summary>
-        public int Retries { get; set; }
+        public uint Retries { get; set; }
 
         /// <summary>
         /// Gets or sets the status of the dispatched job.

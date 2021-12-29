@@ -100,7 +100,7 @@ namespace Baseline.Labourer.Server
                 cancellationToken
             );
         }
-
+        
         /// <summary>
         /// Identies and returns whether any additional dispatched job middlewares have been configured.
         /// </summary>

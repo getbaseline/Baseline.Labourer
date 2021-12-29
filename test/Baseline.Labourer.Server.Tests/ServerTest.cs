@@ -70,7 +70,8 @@ namespace Baseline.Labourer.Server.Tests
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = TestLoggerFactory,
-                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
+                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
+                DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero)
             };
 
             configuror?.Invoke(serverContext);

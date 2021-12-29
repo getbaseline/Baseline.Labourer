@@ -45,9 +45,9 @@ namespace Baseline.Labourer.Tests
             LogEntries.Should().Contain(l => l.JobId == jobId && l.Message == message);
         }
 
-        public void AssertJobHasRetryCount(string jobId, int retryCount)
+        public void AssertJobHasRetryCount(string jobId, uint retryCount)
         {
-            DispatchedJobs.First(j => j.Id == jobId).Retries.Should().Be(retryCount);
+            DispatchedJobs.Should().ContainSingle(j => j.Id == jobId && j.Retries == retryCount);
         }
 
         public string AssertHasRegisteredAServer()
