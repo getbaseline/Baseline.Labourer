@@ -23,7 +23,7 @@ namespace Baseline.Labourer.Tests
                 CancellationToken.None
             );
             
-            TestQueue.AssertMessageDispatched(j => j.SerializedDefinition == serialisedJobDefinition);
+            TestMemoryQueue.AssertMessageDispatched(j => j.SerializedDefinition == serialisedJobDefinition);
         }
     }
 }

@@ -5,6 +5,7 @@ using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Tests;
+using FluentAssertions;
 using Xunit;
 
 namespace Baseline.Labourer.Store.Memory.Tests
@@ -17,6 +18,183 @@ namespace Baseline.Labourer.Store.Memory.Tests
         public MemoryTransactionStoreWriterTests()
         {
             _transactionManager = new MemoryStoreWriterTransactionManager(_memoryStore);
+        }
+        
+        [Fact]
+        public async Task It_Can_Create_A_Server()
+        {
+            // Arrange.
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.CreateServerAsync(new ServerInstance {Hostname = "foo", Key = "bar"}, CancellationToken.None);
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.Servers.Should().ContainSingle(s => s.Id == "foo-bar");
+        }
+
+        [Fact]
+        public async Task It_Can_Create_A_Server_Heartbeat()
+        {
+            // Arrange.
+            await using var writer = _transactionManager.BeginTransaction();
+
+            // Act.
+            await writer.CreateServerHeartbeatAsync("abc", CancellationToken.None);
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.ServerHeartbeats["abc"].Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task It_Can_Create_A_Worker()
+        {
+            // Arrange.
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.CreateWorkerAsync(new Worker { Id = "foo", ServerInstanceId = "foo" }, CancellationToken.None);
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.ServerWorkers["foo"].Should().ContainSingle(w => w.Id == "foo");
+        }
+
+        [Fact]
+        public async Task It_Can_Create_A_Scheduled_Job()
+        {
+            // Arrange.
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.CreateScheduledJobDefinitionAsync(
+                new ScheduledJobDefinition {CronExpression = "abc"}, 
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.ScheduledJobs.Should().ContainSingle(sj => sj.CronExpression == "abc");
+        }
+
+        [Fact]
+        public async Task It_Can_Update_A_Scheduled_Jobs_Next_Run_Date()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition
+            {
+                CronExpression = "abc", 
+                NextRunDate = DateTime.UtcNow.Date.AddDays(-3)
+            };
+            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.UpdateScheduledJobNextRunDateAsync(
+                scheduledJob.Id,
+                DateTime.UtcNow.Date.AddDays(7),
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.ScheduledJobs.Should().ContainSingle(
+                sj => sj.Id == scheduledJob.Id && sj.NextRunDate == DateTime.UtcNow.Date.AddDays(7)
+            );
+        }
+
+        [Fact]
+        public async Task It_Can_Update_A_Scheduled_Jobs_Last_Run_Date()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition
+            {
+                CronExpression = "abc", 
+                LastRunDate = DateTime.UtcNow.Date.AddDays(-3)
+            };
+            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.UpdateScheduledJobLastRunDateAsync(
+                scheduledJob.Id,
+                DateTime.UtcNow.Date.AddDays(7),
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.ScheduledJobs.Should().ContainSingle(
+                sj => sj.Id == scheduledJob.Id && sj.LastRunDate == DateTime.UtcNow.Date.AddDays(7)
+            );
+        }
+
+        [Fact]
+        public async Task It_Can_Create_A_Dispatched_Job()
+        {
+            // Arrange.
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.CreateDispatchedJobDefinitionAsync(
+                new DispatchedJobDefinition {Id = "bar"}, 
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.DispatchedJobs.Should().ContainSingle(j => j.Id == "bar");
+        }
+
+        [Fact]
+        public async Task It_Can_Update_A_Dispatched_Jobs_Status()
+        {
+            // Arrange.
+            var jobDefinition = new DispatchedJobDefinition {Id = "abc"};
+            _memoryStore.DispatchedJobs.Add(jobDefinition);
+            
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.UpdateJobStateAsync(
+                jobDefinition.Id, 
+                JobStatus.Complete, 
+                DateTime.UtcNow.Date,
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.DispatchedJobs.Should().ContainSingle(
+                j => j.Id == jobDefinition.Id &&
+                     j.Status == JobStatus.Complete &&
+                     j.FinishedAt == DateTime.UtcNow.Date
+            );
+        }
+
+        [Fact]
+        public async Task It_Can_Update_A_Dispatched_Jobs_Retry_Count()
+        {
+            // Arrange.
+            var jobDefinition = new DispatchedJobDefinition {Id = "abc"};
+            _memoryStore.DispatchedJobs.Add(jobDefinition);
+            
+            await using var writer = _transactionManager.BeginTransaction();
+            
+            // Act.
+            await writer.UpdateJobRetriesAsync(
+                jobDefinition.Id, 
+                25,
+                CancellationToken.None
+            );
+            await writer.CommitAsync(CancellationToken.None);
+
+            // Assert.
+            _memoryStore.DispatchedJobs.Should().ContainSingle(j => j.Id == jobDefinition.Id && j.Retries == 25);
         }
 
         [Fact]
