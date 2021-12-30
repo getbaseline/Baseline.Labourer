@@ -12,9 +12,9 @@ using FluentAssertions;
 
 namespace Baseline.Labourer.Tests
 {
-    public class TestQueue : MemoryQueue
+    public class TestMemoryQueue : MemoryQueue
     {
-        public TestQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
+        public TestMemoryQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
         {
         }
         

@@ -16,7 +16,7 @@ namespace Baseline.Labourer.Server.Tests
     {
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        protected readonly TestQueue TestQueue;
+        protected readonly TestMemoryQueue TestMemoryQueue;
 
         protected readonly TestMemoryStore TestStore = new TestMemoryStore();
 
@@ -37,7 +37,7 @@ namespace Baseline.Labourer.Server.Tests
                     .SetMinimumLevel(LogLevel.Debug);
             });
 
-            TestQueue = new TestQueue(TestDateTimeProvider);
+            TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
 
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
@@ -46,7 +46,7 @@ namespace Baseline.Labourer.Server.Tests
                 },
                 new MemoryResourceLocker(TestStore),
                 new MemoryStoreWriterTransactionManager(TestStore),
-                TestQueue
+                TestMemoryQueue
             );
         }
 
@@ -67,7 +67,7 @@ namespace Baseline.Labourer.Server.Tests
                 JobLogStore = new MemoryJobLogStore(TestStore),
                 StoreReader = new MemoryStoreReader(TestStore),
                 ResourceLocker = new MemoryResourceLocker(TestStore),
-                Queue = TestQueue,
+                Queue = TestMemoryQueue,
                 ServerInstance = serverInstance,
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,

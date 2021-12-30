@@ -139,7 +139,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 0, TimeSpan.Zero);
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 0, TimeSpan.Zero);
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(11));
@@ -147,7 +147,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 1, TimeSpan.FromSeconds(10));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 1, TimeSpan.FromSeconds(10));
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(22));
@@ -155,7 +155,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 2, TimeSpan.FromSeconds(10));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 2, TimeSpan.FromSeconds(10));
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(33));
@@ -163,7 +163,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 3, TimeSpan.FromSeconds(10));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 3, TimeSpan.FromSeconds(10));
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(44));
@@ -171,7 +171,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 4, TimeSpan.FromSeconds(10));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 4, TimeSpan.FromSeconds(10));
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(55));
@@ -179,7 +179,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 5, TimeSpan.FromSeconds(10));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 5, TimeSpan.FromSeconds(10));
             });
         }
 
@@ -210,7 +210,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 
                 // Verify the standard job with the no delay has been completed (and failed).
                 TestStore.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(standardJobId, 5, TimeSpan.Zero);
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(standardJobId, 5, TimeSpan.Zero);
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(70)); // Mimic the timeout actually occurring.
@@ -219,7 +219,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             {
                 // Verify the long delayed job has been completed (and failed).
                 TestStore.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
-                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(60));
+                TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(60));
             });
         }
 
