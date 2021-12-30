@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Queue.Memory
@@ -18,6 +19,12 @@ namespace Baseline.Labourer.Queue.Memory
         protected List<MemoryQueuedJob> RemovedQueue = new List<MemoryQueuedJob>();
 
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
+        private readonly IDateTimeProvider _dateTimeProvider;
+        
+        public MemoryQueue(IDateTimeProvider dateTimeProvider)
+        {
+            _dateTimeProvider = dateTimeProvider;
+        }
 
         /// <inheritdoc />
         public async Task EnqueueAsync<T>(
@@ -38,7 +45,7 @@ namespace Baseline.Labourer.Queue.Memory
                         cancellationToken
                     ),
                     VisibilityDelay = visibilityDelay,
-                    EnqueuedAt = DateTime.UtcNow
+                    EnqueuedAt = _dateTimeProvider.UtcNow()
                 });
             }
             finally
@@ -60,7 +67,7 @@ namespace Baseline.Labourer.Queue.Memory
                     await _semaphore.WaitAsync(cancellationToken);
 
                     var firstMessage = Queue.FirstOrDefault(
-                        q => q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero) <= DateTime.UtcNow
+                        q => q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero) <= _dateTimeProvider.UtcNow()
                     );
 
                     if (firstMessage == null)
@@ -72,7 +79,7 @@ namespace Baseline.Labourer.Queue.Memory
                     }
 
                     firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
-                    firstMessage.VisibilityDelay = (DateTime.UtcNow - firstMessage.EnqueuedAt).Add(TimeSpan.FromSeconds(30));
+                    firstMessage.VisibilityDelay = (_dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt).Add(TimeSpan.FromSeconds(30));
 
                     return firstMessage;
                 }

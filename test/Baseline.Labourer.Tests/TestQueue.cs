@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Queue.Memory;
 using FluentAssertions;
@@ -13,12 +14,16 @@ namespace Baseline.Labourer.Tests
 {
     public class TestQueue : MemoryQueue
     {
+        public TestQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
+        {
+        }
+        
         public void AssertMessageDispatched(Expression<Func<MemoryQueuedJob, bool>> predicate)
         {
             Queue.Should().ContainSingle(predicate);
         }
 
-        public void AssertJobDispatchedWithIdRetryCountAndDelay(string jobId, uint retryCount, TimeSpan delay)
+        public void AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(string jobId, uint retryCount, TimeSpan delay)
         {
             var jobDefinitions = RemovedQueue.Select(j => new
             {

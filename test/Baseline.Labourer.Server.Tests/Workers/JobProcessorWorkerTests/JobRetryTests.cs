@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -90,6 +89,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestStore.AssertJobHasRetryCount(jobId, 10);
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
             });
         }
 
@@ -131,9 +131,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task The_Default_Retry_Timeout_Can_Be_Changed_For_All_Jobs()
         {
             // Arrange.
-            RunWorker(new RetryConfiguration(5, TimeSpan.FromSeconds(1)));
-
-            var startDate = DateTime.UtcNow;
+            RunWorker(new RetryConfiguration(5, TimeSpan.FromSeconds(10)));
 
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
@@ -141,15 +139,48 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                // refactor to utilise the date time provider to prevent really welly long tests
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(jobId, 1, TimeSpan.FromSeconds(1));
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(jobId, 2, TimeSpan.FromSeconds(1));
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(jobId, 3, TimeSpan.FromSeconds(1));
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(jobId, 4, TimeSpan.FromSeconds(1));
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(jobId, 5, TimeSpan.FromSeconds(1));
-                TestStore.AssertJobHasRetryCount(jobId, 5);
-                DateTime.UtcNow.Should().BeCloseTo(startDate.AddSeconds(10), TimeSpan.FromMilliseconds(999));
-            }, 25, 500);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 0, TimeSpan.Zero);
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(11));
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 1, TimeSpan.FromSeconds(10));
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(22));
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 2, TimeSpan.FromSeconds(10));
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(33));
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 3, TimeSpan.FromSeconds(10));
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(44));
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 4, TimeSpan.FromSeconds(10));
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(55));
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 5, TimeSpan.FromSeconds(10));
+            });
         }
 
         [Fact]
@@ -160,7 +191,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 new RetryConfiguration(5, TimeSpan.Zero),
                 new Dictionary<Type, RetryConfiguration>
                 {
-                    { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(1, TimeSpan.FromSeconds(10) )}
+                    { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(1, TimeSpan.FromSeconds(60) )}
                 }
             );
 
@@ -171,9 +202,17 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestQueue.AssertJobDispatchedWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(10));
                 TestStore.AssertJobHasRetryCount(changedJobId, 1);
-            }, 50, 1000);
+                TestStore.AssertStatusForJobIs(changedJobId, JobStatus.Failed);
+            });
+            
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(70)); // Mimic the timeout actually occurring.
+
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(60));
+            });
         }
 
         private void RunWorker(

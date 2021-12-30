@@ -16,7 +16,7 @@ namespace Baseline.Labourer.Server.Tests
     {
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        protected readonly TestQueue TestQueue = new TestQueue();
+        protected readonly TestQueue TestQueue;
 
         protected readonly TestMemoryStore TestStore = new TestMemoryStore();
 
@@ -36,6 +36,8 @@ namespace Baseline.Labourer.Server.Tests
                     .AddXUnit(testOutputHelper)
                     .SetMinimumLevel(LogLevel.Debug);
             });
+
+            TestQueue = new TestQueue(TestDateTimeProvider);
 
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
