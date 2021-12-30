@@ -43,12 +43,12 @@ namespace Baseline.Labourer.Queue.Memory.Tests
             // Assert.
             _memoryQueue.AssertMessageDispatched(
                 j => j.SerializedDefinition == "{\"A\":\"b\"}" && 
-                                    j.VisibilityDelay == TimeSpan.FromMinutes(1)
+                     j.VisibilityDelay == TimeSpan.FromMinutes(1)
             );
             
             _dateTimeProvider.SetUtcNow(DateTime.UtcNow.AddMinutes(2));
 
-            var dequeuedMessage = await _memoryQueue.DequeueAsync(CancellationToken.None) as MemoryQueuedJob;
+            var dequeuedMessage = (MemoryQueuedJob) (await _memoryQueue.DequeueAsync(CancellationToken.None))!;
 
             dequeuedMessage.SerializedDefinition.Should().Be("{\"A\":\"b\"}");
             dequeuedMessage.PreviousVisibilityDelay.Should().Be(TimeSpan.FromMinutes(1));
