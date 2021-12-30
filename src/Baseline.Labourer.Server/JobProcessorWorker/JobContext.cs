@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
@@ -101,7 +102,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken">A cancellation token.</param>
         public async Task RequeueJobAsync(CancellationToken cancellationToken)
         {
-            await WorkerContext.ServerContext.Queue.EnqueueAsync(JobDefinition, cancellationToken);
+            await WorkerContext.ServerContext.Queue.EnqueueAsync(
+                JobDefinition, 
+                RetryDelayForJob(), 
+                cancellationToken
+            );
         }
 
         /// <summary>
@@ -117,6 +122,21 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             }
 
             return retryCount;
+        }
+
+        /// <summary>
+        /// Gets the retry delay for the current job (if one has been configured) or the default retry delay.
+        /// </summary>
+        private TimeSpan RetryDelayForJob()
+        {
+            var retryDelays = WorkerContext.ServerContext.DefaultRetryConfiguration.Delays;
+
+            if (WorkerContext.ServerContext.JobRetryConfigurations.ContainsKey(JobType))
+            {
+                retryDelays = WorkerContext.ServerContext.JobRetryConfigurations[JobType].Delays;
+            }
+
+            return retryDelays.ElementAt((int)JobDefinition.Retries - 1);
         }
     }
 }

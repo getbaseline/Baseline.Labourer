@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
@@ -32,7 +33,7 @@ namespace Baseline.Labourer.Internal
             await using var writer = _transactionManager.BeginTransaction();
 
             await writer.CreateDispatchedJobDefinitionAsync(jobDefinition, cancellationToken);
-            await _queue.EnqueueAsync(jobDefinition, cancellationToken);
+            await _queue.EnqueueAsync(jobDefinition, TimeSpan.Zero, cancellationToken);
 
             await writer.CommitAsync(cancellationToken);
 

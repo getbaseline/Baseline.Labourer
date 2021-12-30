@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
@@ -14,8 +15,11 @@ namespace Baseline.Labourer
         /// Enqueues a message to the queue.
         /// </summary>
         /// <param name="messageToQueue">A message that should be serialized and queued.</param>
+        /// <param name="visibilityDelay">
+        /// An optional delay used to stop a message being visible in a queue for a defined timespan.
+        /// </param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task EnqueueAsync<T>(T messageToQueue, CancellationToken cancellationToken);
+        Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken);
 
         /// <summary>
         /// Dequeues and returns a single message from the queue. This method long polls (i.e. waits a specified amount

@@ -29,7 +29,7 @@ namespace Baseline.Labourer.Server.Middleware
             // We only want to retry this job if it's not exceeded its retry limit.
             if (jobContext.JobDefinition.Retries >= retryCountForJob)
             {
-                jobStoredLogger.LogError(
+                jobStoredLogger.LogDebug(
                     jobContext,
                     "Job has exceeded its maximum amount of retries. Marking job as failed and exceeded maximum retries."
                 );
@@ -43,7 +43,7 @@ namespace Baseline.Labourer.Server.Middleware
                 return MiddlewareContinuation.Abort;
             }
             
-            jobStoredLogger.LogInformation(
+            jobStoredLogger.LogDebug(
                 jobContext,
                 $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of {retryCountForJob}."
             );

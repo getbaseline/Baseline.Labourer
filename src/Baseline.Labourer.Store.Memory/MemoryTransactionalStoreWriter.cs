@@ -155,7 +155,7 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken)
+        public ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken)
         {
             UpdateJob(jobId, job => job.Retries = retries);
             return new ValueTask();

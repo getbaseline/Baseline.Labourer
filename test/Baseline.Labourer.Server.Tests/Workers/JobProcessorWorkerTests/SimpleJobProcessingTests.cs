@@ -116,7 +116,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             {
                 TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
                 TestStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
-            });
+            }, 25, 500);
         }
 
         public class MultipleJobsJob : IJob

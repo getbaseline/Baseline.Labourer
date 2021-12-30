@@ -65,7 +65,7 @@ namespace Baseline.Labourer.Contracts
         /// <param name="jobId">The job id to update the retries for.</param>
         /// <param name="retries">The retries to save against the job.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask UpdateJobRetriesAsync(string jobId, int retries, CancellationToken cancellationToken);
+        ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates the state of a job.
