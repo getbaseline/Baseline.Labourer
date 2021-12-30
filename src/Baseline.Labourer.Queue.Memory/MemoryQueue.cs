@@ -70,9 +70,9 @@ namespace Baseline.Labourer.Queue.Memory
                         await Task.Delay(1000, cancellationToken);
                         continue;
                     }
-                    
-                    RemovedQueue.Add(firstMessage);
-                    Queue = Queue.Skip(1).ToList();
+
+                    firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
+                    firstMessage.VisibilityDelay = (DateTime.UtcNow - firstMessage.EnqueuedAt).Add(TimeSpan.FromSeconds(30));
 
                     return firstMessage;
                 }
@@ -94,7 +94,11 @@ namespace Baseline.Labourer.Queue.Memory
             try
             {
                 await _semaphore.WaitAsync(cancellationToken);
-                Queue.RemoveAll(q => q.MessageId == messageId);
+
+                var messagesToRemove = Queue.Where(qm => qm.MessageId == messageId).ToList();
+                
+                RemovedQueue.AddRange(messagesToRemove);
+                Queue.RemoveAll(qm => messagesToRemove.Any(m => m.MessageId == qm.MessageId));
             }
             finally
             {

@@ -22,7 +22,7 @@ namespace Baseline.Labourer.Tests
         {
             var jobDefinitions = RemovedQueue.Select(j => new
             {
-                VisibilityDelay = j.VisibilityDelay,
+                VisibilityDelay = j.PreviousVisibilityDelay,
                 JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)
             });
 

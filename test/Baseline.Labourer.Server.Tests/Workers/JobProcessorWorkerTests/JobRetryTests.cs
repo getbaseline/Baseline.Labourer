@@ -31,7 +31,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker();
-            
+
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
 
@@ -46,7 +46,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public class FailedJobThatCompletes : IJob
         {
             private static int _executions = 0;
-            
+
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
                 _executions++;
@@ -65,7 +65,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker();
-            
+
             // Act.
             var jobId = await Client.DispatchJobAsync<FailedJobThatCompletes>();
 
@@ -82,10 +82,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker(new RetryConfiguration(10, TimeSpan.Zero));
-            
+
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
-            
+
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
@@ -106,17 +106,17 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker(
-                new RetryConfiguration(5, TimeSpan.Zero), 
+                new RetryConfiguration(5, TimeSpan.Zero),
                 new Dictionary<Type, RetryConfiguration>
                 {
                     { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(2, TimeSpan.Zero) }
                 }
             );
-            
+
             // Act.
             var standardJobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
             var changedJobId = await Client.DispatchJobAsync<JobWithChangedRetryAmountThatCatastrophicallyErrors>();
-            
+
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
@@ -134,10 +134,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             RunWorker(new RetryConfiguration(5, TimeSpan.FromSeconds(1)));
 
             var startDate = DateTime.UtcNow;
-            
+
             // Act.
             var jobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
-            
+
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
@@ -157,17 +157,17 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             RunWorker(
-                new RetryConfiguration(5, TimeSpan.FromSeconds(1)),
+                new RetryConfiguration(5, TimeSpan.Zero),
                 new Dictionary<Type, RetryConfiguration>
                 {
                     { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(1, TimeSpan.FromSeconds(10) )}
                 }
             );
-            
+
             // Act.
             var standardJobId = await Client.DispatchJobAsync<CatastrophicErrorJob>();
             var changedJobId = await Client.DispatchJobAsync<JobWithChangedRetryAmountThatCatastrophicallyErrors>();
-            
+
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
@@ -177,7 +177,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         }
 
         private void RunWorker(
-            RetryConfiguration defaultRetryConfiguration = null, 
+            RetryConfiguration defaultRetryConfiguration = null,
             Dictionary<Type, RetryConfiguration> jobRetryConfigurations = null
         )
         {
