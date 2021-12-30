@@ -20,8 +20,12 @@ namespace Baseline.Labourer.Queue.Memory
 
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
         private readonly IDateTimeProvider _dateTimeProvider;
-        
-        public MemoryQueue(IDateTimeProvider dateTimeProvider)
+
+        public MemoryQueue() : this(new DateTimeProvider())
+        {
+        }
+
+        protected MemoryQueue(IDateTimeProvider dateTimeProvider)
         {
             _dateTimeProvider = dateTimeProvider;
         }
