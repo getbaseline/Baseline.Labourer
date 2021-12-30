@@ -191,7 +191,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 new RetryConfiguration(5, TimeSpan.Zero),
                 new Dictionary<Type, RetryConfiguration>
                 {
-                    { typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), new RetryConfiguration(1, TimeSpan.FromSeconds(60) )}
+                    {
+                        typeof(JobWithChangedRetryAmountThatCatastrophicallyErrors), 
+                        new RetryConfiguration(1, TimeSpan.FromSeconds(60) )
+                    }
                 }
             );
 
@@ -204,12 +207,17 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             {
                 TestStore.AssertJobHasRetryCount(changedJobId, 1);
                 TestStore.AssertStatusForJobIs(changedJobId, JobStatus.Failed);
+                
+                // Verify the standard job with the no delay has been completed (and failed).
+                TestStore.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
+                TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(standardJobId, 5, TimeSpan.Zero);
             });
             
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddSeconds(70)); // Mimic the timeout actually occurring.
 
             await AssertionUtils.RetryAsync(() =>
             {
+                // Verify the long delayed job has been completed (and failed).
                 TestStore.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
                 TestQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(60));
             });
