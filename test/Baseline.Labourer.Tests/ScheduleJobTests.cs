@@ -13,10 +13,10 @@ namespace Baseline.Labourer.Tests
             var cronExpression = "* * * * *";
             
             // Act.
-            var scheduledJobId = await Client.ScheduleJobAsync<BasicJob>(cronExpression);
+            var scheduledJobId = await Client.ScheduleJobAsync<BasicJob>("created-job", cronExpression);
 
             // Assert.
-            scheduledJobId.Should().NotBeNullOrWhiteSpace();
+            scheduledJobId.Should().Be("scheduled-job:created-job");
             TestStore.AssertScheduledJobCreated(scheduledJobId, cronExpression);
         }
     }

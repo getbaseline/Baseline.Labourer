@@ -16,7 +16,7 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the id of the scheduled job.
         /// </summary>
-        public string Id { get; } = $"scheduled-job:{StringGenerationUtils.GenerateUniqueRandomString()}";
+        public string Id => $"scheduled-job:{NormalizedName}";
 
         /// <summary>
         /// Gets or sets the cron expression used to define when the job will be executed and/or reoccur.
@@ -32,6 +32,11 @@ namespace Baseline.Labourer.Internal.Models
         /// Gets or sets when the job last ran.
         /// </summary>
         public DateTime? LastRunDate { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the name of the job.
+        /// </summary>
+        public string Name { get; set; }
         
         /// <summary>
         /// Gets or sets the next run date of the scheduled job.
@@ -88,5 +93,10 @@ namespace Baseline.Labourer.Internal.Models
 
             await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate, cancellationToken);
         }
+
+        /// <summary>
+        /// Gets or sets the normalized name of the job (i.e. the name, lower cased, with spaces replaced with dashes).
+        /// </summary>
+        private string NormalizedName => Name.ToLower().Replace(" ", "-");
     }
 }

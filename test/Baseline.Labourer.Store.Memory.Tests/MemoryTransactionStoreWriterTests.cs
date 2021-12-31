@@ -85,6 +85,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition
             {
+                Name = "next-run-date",
                 CronExpression = "abc", 
                 NextRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
@@ -112,6 +113,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition
             {
+                Name = "last-run-date",
                 CronExpression = "abc", 
                 LastRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
@@ -238,7 +240,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             };
 
             var dispatchedJob = new DispatchedJobDefinition();
-            var scheduledJob = new ScheduledJobDefinition();
+            var scheduledJob = new ScheduledJobDefinition { Name = "incremental" };
 
             // Act.
             await using var writer = _transactionManager.BeginTransaction();

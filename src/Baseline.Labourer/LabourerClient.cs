@@ -51,21 +51,28 @@ namespace Baseline.Labourer
 
         /// <inheritdoc />
         public async Task<string> ScheduleJobAsync<TJob>(
+            string name,
             string cronExpression, 
             CancellationToken cancellationToken = default
         ) where TJob : IJob
         {
-            return await InternalScheduleJobAsync<object, TJob>(cronExpression, null, cancellationToken);
+            return await InternalScheduleJobAsync<object, TJob>(name, cronExpression, null, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<string> ScheduleJobAsync<TParams, TJob>(
+            string name,
             string cronExpression, 
             TParams jobParameters,
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>
         {
-            return await InternalScheduleJobAsync<TParams, TJob>(cronExpression, jobParameters, cancellationToken);
+            return await InternalScheduleJobAsync<TParams, TJob>(
+                name, 
+                cronExpression, 
+                jobParameters, 
+                cancellationToken
+            );
         }
 
         private async Task<string> InternalDispatchJobAsync<TParams, TJob>(
@@ -90,6 +97,7 @@ namespace Baseline.Labourer
         }
 
         private async Task<string> InternalScheduleJobAsync<TParams, TJob>(
+            string name,
             string cronExpression,  
             TParams jobParameters,
             CancellationToken cancellationToken = default
@@ -103,6 +111,7 @@ namespace Baseline.Labourer
                 Type = typeof(TJob).AssemblyQualifiedName,
                 HasParameters = jobParameters != null,
                 ParametersType = jobParameters != null ? GetParametersType<TParams>() : null,
+                Name = name,
                 SerializedParameters = jobParameters != null ?
                     await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
                     null,
