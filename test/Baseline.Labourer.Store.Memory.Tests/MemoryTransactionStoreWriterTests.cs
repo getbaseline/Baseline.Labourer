@@ -259,7 +259,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             _memoryStore.AssertHasRegisteredAServer();
             _memoryStore.AssertHeartbeatRegisteredForServer(server.Id, 4);
             _memoryStore.AssertHasRegisteredWorkersForServer(server.Id, 1);
-            _memoryStore.AssertScheduledJobCreated(scheduledJob.Id);
+            _memoryStore.AssertScheduledJobExists(scheduledJob.Id);
             _memoryStore.AssertNextRunDateForScheduledJobIsCloseTo(scheduledJob.Id, DateTime.Now.AddDays(1).Date);
             _memoryStore.AssertStatusForJobIs(dispatchedJob.Id, JobStatus.Complete);
             _memoryStore.AssertJobHasRetryCount(dispatchedJob.Id, 25);

@@ -18,7 +18,7 @@ namespace Baseline.Labourer.Tests
 
             // Assert.
             scheduledJobId.Should().Be("scheduled-job:created-job");
-            TestStore.AssertScheduledJobCreated(scheduledJobId, cronExpression);
+            TestStore.AssertScheduledJobExists(scheduledJobId, cronExpression);
         }
 
         public class TestScheduledJob : IJob
@@ -59,10 +59,13 @@ namespace Baseline.Labourer.Tests
             );
 
             // Assert.
-            TestStore.ScheduledJobs[scheduledJobId].CronExpression.Should().Be("0 * * * *");
-            TestStore.ScheduledJobs[scheduledJobId].Type.Should().Be(typeof(TestScheduledJobWithParameters).AssemblyQualifiedName);
-            TestStore.ScheduledJobs[scheduledJobId].ParametersType.Should().Be(typeof(TestScheduledParameters).AssemblyQualifiedName);
-            TestStore.ScheduledJobs[scheduledJobId].SerializedParameters.Should().Be("{\"Name\":\"foo\"}");
+            TestStore.AssertScheduledJobExists(
+                scheduledJobId,
+                "0 * * * *",
+                typeof(TestScheduledJobWithParameters).AssemblyQualifiedName,
+                typeof(TestScheduledParameters).AssemblyQualifiedName,
+                "{\"Name\":\"foo\"}"
+            );
         }
     }
 }
