@@ -75,6 +75,11 @@ namespace Baseline.Labourer.Tests
             ServerHeartbeats[server].Count.Should().Be(count);
         }
 
+        public void AssertScheduledJobDoesNotExist(string id)
+        {
+            ScheduledJobs.Should().NotContainKey(id);
+        }
+
         public void AssertScheduledJobExists(
             string id, 
             string cronExpression = null,

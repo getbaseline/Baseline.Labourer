@@ -67,5 +67,21 @@ namespace Baseline.Labourer.Tests
                 "{\"Name\":\"foo\"}"
             );
         }
+
+        [Fact]
+        public async Task It_Can_Delete_A_Scheduled_Job()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>(
+                "update-scheduled-job", 
+                "* * * * *"
+            );
+            
+            // Act.
+            await Client.DeleteScheduledJobAsync(scheduledJobId);
+
+            // Assert.
+            TestStore.AssertScheduledJobDoesNotExist(scheduledJobId);
+        }
     }
 }

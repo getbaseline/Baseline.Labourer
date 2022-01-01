@@ -26,7 +26,10 @@ namespace Baseline.Labourer.Store.Memory
         private readonly Dictionary<string, List<Action<ScheduledJobDefinition>>> _scheduledJobUpdates =
             new Dictionary<string, List<Action<ScheduledJobDefinition>>>();
 
+        private readonly List<string> _scheduledJobDeletions = new List<string>();
+
         private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate = new List<DispatchedJobDefinition>();
+        
         private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = 
             new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
 
@@ -82,6 +85,11 @@ namespace Baseline.Labourer.Store.Memory
                 }
             }
 
+            foreach (var scheduledJobDeletion in _scheduledJobDeletions)
+            {
+                _memoryStore.ScheduledJobs.Remove(scheduledJobDeletion);
+            }
+
             _memoryStore.DispatchedJobs.AddRange(_jobDefinitionsToCreate);
 
             foreach (var jobUpdate in _jobDefinitionUpdates)
@@ -135,7 +143,7 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask CreateDispatchedJobDefinitionAsync(
+        public ValueTask CreateDispatchedJobAsync(
             DispatchedJobDefinition definition,
             CancellationToken cancellationToken
         )
@@ -145,7 +153,7 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask CreateOrUpdateScheduledJobDefinitionAsync(
+        public ValueTask CreateOrUpdateScheduledJobAsync(
             ScheduledJobDefinition scheduledJobDefinition,
             CancellationToken cancellationToken
         )
@@ -169,6 +177,13 @@ namespace Baseline.Labourer.Store.Memory
                 );
             }
 
+            return new ValueTask();
+        }
+
+        /// <inheritdoc />
+        public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+        {
+            _scheduledJobDeletions.Add(id);
             return new ValueTask();
         }
 

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Extensions;
 using NCrontab;
 
 namespace Baseline.Labourer.Internal.Models
@@ -12,13 +13,12 @@ namespace Baseline.Labourer.Internal.Models
     /// </summary>
     public class ScheduledJobDefinition : JobDefinition
     {
-        private const string Key = "scheduled-job:";
         private string _name;
-        
+
         /// <summary>
         /// Gets or sets the id of the scheduled job.
         /// </summary>
-        public string Id => $"{Key}{NormalizedName}";
+        public string Id => Name.AsNormalizedScheduledJobId();
 
         /// <summary>
         /// Gets or sets the cron expression used to define when the job will be executed and/or reoccur.
@@ -41,7 +41,7 @@ namespace Baseline.Labourer.Internal.Models
         public string Name
         {
             get => _name;
-            set => _name = value?.Replace(Key, string.Empty);
+            set => _name = value?.Replace(ResourceKeyPrefixes.ScheduledJob, string.Empty);
         }
 
         /// <summary>
@@ -99,10 +99,5 @@ namespace Baseline.Labourer.Internal.Models
 
             await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate, cancellationToken);
         }
-
-        /// <summary>
-        /// Gets or sets the normalized name of the job (i.e. the name, lower cased, with spaces replaced with dashes).
-        /// </summary>
-        private string NormalizedName => Name.ToLower().Replace(" ", "-");
     }
 }

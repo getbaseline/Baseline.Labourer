@@ -68,7 +68,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await using var writer = _transactionManager.BeginTransaction();
             
             // Act.
-            await writer.CreateOrUpdateScheduledJobDefinitionAsync(
+            await writer.CreateOrUpdateScheduledJobAsync(
                 new ScheduledJobDefinition { Name = "scheduled-job", CronExpression = "abc" }, 
                 CancellationToken.None
             );
@@ -137,7 +137,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await using var writer = _transactionManager.BeginTransaction();
             
             // Act.
-            await writer.CreateDispatchedJobDefinitionAsync(
+            await writer.CreateDispatchedJobAsync(
                 new DispatchedJobDefinition {Id = "bar"}, 
                 CancellationToken.None
             );
@@ -246,10 +246,10 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateWorkerAsync(new Worker { ServerInstanceId = server.Id }, CancellationToken.None);
-            await writer.CreateOrUpdateScheduledJobDefinitionAsync(scheduledJob, CancellationToken.None);
+            await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(-1).Date, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(1).Date, CancellationToken.None);
-            await writer.CreateDispatchedJobDefinitionAsync(dispatchedJob, CancellationToken.None);
+            await writer.CreateDispatchedJobAsync(dispatchedJob, CancellationToken.None);
             await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 25, CancellationToken.None);
             await writer.UpdateJobStateAsync(dispatchedJob.Id, JobStatus.Complete, DateTime.UtcNow, CancellationToken.None);
 
