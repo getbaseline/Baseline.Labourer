@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal;
@@ -10,7 +9,8 @@ using Baseline.Labourer.Internal.Utils;
 namespace Baseline.Labourer
 {
     /// <summary>
-    /// LabourerClient is the default (and ideally only) implementation of the <see cref="ILabourerClient"/> interface.
+    /// LabourerClient is the default (and officially only) implementation of the <see cref="ILabourerClient"/>
+    /// interface.
     /// </summary>
     public class LabourerClient : ILabourerClient
     {
@@ -50,24 +50,24 @@ namespace Baseline.Labourer
         }
 
         /// <inheritdoc />
-        public async Task<string> ScheduleJobAsync<TJob>(
+        public async Task<string> CreateOrUpdateScheduledJobAsync<TJob>(
             string name,
             string cronExpression, 
             CancellationToken cancellationToken = default
         ) where TJob : IJob
         {
-            return await InternalScheduleJobAsync<object, TJob>(name, cronExpression, null, cancellationToken);
+            return await InternalCreateOrUpdatedScheduledJobAsync<object, TJob>(name, cronExpression, null, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<string> ScheduleJobAsync<TParams, TJob>(
+        public async Task<string> CreateOrUpdateScheduledJobAsync<TParams, TJob>(
             string name,
             string cronExpression, 
             TParams jobParameters,
             CancellationToken cancellationToken = default
         ) where TJob : IJob<TParams>
         {
-            return await InternalScheduleJobAsync<TParams, TJob>(
+            return await InternalCreateOrUpdatedScheduledJobAsync<TParams, TJob>(
                 name, 
                 cronExpression, 
                 jobParameters, 
@@ -89,14 +89,14 @@ namespace Baseline.Labourer
                     await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
                     null,
                 Status = JobStatus.Created,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeProvider.UtcNow(),
+                UpdatedAt = _dateTimeProvider.UtcNow()
             };
 
             return await _jobDispatcher.DispatchJobAsync(jobDefinition, cancellationToken);
         }
 
-        private async Task<string> InternalScheduleJobAsync<TParams, TJob>(
+        private async Task<string> InternalCreateOrUpdatedScheduledJobAsync<TParams, TJob>(
             string name,
             string cronExpression,  
             TParams jobParameters,
@@ -115,11 +115,11 @@ namespace Baseline.Labourer
                 SerializedParameters = jobParameters != null ?
                     await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
                     null,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeProvider.UtcNow(),
+                UpdatedAt = _dateTimeProvider.UtcNow()
             };
 
-            await storeWriter.CreateScheduledJobDefinitionAsync(scheduledJobDefinition, cancellationToken);
+            await storeWriter.CreateOrUpdateScheduledJobDefinitionAsync(scheduledJobDefinition, cancellationToken);
             await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);
             await storeWriter.CommitAsync(cancellationToken);
 

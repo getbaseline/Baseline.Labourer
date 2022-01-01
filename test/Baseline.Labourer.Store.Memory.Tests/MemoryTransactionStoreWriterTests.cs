@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Tests;
@@ -69,14 +68,14 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await using var writer = _transactionManager.BeginTransaction();
             
             // Act.
-            await writer.CreateScheduledJobDefinitionAsync(
-                new ScheduledJobDefinition {CronExpression = "abc"}, 
+            await writer.CreateOrUpdateScheduledJobDefinitionAsync(
+                new ScheduledJobDefinition { Name = "scheduled-job", CronExpression = "abc" }, 
                 CancellationToken.None
             );
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(sj => sj.CronExpression == "abc");
+            _memoryStore.ScheduledJobs["scheduled-job:scheduled-job"].CronExpression.Should().Be("abc");
         }
 
         [Fact]
@@ -89,7 +88,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 CronExpression = "abc", 
                 NextRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -102,9 +101,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(
-                sj => sj.Id == scheduledJob.Id && sj.NextRunDate == DateTime.UtcNow.Date.AddDays(7)
-            );
+            _memoryStore.ScheduledJobs[scheduledJob.Id].NextRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -117,7 +114,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 CronExpression = "abc", 
                 LastRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -130,9 +127,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(
-                sj => sj.Id == scheduledJob.Id && sj.LastRunDate == DateTime.UtcNow.Date.AddDays(7)
-            );
+            _memoryStore.ScheduledJobs[scheduledJob.Id].LastRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -251,7 +246,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateWorkerAsync(new Worker { ServerInstanceId = server.Id }, CancellationToken.None);
-            await writer.CreateScheduledJobDefinitionAsync(scheduledJob, CancellationToken.None);
+            await writer.CreateOrUpdateScheduledJobDefinitionAsync(scheduledJob, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(-1).Date, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(1).Date, CancellationToken.None);
             await writer.CreateDispatchedJobDefinitionAsync(dispatchedJob, CancellationToken.None);

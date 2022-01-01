@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Store.Memory
@@ -29,6 +28,7 @@ namespace Baseline.Labourer.Store.Memory
             using var _ = await _memoryStore.AcquireLockAsync();
 
             return _memoryStore.ScheduledJobs
+                .Values
                 .Where(job => job.NextRunDate <= before)
                 .ToList();
         }

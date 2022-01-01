@@ -29,21 +29,21 @@ namespace Baseline.Labourer
         ) where TJob : IJob<TParams>;
 
         /// <summary>
-        /// Creates a scheduled job (i.e. one that is in the future and can optionally recur).
+        /// Creates or updates a scheduled job (i.e. one that is in the future and can optionally recur).
         /// </summary>
         /// <param name="name">The name of the scheduled job.</param>
         /// <param name="cronExpression">
         /// A cron expression used to define when the scheduled job will run and if it will repeat.
         /// </param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task<string> ScheduleJobAsync<TJob>(
+        Task<string> CreateOrUpdateScheduledJobAsync<TJob>(
             string name,
             string cronExpression,
             CancellationToken cancellationToken = default
         ) where TJob : IJob;
 
         /// <summary>
-        /// Creates a scheduled job (i.e. one that is in the future and can optionally recur).
+        /// Creates or updates a scheduled job (i.e. one that is in the future and can optionally recur).
         /// </summary>
         /// <param name="name">The name of the scheduled job.</param>
         /// <param name="cronExpression">
@@ -54,7 +54,7 @@ namespace Baseline.Labourer
         /// the HandleAsync method of the job.
         /// </param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        Task<string> ScheduleJobAsync<TParams, TJob>(
+        Task<string> CreateOrUpdateScheduledJobAsync<TParams, TJob>(
             string name,
             string cronExpression,
             TParams jobParameters,

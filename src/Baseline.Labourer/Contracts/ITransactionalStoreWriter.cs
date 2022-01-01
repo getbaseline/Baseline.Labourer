@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Contracts
@@ -23,7 +22,7 @@ namespace Baseline.Labourer.Contracts
         /// </summary>
         /// <param name="serverInstance">The server to persist.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask<ServerInstance> CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken);
+        ValueTask CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates a heartbeat for a server.
@@ -37,24 +36,24 @@ namespace Baseline.Labourer.Contracts
         /// </summary>
         /// <param name="worker">The worker to persist.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask<Worker> CreateWorkerAsync(Worker worker, CancellationToken cancellationToken);
+        ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken);
 
         /// <summary>
         /// Saves a dispatched job to the job store.
         /// </summary>
         /// <param name="definition">The definition object.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask<DispatchedJobDefinition> CreateDispatchedJobDefinitionAsync(
+        ValueTask CreateDispatchedJobDefinitionAsync(
             DispatchedJobDefinition definition,
             CancellationToken cancellationToken
         );
 
         /// <summary>
-        /// Saves a scheduled job to the job store.
+        /// Creates or updates a scheduled job in the job store.
         /// </summary>
         /// <param name="scheduledJobDefinition">The definition of the scheduled job.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
-        ValueTask<ScheduledJobDefinition> CreateScheduledJobDefinitionAsync(
+        ValueTask CreateOrUpdateScheduledJobDefinitionAsync(
             ScheduledJobDefinition scheduledJobDefinition, 
             CancellationToken cancellationToken
         );
