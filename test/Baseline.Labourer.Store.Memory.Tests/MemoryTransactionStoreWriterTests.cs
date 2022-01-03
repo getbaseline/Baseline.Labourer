@@ -195,6 +195,23 @@ namespace Baseline.Labourer.Store.Memory.Tests
         }
 
         [Fact]
+        public async Task It_Can_Delete_A_Scheduled_Job()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition {Name = "to-delete"};
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+
+            await using var writer = _transactionManager.BeginTransaction();
+
+            // Act.
+            await writer.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+            await writer.CommitAsync(CancellationToken.None);
+            
+            // Assert.
+            _memoryStore.AssertScheduledJobDoesNotExist(scheduledJob.Id);
+        }
+
+        [Fact]
         public async Task It_Does_Not_Commit_The_Writes_If_A_Failure_Occurs()
         {
             // Arrange.
