@@ -14,6 +14,8 @@ namespace Baseline.Labourer.Server.Tests
     {
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
+        protected readonly TestMemoryResourceLocker TestResourceLocker;
+
         protected readonly TestMemoryQueue TestMemoryQueue;
 
         protected readonly TestMemoryStore TestStore = new TestMemoryStore();
@@ -36,13 +38,14 @@ namespace Baseline.Labourer.Server.Tests
             });
 
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
+            TestResourceLocker = new TestMemoryResourceLocker(TestStore, TestDateTimeProvider);
 
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
                 {
                     LoggerFactory = () => TestLoggerFactory
                 },
-                new MemoryResourceLocker(TestStore),
+                TestResourceLocker,
                 new MemoryStoreWriterTransactionManager(TestStore),
                 TestMemoryQueue
             );
@@ -64,7 +67,7 @@ namespace Baseline.Labourer.Server.Tests
                 Activator = new DefaultActivator(),
                 JobLogStore = new MemoryJobLogStore(TestStore),
                 StoreReader = new MemoryStoreReader(TestStore),
-                ResourceLocker = new MemoryResourceLocker(TestStore),
+                ResourceLocker = TestResourceLocker,
                 Queue = TestMemoryQueue,
                 ServerInstance = serverInstance,
                 StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),

@@ -124,6 +124,20 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         }
 
         /// <summary>
+        /// Locks the current job contained within this job context for a specified period of time or until the
+        /// <see cref="IAsyncDisposable.DisposeAsync"/> function on the returned disposable is called.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        public async Task<IAsyncDisposable> AcquireJobLockAsync(CancellationToken cancellationToken)
+        {
+            return await WorkerContext.ServerContext.ResourceLocker.LockResourceAsync(
+                JobDefinition.Id,
+                TimeSpan.FromSeconds(59),
+                cancellationToken
+            );
+        }
+
+        /// <summary>
         /// Gets the retry delay for the current job (if one has been configured) or the default retry delay.
         /// </summary>
         private TimeSpan RetryDelayForJob()

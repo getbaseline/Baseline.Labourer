@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +37,15 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 WorkerContext = _workerContext
             };
 
-            await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
+            try
+            {
+                await using var _ = await jobContext.AcquireJobLockAsync(cancellationToken);
+                await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
+            }
+            catch (ResourceLockedException e)
+            {
+                _logger.LogError(jobContext, "Unable to acquire an exclusive lock of the job.", e);
+            }
         }
     }
 }

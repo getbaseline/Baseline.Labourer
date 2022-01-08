@@ -34,5 +34,10 @@ namespace Baseline.Labourer.Tests
                      j.VisibilityDelay == delay
             );
         }
+
+        public void MakeAllMessagesVisible()
+        {
+            Queue.ForEach(q => q.VisibilityDelay = null);
+        }
     }
 }
