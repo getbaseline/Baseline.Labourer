@@ -8,13 +8,16 @@ namespace Baseline.Labourer.Tests
 
         protected TestMemoryStore TestStore { get; } = new TestMemoryStore();
 
-        protected TestMemoryQueue TestMemoryQueue { get; } = new TestMemoryQueue(new TestDateTimeProvider());
+        protected TestDateTimeProvider TestDateTimeProvider { get; } = new TestDateTimeProvider();
+
+        protected TestMemoryQueue TestMemoryQueue { get; }
 
         public ClientTest()
         {
+            TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration(),
-                new MemoryResourceLocker(TestStore),
+                new TestMemoryResourceLocker(TestStore, TestDateTimeProvider),
                 new MemoryStoreWriterTransactionManager(TestStore),
                 TestMemoryQueue
             );

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Store.Memory;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using NCrontab;
@@ -111,6 +112,28 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                     TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
                 });
             }
+        }
+
+        [Fact]
+        public async Task It_Copes_With_But_Does_Not_Schedule_A_Job_That_Already_Has_A_Lock_Present()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 0 * * *");
+            TestStore.Locks[scheduledJobId].Add(new MemoryLock
+            {
+                Until = DateTime.UtcNow.AddDays(7)
+            });
+            
+            // Act (by going past the next run date of the scheduled job).
+            TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddDays(1).Date.AddSeconds(3));
+            await Task.Delay(1000);
+            
+            // Assert.
+            await AssertionUtils.RetryAsync(() =>
+            {
+                TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(DateTime.UtcNow.AddDays(1).Date);
+                TestStore.ScheduledJobs[scheduledJobId].LastRunDate.Should().BeNull();
+            });
         }
     }
 }

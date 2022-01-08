@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal;
@@ -63,6 +64,12 @@ namespace Baseline.Labourer
 
         public async Task DeleteScheduledJobAsync(string nameOrId, CancellationToken cancellationToken = default)
         {
+            await using var _ = await _resourceLocker.LockResourceAsync(
+                nameOrId.AsNormalizedScheduledJobId(), 
+                TimeSpan.FromSeconds(10),
+                cancellationToken
+            );
+            
             await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
             await storeWriter.DeleteScheduledJobAsync(nameOrId.AsNormalizedScheduledJobId(), cancellationToken);
             await storeWriter.CommitAsync(cancellationToken);
@@ -81,8 +88,6 @@ namespace Baseline.Labourer
             CancellationToken cancellationToken = default
         ) 
         {
-            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
-            
             var scheduledJobDefinition = new ScheduledJobDefinition
             {
                 CronExpression = cronExpression,
@@ -97,6 +102,14 @@ namespace Baseline.Labourer
                 UpdatedAt = _dateTimeProvider.UtcNow()
             };
 
+            await using var _ = await _resourceLocker.LockResourceAsync(
+                scheduledJobDefinition.Id, 
+                TimeSpan.FromSeconds(10),
+                cancellationToken
+            );
+            
+            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+                
             await storeWriter.CreateOrUpdateScheduledJobAsync(scheduledJobDefinition, cancellationToken);
             await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);
             await storeWriter.CommitAsync(cancellationToken);
