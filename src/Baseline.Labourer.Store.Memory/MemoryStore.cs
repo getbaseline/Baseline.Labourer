@@ -55,7 +55,7 @@ namespace Baseline.Labourer.Store.Memory
         /// Acquires a "lock" on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.
         /// This isn't "idiot proof" - someone could just bypass this if they weren't to bother calling it. Don't do that. Please.
         /// </summary>
-        public async Task<IDisposable> AcquireLockAsync()
+        public async Task<IDisposable> AcquireStoreLockAsync()
         {
             await _semaphore.WaitAsync();
             return new ComposableDisposable(() => _semaphore.Release());

@@ -1,5 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Exceptions;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Store.Memory;
 using FluentAssertions;
 using Xunit;
 
@@ -69,6 +75,33 @@ namespace Baseline.Labourer.Tests
         }
 
         [Fact]
+        public async Task It_Cannot_Update_A_Scheduled_Job_If_There_Is_Already_An_Active_Lock_Established()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<BasicJob>(
+                "update-with-lock", 
+                "* * * * *",
+                CancellationToken.None
+            );
+            
+            TestStore.Locks[scheduledJobId].Add(new MemoryLock
+            {
+                Id = StringGenerationUtils.GenerateUniqueRandomString(),
+                Until = DateTime.Today.AddDays(1)
+            });
+            
+            // Act.
+            Func<Task> func = async () => await Client.CreateOrUpdateScheduledJobAsync<BasicJob>(
+                scheduledJobId, 
+                "* * * * *",
+                CancellationToken.None
+            );
+
+            // Assert.
+            await func.Should().ThrowExactlyAsync<ResourceLockedException>();
+        }
+
+        [Fact]
         public async Task It_Can_Delete_A_Scheduled_Job()
         {
             // Arrange.
@@ -82,6 +115,56 @@ namespace Baseline.Labourer.Tests
 
             // Assert.
             TestStore.AssertScheduledJobDoesNotExist(scheduledJobId);
+        }
+
+        [Fact]
+        public async Task It_Cannot_Delete_A_Scheduled_Job_If_There_Is_An_Active_Lock_Already_Established()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition {Name = "active-lock-established"};
+            TestStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            TestStore.Locks.Add(
+                scheduledJob.Id, 
+                new List<MemoryLock>
+                {
+                    new MemoryLock
+                    {
+                        Id = StringGenerationUtils.GenerateUniqueRandomString(), 
+                        Until = DateTime.Today.AddDays(1)
+                    }
+                }
+            );
+            
+            // Act.
+            Func<Task> func = async () => await Client.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+
+            // Assert.
+            await func.Should().ThrowExactlyAsync<ResourceLockedException>();
+        }
+
+        [Fact]
+        public async Task It_Can_Delete_A_Scheduled_Job_If_There_Is_An_Outdated_Lock()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition {Name = "outdated-lock"};
+            TestStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            TestStore.Locks.Add(
+                scheduledJob.Id, 
+                new List<MemoryLock>
+                {
+                    new MemoryLock
+                    {
+                        Id = StringGenerationUtils.GenerateUniqueRandomString(), 
+                        Until = DateTime.Today.AddDays(-1)
+                    }
+                }
+            );
+            
+            // Act.
+            Func<Task> func = async () => await Client.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+
+            // Assert.
+            await func.Should().NotThrowAsync();
         }
     }
 }

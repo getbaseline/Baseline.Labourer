@@ -11,11 +11,6 @@ namespace Baseline.Labourer.Store.Memory
         /// Gets or sets the id of the lock.
         /// </summary>
         public string Id { get; set; }
-
-        /// <summary>
-        /// Gets whether this lock is in effect or not.
-        /// </summary>
-        public bool Locked => Released == null;
         
         /// <summary>
         /// Gets or sets when the lock was released.

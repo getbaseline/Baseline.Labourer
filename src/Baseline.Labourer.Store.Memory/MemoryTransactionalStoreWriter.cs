@@ -41,7 +41,7 @@ namespace Baseline.Labourer.Store.Memory
         /// <inheritdoc />
         public async ValueTask CommitAsync(CancellationToken cancellationToken)
         {
-            using var _ = await _memoryStore.AcquireLockAsync();
+            using var _ = await _memoryStore.AcquireStoreLockAsync();
 
             _memoryStore.Servers.AddRange(_serverInstancesToCreate);
 

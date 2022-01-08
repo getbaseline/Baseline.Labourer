@@ -25,7 +25,7 @@ namespace Baseline.Labourer.Store.Memory
             CancellationToken cancellationToken
         )
         {
-            using var _ = await _memoryStore.AcquireLockAsync();
+            using var _ = await _memoryStore.AcquireStoreLockAsync();
 
             return _memoryStore.ScheduledJobs
                 .Values

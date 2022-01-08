@@ -23,7 +23,7 @@ namespace Baseline.Labourer.Store.Memory
             Task
                 .Run(async () =>
                 {
-                    using var _ = await _memoryStore.AcquireLockAsync();
+                    using var _ = await _memoryStore.AcquireStoreLockAsync();
 
                     _memoryStore.LogEntries.Add(new MemoryLogEntry
                     {

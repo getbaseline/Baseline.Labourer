@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Exceptions;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Store.Memory.Internal;
 
@@ -17,10 +19,16 @@ namespace Baseline.Labourer.Store.Memory
     public class MemoryResourceLocker : IResourceLocker
     {
         private readonly MemoryStore _memoryStore;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public MemoryResourceLocker(MemoryStore memoryStore)
+        public MemoryResourceLocker(MemoryStore memoryStore) : this(memoryStore, new DateTimeProvider())
+        {
+        }
+
+        protected MemoryResourceLocker(MemoryStore memoryStore, IDateTimeProvider dateTimeProvider)
         {
             _memoryStore = memoryStore;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         /// <inheritdoc />
@@ -32,9 +40,14 @@ namespace Baseline.Labourer.Store.Memory
         {
             var lockId = StringGenerationUtils.GenerateUniqueRandomString();
 
-            using (await _memoryStore.AcquireLockAsync())
+            using (await _memoryStore.AcquireStoreLockAsync())
             {
-                if (_memoryStore.Locks.ContainsKey(resource) && _memoryStore.Locks[resource].Any(@lock => @lock.Locked))
+                if (
+                    _memoryStore.Locks.ContainsKey(resource) && 
+                    _memoryStore.Locks[resource].Any(
+                        @lock => @lock.Released == null && @lock.Until >= _dateTimeProvider.UtcNow()
+                    )
+                )
                 {
                     throw new ResourceLockedException();
                 }
@@ -53,7 +66,7 @@ namespace Baseline.Labourer.Store.Memory
 
             return new AsyncComposableDisposable(async () =>
             {
-                using (await _memoryStore.AcquireLockAsync())
+                using (await _memoryStore.AcquireStoreLockAsync())
                 {
                     var lockToModify = _memoryStore.Locks[resource].First(@lock => @lock.Id == lockId);
                     lockToModify.Released = DateTime.UtcNow;
