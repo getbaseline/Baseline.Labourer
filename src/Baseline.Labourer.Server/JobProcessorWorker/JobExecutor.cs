@@ -30,9 +30,6 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         {
             try
             {
-                // Should probably lock the job at this point to ensure nobody else tries to execute it? Should the
-                // message become visible again?0
-                
                 _logger.LogInformation(_jobContext, "Job processing started.");
                 await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
 
