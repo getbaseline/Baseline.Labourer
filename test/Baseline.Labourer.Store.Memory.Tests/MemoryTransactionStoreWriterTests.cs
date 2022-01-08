@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Tests;
@@ -69,14 +68,14 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await using var writer = _transactionManager.BeginTransaction();
             
             // Act.
-            await writer.CreateScheduledJobDefinitionAsync(
-                new ScheduledJobDefinition {CronExpression = "abc"}, 
+            await writer.CreateOrUpdateScheduledJobAsync(
+                new ScheduledJobDefinition { Name = "scheduled-job", CronExpression = "abc" }, 
                 CancellationToken.None
             );
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(sj => sj.CronExpression == "abc");
+            _memoryStore.ScheduledJobs["scheduled-job:scheduled-job"].CronExpression.Should().Be("abc");
         }
 
         [Fact]
@@ -85,10 +84,11 @@ namespace Baseline.Labourer.Store.Memory.Tests
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition
             {
+                Name = "next-run-date",
                 CronExpression = "abc", 
                 NextRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -101,9 +101,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(
-                sj => sj.Id == scheduledJob.Id && sj.NextRunDate == DateTime.UtcNow.Date.AddDays(7)
-            );
+            _memoryStore.ScheduledJobs[scheduledJob.Id].NextRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -112,10 +110,11 @@ namespace Baseline.Labourer.Store.Memory.Tests
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition
             {
+                Name = "last-run-date",
                 CronExpression = "abc", 
                 LastRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryStore.ScheduledJobs.Add(scheduledJob);
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -128,9 +127,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryStore.ScheduledJobs.Should().ContainSingle(
-                sj => sj.Id == scheduledJob.Id && sj.LastRunDate == DateTime.UtcNow.Date.AddDays(7)
-            );
+            _memoryStore.ScheduledJobs[scheduledJob.Id].LastRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -140,7 +137,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await using var writer = _transactionManager.BeginTransaction();
             
             // Act.
-            await writer.CreateDispatchedJobDefinitionAsync(
+            await writer.CreateDispatchedJobAsync(
                 new DispatchedJobDefinition {Id = "bar"}, 
                 CancellationToken.None
             );
@@ -198,6 +195,23 @@ namespace Baseline.Labourer.Store.Memory.Tests
         }
 
         [Fact]
+        public async Task It_Can_Delete_A_Scheduled_Job()
+        {
+            // Arrange.
+            var scheduledJob = new ScheduledJobDefinition {Name = "to-delete"};
+            _memoryStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+
+            await using var writer = _transactionManager.BeginTransaction();
+
+            // Act.
+            await writer.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+            await writer.CommitAsync(CancellationToken.None);
+            
+            // Assert.
+            _memoryStore.AssertScheduledJobDoesNotExist(scheduledJob.Id);
+        }
+
+        [Fact]
         public async Task It_Does_Not_Commit_The_Writes_If_A_Failure_Occurs()
         {
             // Arrange.
@@ -238,7 +252,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             };
 
             var dispatchedJob = new DispatchedJobDefinition();
-            var scheduledJob = new ScheduledJobDefinition();
+            var scheduledJob = new ScheduledJobDefinition { Name = "incremental" };
 
             // Act.
             await using var writer = _transactionManager.BeginTransaction();
@@ -249,10 +263,10 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
             await writer.CreateWorkerAsync(new Worker { ServerInstanceId = server.Id }, CancellationToken.None);
-            await writer.CreateScheduledJobDefinitionAsync(scheduledJob, CancellationToken.None);
+            await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(-1).Date, CancellationToken.None);
             await writer.UpdateScheduledJobNextRunDateAsync(scheduledJob.Id, DateTime.Now.AddDays(1).Date, CancellationToken.None);
-            await writer.CreateDispatchedJobDefinitionAsync(dispatchedJob, CancellationToken.None);
+            await writer.CreateDispatchedJobAsync(dispatchedJob, CancellationToken.None);
             await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 25, CancellationToken.None);
             await writer.UpdateJobStateAsync(dispatchedJob.Id, JobStatus.Complete, DateTime.UtcNow, CancellationToken.None);
 
@@ -262,7 +276,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             _memoryStore.AssertHasRegisteredAServer();
             _memoryStore.AssertHeartbeatRegisteredForServer(server.Id, 4);
             _memoryStore.AssertHasRegisteredWorkersForServer(server.Id, 1);
-            _memoryStore.AssertScheduledJobCreated(scheduledJob.Id);
+            _memoryStore.AssertScheduledJobExists(scheduledJob.Id);
             _memoryStore.AssertNextRunDateForScheduledJobIsCloseTo(scheduledJob.Id, DateTime.Now.AddDays(1).Date);
             _memoryStore.AssertStatusForJobIs(dispatchedJob.Id, JobStatus.Complete);
             _memoryStore.AssertJobHasRetryCount(dispatchedJob.Id, 25);

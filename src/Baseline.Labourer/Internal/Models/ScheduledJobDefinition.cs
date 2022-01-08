@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Internal.Extensions;
 using NCrontab;
 
 namespace Baseline.Labourer.Internal.Models
@@ -13,10 +13,12 @@ namespace Baseline.Labourer.Internal.Models
     /// </summary>
     public class ScheduledJobDefinition : JobDefinition
     {
+        private string _name;
+
         /// <summary>
         /// Gets or sets the id of the scheduled job.
         /// </summary>
-        public string Id { get; } = $"scheduled-job:{StringGenerationUtils.GenerateUniqueRandomString()}";
+        public string Id => Name.AsNormalizedScheduledJobId();
 
         /// <summary>
         /// Gets or sets the cron expression used to define when the job will be executed and/or reoccur.
@@ -32,7 +34,16 @@ namespace Baseline.Labourer.Internal.Models
         /// Gets or sets when the job last ran.
         /// </summary>
         public DateTime? LastRunDate { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the name of the job.
+        /// </summary>
+        public string Name
+        {
+            get => _name;
+            set => _name = value?.Replace(ResourceKeyPrefixes.ScheduledJob, string.Empty);
+        }
+
         /// <summary>
         /// Gets or sets the next run date of the scheduled job.
         /// </summary>

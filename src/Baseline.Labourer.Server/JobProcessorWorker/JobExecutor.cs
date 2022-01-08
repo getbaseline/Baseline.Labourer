@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Server.Middleware;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker

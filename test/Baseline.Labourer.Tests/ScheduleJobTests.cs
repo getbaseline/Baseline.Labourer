@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -13,11 +14,74 @@ namespace Baseline.Labourer.Tests
             var cronExpression = "* * * * *";
             
             // Act.
-            var scheduledJobId = await Client.ScheduleJobAsync<BasicJob>(cronExpression);
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<BasicJob>("created-job", cronExpression);
 
             // Assert.
-            scheduledJobId.Should().NotBeNullOrWhiteSpace();
-            TestStore.AssertScheduledJobCreated(scheduledJobId, cronExpression);
+            scheduledJobId.Should().Be("scheduled-job:created-job");
+            TestStore.AssertScheduledJobExists(scheduledJobId, cronExpression);
+        }
+
+        public class TestScheduledJob : IJob
+        {
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        public class TestScheduledParameters
+        {
+            public string Name { get; } = "foo";
+        }
+        
+        public class TestScheduledJobWithParameters : IJob<TestScheduledParameters>
+        {
+            public Task HandleAsync(TestScheduledParameters parameters, CancellationToken cancellationToken)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        [Fact]
+        public async Task It_Can_Update_A_Scheduled_Job_Record()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>(
+                "update-scheduled-job", 
+                "* * * * *"
+            );
+            
+            // Act.
+            await Client.CreateOrUpdateScheduledJobAsync<TestScheduledParameters, TestScheduledJobWithParameters>(
+                scheduledJobId,
+                "0 * * * *",
+                new TestScheduledParameters()
+            );
+
+            // Assert.
+            TestStore.AssertScheduledJobExists(
+                scheduledJobId,
+                "0 * * * *",
+                typeof(TestScheduledJobWithParameters).AssemblyQualifiedName,
+                typeof(TestScheduledParameters).AssemblyQualifiedName,
+                "{\"Name\":\"foo\"}"
+            );
+        }
+
+        [Fact]
+        public async Task It_Can_Delete_A_Scheduled_Job()
+        {
+            // Arrange.
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>(
+                "update-scheduled-job", 
+                "* * * * *"
+            );
+            
+            // Act.
+            await Client.DeleteScheduledJobAsync(scheduledJobId);
+
+            // Assert.
+            TestStore.AssertScheduledJobDoesNotExist(scheduledJobId);
         }
     }
 }

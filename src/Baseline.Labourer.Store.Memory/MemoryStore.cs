@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Memory.Internal;
 
@@ -34,7 +33,8 @@ namespace Baseline.Labourer.Store.Memory
         /// <summary>
         /// Gets the scheduled jobs that have been created.
         /// </summary>
-        public List<ScheduledJobDefinition> ScheduledJobs { get; } = new List<ScheduledJobDefinition>();
+        public Dictionary<string, ScheduledJobDefinition> ScheduledJobs { get; } = 
+            new Dictionary<string, ScheduledJobDefinition>();
 
         /// <summary>
         /// Gets the servers that have been created.

@@ -2,9 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Queue.Memory;

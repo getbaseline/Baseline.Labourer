@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Store.Memory
 {
@@ -28,7 +26,10 @@ namespace Baseline.Labourer.Store.Memory
         private readonly Dictionary<string, List<Action<ScheduledJobDefinition>>> _scheduledJobUpdates =
             new Dictionary<string, List<Action<ScheduledJobDefinition>>>();
 
+        private readonly List<string> _scheduledJobDeletions = new List<string>();
+
         private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate = new List<DispatchedJobDefinition>();
+        
         private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = 
             new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
 
@@ -64,13 +65,15 @@ namespace Baseline.Labourer.Store.Memory
                 _memoryStore.ServerWorkers[worker.ServerInstanceId].Add(worker);
             }
 
-            _memoryStore.ScheduledJobs.AddRange(_scheduledJobsToCreate);
+            foreach (var scheduledJobAdd in _scheduledJobsToCreate)
+            {
+                _memoryStore.ScheduledJobs.Add(scheduledJobAdd.Id, scheduledJobAdd);    
+            }
 
             foreach (var scheduledJobUpdate in _scheduledJobUpdates)
             {
-                var scheduledJobToUpdate =
-                    _memoryStore.ScheduledJobs.FirstOrDefault(job => job.Id == scheduledJobUpdate.Key);
-                
+                _memoryStore.ScheduledJobs.TryGetValue(scheduledJobUpdate.Key, out var scheduledJobToUpdate);
+
                 if (scheduledJobToUpdate == null)
                 {
                     continue;
@@ -80,6 +83,11 @@ namespace Baseline.Labourer.Store.Memory
                 {
                     update(scheduledJobToUpdate);
                 }
+            }
+
+            foreach (var scheduledJobDeletion in _scheduledJobDeletions)
+            {
+                _memoryStore.ScheduledJobs.Remove(scheduledJobDeletion);
             }
 
             _memoryStore.DispatchedJobs.AddRange(_jobDefinitionsToCreate);
@@ -100,10 +108,10 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask<ServerInstance> CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken)
+        public ValueTask CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken)
         {
             _serverInstancesToCreate.Add(serverInstance);
-            return new ValueTask<ServerInstance>(serverInstance);
+            return new ValueTask();
         }
 
         /// <inheritdoc />
@@ -120,10 +128,10 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask<Worker> CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
+        public ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
         {
             _workersToCreate.Add(worker);
-            return new ValueTask<Worker>();
+            return new ValueTask();
         }
 
         /// <summary>
@@ -135,23 +143,48 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public ValueTask<DispatchedJobDefinition> CreateDispatchedJobDefinitionAsync(
+        public ValueTask CreateDispatchedJobAsync(
             DispatchedJobDefinition definition,
             CancellationToken cancellationToken
         )
         {
             _jobDefinitionsToCreate.Add(definition);
-            return new ValueTask<DispatchedJobDefinition>(definition);
+            return new ValueTask();
         }
 
         /// <inheritdoc />
-        public ValueTask<ScheduledJobDefinition> CreateScheduledJobDefinitionAsync(
+        public ValueTask CreateOrUpdateScheduledJobAsync(
             ScheduledJobDefinition scheduledJobDefinition,
             CancellationToken cancellationToken
         )
         {
-            _scheduledJobsToCreate.Add(scheduledJobDefinition);
-            return new ValueTask<ScheduledJobDefinition>(scheduledJobDefinition);
+            if (!_memoryStore.ScheduledJobs.ContainsKey(scheduledJobDefinition.Id))
+            {
+                _scheduledJobsToCreate.Add(scheduledJobDefinition);
+            }
+            else
+            {
+                UpdateScheduledJob(
+                    scheduledJobDefinition.Id,
+                    scheduledJob =>
+                    {
+                        scheduledJob.Type = scheduledJobDefinition.Type;
+                        scheduledJob.ParametersType = scheduledJobDefinition.ParametersType;
+                        scheduledJob.SerializedParameters = scheduledJobDefinition.SerializedParameters;
+                        scheduledJob.CronExpression = scheduledJobDefinition.CronExpression;
+                        scheduledJob.UpdatedAt = scheduledJobDefinition.UpdatedAt;
+                    }
+                );
+            }
+
+            return new ValueTask();
+        }
+
+        /// <inheritdoc />
+        public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+        {
+            _scheduledJobDeletions.Add(id);
+            return new ValueTask();
         }
 
         /// <inheritdoc />

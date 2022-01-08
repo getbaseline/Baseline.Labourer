@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
@@ -42,10 +41,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Processes_A_Scheduled_Task_That_Is_Past_Due_To_Run_And_Updates_The_Next_Run_Date()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 * * * *");
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 * * * *");
 
-            TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId).NextRunDate =
-                DateTime.UtcNow.AddHours(-1); // Force the job to run.
+            TestStore.ScheduledJobs[scheduledJobId].NextRunDate = DateTime.UtcNow.AddHours(-1); // Force the job to run.
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>
@@ -58,7 +56,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                     .AddMinutes(-currentDate.Minute)
                     .AddSeconds(-currentDate.Second);
 
-                var scheduledJob = TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId);
+                var scheduledJob = TestStore.ScheduledJobs[scheduledJobId];
                 scheduledJob.LastRunDate.Should().BeCloseTo(currentDate, TimeSpan.FromSeconds(1));
                 scheduledJob.NextRunDate.Should().BeCloseTo(nextRunShouldBe, TimeSpan.FromMinutes(1));
             });
@@ -68,7 +66,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Processes_A_Scheduled_Job_That_Is_Due_To_Run_In_The__Future_When_Its_Next_Run_Date_Is_Passed()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 * * *");
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 0 * * *");
 
             // Act.
             Task.Run(async () =>
@@ -86,8 +84,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                     .Parse("0 0 0 * * *", new CrontabSchedule.ParseOptions { IncludingSeconds = true })
                     .GetNextOccurrence(DateTime.UtcNow.AddDays(1).Date.AddSeconds(3));
                 
-                var scheduledJob = TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId);
-                scheduledJob.NextRunDate.Should().Be(nextRunShouldBe);
+                TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
             });
         }
 
@@ -95,7 +92,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         public async Task It_Can_Process_A_Scheduled_Job_Multiple_Times()
         {
             // Arrange.
-            var scheduledJobId = await Client.ScheduleJobAsync<TestScheduledJob>("0 0 * * *");
+            var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 0 * * *");
 
             for (int i = 1; i < 4; i++)
             {
@@ -111,8 +108,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                         .Parse("0 0 0 * * *", new CrontabSchedule.ParseOptions { IncludingSeconds = true })
                         .GetNextOccurrence(DateTime.UtcNow.AddDays(i).Date.AddSeconds(3));
                 
-                    var scheduledJob = TestStore.ScheduledJobs.First(j => j.Id == scheduledJobId);
-                    scheduledJob.NextRunDate.Should().Be(nextRunShouldBe);
+                    TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
                 });
             }
         }

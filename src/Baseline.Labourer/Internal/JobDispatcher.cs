@@ -32,7 +32,7 @@ namespace Baseline.Labourer.Internal
         {
             await using var writer = _transactionManager.BeginTransaction();
 
-            await writer.CreateDispatchedJobDefinitionAsync(jobDefinition, cancellationToken);
+            await writer.CreateDispatchedJobAsync(jobDefinition, cancellationToken);
             await _queue.EnqueueAsync(jobDefinition, TimeSpan.Zero, cancellationToken);
 
             await writer.CommitAsync(cancellationToken);

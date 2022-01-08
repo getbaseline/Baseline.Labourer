@@ -1,16 +1,17 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Extensions;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
 
 namespace Baseline.Labourer
 {
     /// <summary>
-    /// LabourerClient is the default (and ideally only) implementation of the <see cref="ILabourerClient"/> interface.
+    /// LabourerClient is the default (and officially only) implementation of the <see cref="ILabourerClient"/>
+    /// interface.
     /// </summary>
     public class LabourerClient : ILabourerClient
     {
@@ -35,9 +36,72 @@ namespace Baseline.Labourer
         }
 
         /// <inheritdoc />
+        public async Task<string> CreateOrUpdateScheduledJobAsync<TJob>(
+            string nameOrId,
+            string cronExpression, 
+            CancellationToken cancellationToken = default
+        ) where TJob : IJob
+        {
+            return await InternalCreateOrUpdatedScheduledJobAsync<object, TJob>(nameOrId, cronExpression, null, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateOrUpdateScheduledJobAsync<TParams, TJob>(
+            string nameOrId,
+            string cronExpression, 
+            TParams jobParameters,
+            CancellationToken cancellationToken = default
+        ) where TJob : IJob<TParams>
+        {
+            return await InternalCreateOrUpdatedScheduledJobAsync<TParams, TJob>(
+                nameOrId, 
+                cronExpression, 
+                jobParameters, 
+                cancellationToken
+            );
+        }
+
+        public async Task DeleteScheduledJobAsync(string nameOrId, CancellationToken cancellationToken = default)
+        {
+            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+            await storeWriter.DeleteScheduledJobAsync(nameOrId.AsNormalizedScheduledJobId(), cancellationToken);
+            await storeWriter.CommitAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
         public async Task<string> DispatchJobAsync<TJob>(CancellationToken cancellationToken = default) where TJob : IJob
         {
             return await InternalDispatchJobAsync<object, TJob>(null, cancellationToken);
+        }
+
+        private async Task<string> InternalCreateOrUpdatedScheduledJobAsync<TParams, TJob>(
+            string name,
+            string cronExpression,  
+            TParams jobParameters,
+            CancellationToken cancellationToken = default
+        ) 
+        {
+            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+            
+            var scheduledJobDefinition = new ScheduledJobDefinition
+            {
+                CronExpression = cronExpression,
+                Type = typeof(TJob).AssemblyQualifiedName,
+                HasParameters = jobParameters != null,
+                ParametersType = jobParameters != null ? GetParametersType<TParams>() : null,
+                Name = name,
+                SerializedParameters = jobParameters != null ?
+                    await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
+                    null,
+                CreatedAt = _dateTimeProvider.UtcNow(),
+                UpdatedAt = _dateTimeProvider.UtcNow()
+            };
+
+            await storeWriter.CreateOrUpdateScheduledJobAsync(scheduledJobDefinition, cancellationToken);
+            await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);
+            await storeWriter.CommitAsync(cancellationToken);
+
+            return scheduledJobDefinition.Id;
         }
 
         /// <inheritdoc />
@@ -47,25 +111,6 @@ namespace Baseline.Labourer
         ) where TJob : IJob<TParams>
         {
             return await InternalDispatchJobAsync<TParams, TJob>(jobParameters, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task<string> ScheduleJobAsync<TJob>(
-            string cronExpression, 
-            CancellationToken cancellationToken = default
-        ) where TJob : IJob
-        {
-            return await InternalScheduleJobAsync<object, TJob>(cronExpression, null, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task<string> ScheduleJobAsync<TParams, TJob>(
-            string cronExpression, 
-            TParams jobParameters,
-            CancellationToken cancellationToken = default
-        ) where TJob : IJob<TParams>
-        {
-            return await InternalScheduleJobAsync<TParams, TJob>(cronExpression, jobParameters, cancellationToken);
         }
 
         private async Task<string> InternalDispatchJobAsync<TParams, TJob>(
@@ -82,39 +127,11 @@ namespace Baseline.Labourer
                     await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
                     null,
                 Status = JobStatus.Created,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeProvider.UtcNow(),
+                UpdatedAt = _dateTimeProvider.UtcNow()
             };
 
             return await _jobDispatcher.DispatchJobAsync(jobDefinition, cancellationToken);
-        }
-
-        private async Task<string> InternalScheduleJobAsync<TParams, TJob>(
-            string cronExpression,  
-            TParams jobParameters,
-            CancellationToken cancellationToken = default
-        ) 
-        {
-            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
-            
-            var scheduledJobDefinition = new ScheduledJobDefinition
-            {
-                CronExpression = cronExpression,
-                Type = typeof(TJob).AssemblyQualifiedName,
-                HasParameters = jobParameters != null,
-                ParametersType = jobParameters != null ? GetParametersType<TParams>() : null,
-                SerializedParameters = jobParameters != null ?
-                    await SerializationUtils.SerializeToStringAsync(jobParameters, cancellationToken) :
-                    null,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            await storeWriter.CreateScheduledJobDefinitionAsync(scheduledJobDefinition, cancellationToken);
-            await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);
-            await storeWriter.CommitAsync(cancellationToken);
-
-            return scheduledJobDefinition.Id;
         }
 
         private string GetParametersType<TType>() => typeof(TType).AssemblyQualifiedName;
