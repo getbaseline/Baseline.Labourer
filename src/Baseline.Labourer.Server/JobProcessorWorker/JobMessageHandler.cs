@@ -28,7 +28,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="cancellationToken"></param>
         public async Task HandleMessageAsync(QueuedJob job, CancellationToken cancellationToken)
         {
-            _logger.LogDebug(_workerContext, $"Handling job message with id of {job.MessageId}.");
+            _logger.LogDebug(_workerContext, "Handling job message with id of {messageId}.", job.MessageId);
 
             var jobContext = new JobContext
             {

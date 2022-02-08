@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Extensions;
 using Baseline.Labourer.Server.Contracts;
+using Baseline.Labourer.Server.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.ServerHeartbeatWorker
@@ -32,7 +33,7 @@ namespace Baseline.Labourer.Server.ServerHeartbeatWorker
             {
                 while (true)
                 {
-                    _logger.LogInformation($"{_serverContext.ServerInstance.Id} - Server has a heartbeat.");
+                    _logger.LogInformation(_serverContext, "Server has a heartbeat.");
 
                     if (_serverContext.ShutdownTokenSource.IsCancellationRequested)
                     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.JobProcessorWorker
@@ -14,9 +15,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="serverContext">The server context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogDebug(this ILogger logger, ServerContext serverContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogDebug(this ILogger logger, ServerContext serverContext, string message, params object[] args)
         {
-            logger.LogInternal(serverContext, LogLevel.Debug, message);
+            logger.LogInternal(serverContext, LogLevel.Debug, message, null, args);
         }
 
         /// <summary>
@@ -25,9 +27,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="workerContext">The worker context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogDebug(this ILogger logger, WorkerContext workerContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogDebug(this ILogger logger, WorkerContext workerContext, string message, params object[] args)
         {
-            logger.LogInternal(workerContext, LogLevel.Debug, message);
+            logger.LogInternal(workerContext, LogLevel.Debug, message, null, args);
         }
 
         /// <summary>
@@ -36,9 +39,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="jobContext">The job context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogDebug(this ILogger logger, JobContext jobContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogDebug(this ILogger logger, JobContext jobContext, string message, params object[] args)
         {
-            logger.LogInternal(jobContext, LogLevel.Debug, message);
+            logger.LogInternal(jobContext, LogLevel.Debug, message, null, args);
         }
 
         /// <summary>
@@ -47,9 +51,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="serverContext">The server context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogInformation(this ILogger logger, ServerContext serverContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogInformation(this ILogger logger, ServerContext serverContext, string message, params object[] args)
         {
-            logger.LogInternal(serverContext, LogLevel.Information, message);
+            logger.LogInternal(serverContext, LogLevel.Information, message, null, args);
         }
 
         /// <summary>
@@ -58,9 +63,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="workerContext">The worker context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogInformation(this ILogger logger, WorkerContext workerContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogInformation(this ILogger logger, WorkerContext workerContext, string message, params object[] args)
         {
-            logger.LogInternal(workerContext, LogLevel.Information, message);
+            logger.LogInternal(workerContext, LogLevel.Information, message, null, args);
         }
 
         /// <summary>
@@ -69,9 +75,10 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="logger">The <see cref="ILogger"/> to write to.</param>
         /// <param name="jobContext">The job context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
-        public static void LogInformation(this ILogger logger, JobContext jobContext, string message)
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
+        public static void LogInformation(this ILogger logger, JobContext jobContext, string message, params object[] args)
         {
-            logger.LogInternal(jobContext, LogLevel.Information, message);
+            logger.LogInternal(jobContext, LogLevel.Information, message, null, args);
         }
 
         /// <summary>
@@ -81,14 +88,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="serverContext">The server context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
         /// <param name="exception">An exception to log, if any.</param>
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
         public static void LogError(
             this ILogger logger,
             ServerContext serverContext,
             string message,
-            Exception exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
-            logger.LogInternal(serverContext, LogLevel.Error, message, exception);
+            logger.LogInternal(serverContext, LogLevel.Error, message, exception, args);
         }
 
         /// <summary>
@@ -98,18 +107,21 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="workerContext">The worker context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
         /// <param name="exception">An exception to log, if any.</param>
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
         public static void LogError(
             this ILogger logger,
             WorkerContext workerContext,
             string message,
-            Exception exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
             logger.LogInternal(
                 workerContext,
                 LogLevel.Error,
                 message,
-                exception
+                exception,
+                args
             );
         }
 
@@ -120,18 +132,21 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// <param name="jobContext">The job context to use to add information to the message.</param>
         /// <param name="message">The message to log.</param>
         /// <param name="exception">An exception to log, if any.</param>
+        /// <param name="args">Any arguments to log and interpolate into the message string.</param>
         public static void LogError(
             this ILogger logger,
             JobContext jobContext,
             string message,
-            Exception? exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
             logger.LogInternal(
                 jobContext,
                 LogLevel.Error,
                 message,
-                exception
+                exception,
+                args
             );
         }
 
@@ -140,13 +155,15 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             ServerContext serverContext,
             LogLevel logLevel,
             string message,
-            Exception exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
             logger.Log(
                 logLevel,
                 exception,
-                $"s:{serverContext.ServerInstance.Id} - {message}"
+                "s:{serverId} - " + message,
+                new[] { serverContext.ServerInstance.Id }.Concat(args)
             );
         }
 
@@ -155,13 +172,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             WorkerContext workerContext,
             LogLevel logLevel,
             string message,
-            Exception exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
             logger.Log(
                 logLevel,
                 exception,
-                $"s:{workerContext.ServerContext.ServerInstance.Id} w:{workerContext.Worker.Id} - {message}"
+                // ReSharper disable once StructuredMessageTemplateProblem
+                "s:{serverId} w:{workerId} - " + message,
+                new[] { workerContext.ServerContext.ServerInstance.Id, workerContext.Worker.Id }.Concat(args)
             );
         }
 
@@ -170,13 +190,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             JobContext jobContext,
             LogLevel logLevel,
             string message,
-            Exception? exception = null
+            Exception? exception = null,
+            params object[] args
         )
         {
             logger.Log(
                 logLevel,
                 exception,
-                $"s:{jobContext.WorkerContext.ServerContext.ServerInstance.Id} w:{jobContext.WorkerContext.Worker.Id} j:{jobContext.JobDefinition.Id} - {message}{(exception != null ? $" - {exception.Message}" : "")}"
+                // ReSharper disable StructuredMessageTemplateProblem
+                "s:{serverId} w:{workerId} j:{jobId} - " + message,
+                new[] { jobContext.WorkerContext.ServerContext.ServerInstance.Id, jobContext.WorkerContext.Worker.Id, jobContext.JobDefinition.Id }.Concat(args)
             );
         }
     }
