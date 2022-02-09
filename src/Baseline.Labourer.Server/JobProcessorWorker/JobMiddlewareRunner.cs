@@ -129,7 +129,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                         _logger.LogDebug(
                             jobContext,
                             "Middleware {middlewareType} failed and is configured not to continue executing middlewares. Returning.",
-                            middleware.GetType()
+                            middleware.GetType().Name
                         );
 
                         return;
@@ -139,9 +139,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
 
             if (_serverContext.HasAdditionalDispatchedJobMiddlewares())
             {
-                foreach (var middleware in _serverContext.AdditionalDispatchedJobMiddlewares)
+                foreach (var middlewareType in _serverContext.AdditionalDispatchedJobMiddlewares)
                 {
-                    var activatedMiddleware = (IJobMiddleware) _serverContext.Activator.ActivateType(middleware);
+                    var activatedMiddleware = (IJobMiddleware) _serverContext.Activator.ActivateType(middlewareType);
                     
                     try
                     {
@@ -157,7 +157,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                             jobContext, 
                             "Consumer provided middleware {middlewareType} failed to execute.", 
                             e,
-                            middleware.GetType()
+                            middlewareType.Name
                         );
                     
                         if (!activatedMiddleware.ContinueExecutingMiddlewaresOnFailure)
@@ -165,7 +165,7 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                             _logger.LogDebug(
                                 jobContext,
                                 "Middleware {middlewareType} failed and is configured not to continue executing middlewares. Returning.",
-                                middleware.GetType()
+                                middlewareType.Name
                             );
 
                             return;

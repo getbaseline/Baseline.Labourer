@@ -163,7 +163,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 logLevel,
                 exception,
                 "s:{serverId} - " + message,
-                new[] { serverContext.ServerInstance.Id }.Concat(args)
+                new object[] { serverContext.ServerInstance.Id }
+                    .Concat(args)
+                    .ToArray()
             );
         }
 
@@ -181,7 +183,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 exception,
                 // ReSharper disable once StructuredMessageTemplateProblem
                 "s:{serverId} w:{workerId} - " + message,
-                new[] { workerContext.ServerContext.ServerInstance.Id, workerContext.Worker.Id }.Concat(args)
+                new object[] { workerContext.ServerContext.ServerInstance.Id, workerContext.Worker.Id }
+                    .Concat(args)
+                    .ToArray()
             );
         }
 
@@ -199,7 +203,9 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                 exception,
                 // ReSharper disable StructuredMessageTemplateProblem
                 "s:{serverId} w:{workerId} j:{jobId} - " + message,
-                new[] { jobContext.WorkerContext.ServerContext.ServerInstance.Id, jobContext.WorkerContext.Worker.Id, jobContext.JobDefinition.Id }.Concat(args)
+                new object[] { jobContext.WorkerContext.ServerContext.ServerInstance.Id, jobContext.WorkerContext.Worker.Id, jobContext.JobDefinition.Id }
+                    .Concat(args)
+                    .ToArray()
             );
         }
     }
