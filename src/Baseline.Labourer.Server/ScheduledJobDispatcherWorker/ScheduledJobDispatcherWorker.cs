@@ -52,7 +52,11 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
                         cancellationToken
                     );
                     
-                    _logger.LogDebug($"Found {jobsThatNeedRunning.Count} job(s) that need dispatching.");
+                    _logger.LogDebug(
+                        _serverContext, 
+                        "Found {jobsThatNeedRunningCount} job(s) that need dispatching.", 
+                        jobsThatNeedRunning.Count
+                    );
 
                     foreach (var job in jobsThatNeedRunning)
                     {
@@ -64,7 +68,7 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
                                 cancellationToken
                             );
                             
-                            _logger.LogInformation($"Dispatching scheduled job {job.Id}.");
+                            _logger.LogInformation(_serverContext, "Dispatching scheduled job {jobId}.", job.Id);
                         
                             await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job), cancellationToken);
 
@@ -74,7 +78,11 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
                         }
                         catch (ResourceLockedException)
                         {
-                            _logger.LogDebug($"Job '{job.Id}' already has an active lock. Ignoring it for now.");
+                            _logger.LogDebug(
+                                _serverContext, 
+                                "Job '{jobId}' already has an active lock. Ignoring it for now.",
+                                job.Id
+                            );
                         }
                     }
                     

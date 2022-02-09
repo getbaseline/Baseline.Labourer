@@ -45,7 +45,9 @@ namespace Baseline.Labourer.Server.Middleware
             
             jobStoredLogger.LogDebug(
                 jobContext,
-                $"Retrying job. Attempt {jobContext.JobDefinition.Retries + 1} of {retryCountForJob}."
+                "Retrying job. Attempt {currentRetries} of {allowedRetries}.",
+                jobContext.JobDefinition.Retries + 1,
+                retryCountForJob
             );
             
             await using var writer = jobContext.BeginTransaction();
