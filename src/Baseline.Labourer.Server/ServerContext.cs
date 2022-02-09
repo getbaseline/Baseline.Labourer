@@ -22,7 +22,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
         /// </summary>
-        public List<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
+        public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
         
         /// <summary>
         /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
@@ -85,6 +85,23 @@ namespace Baseline.Labourer.Server
         /// Gets or sets the amount of workers to run within this particular server.
         /// </summary>
         public int WorkersToRun { get; set; } = 1;
+
+        public ServerContext(ServerInstance serverInstance, BaselineServerConfiguration serverConfiguration)
+        {
+            Activator = serverConfiguration.Activator;
+            AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares;
+            DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
+            // JobLogStore = 
+            JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
+            LoggerFactory = serverConfiguration.LoggerFactory();
+            // Queue = 
+            // ResourceLocker = 
+            // ScheduledJobProcessorInterval = 
+            // StoreReader
+            ServerInstance = serverInstance;
+            // StoreWriterTransactionManager =
+            ShutdownTokenSource = serverConfiguration.ShutdownTokenSource;
+        }
 
         /// <summary>
         /// Creates and stores a heartbeat indicating that this server is still alive.

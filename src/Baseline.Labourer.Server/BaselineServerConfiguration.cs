@@ -25,7 +25,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets the middlewares used for dispatched jobs.
         /// </summary>
-        public IEnumerable<IJobMiddleware>? DispatchedJobMiddlewares { get; set; }
+        public IReadOnlyCollection<Type>? DispatchedJobMiddlewares { get; set; }
 
         /// <summary>
         /// Gets or sets the number of job processor tasks to run within this instance of the Baseline.Labourer server.
