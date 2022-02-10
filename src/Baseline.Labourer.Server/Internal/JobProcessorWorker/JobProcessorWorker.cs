@@ -7,12 +7,12 @@ using Baseline.Labourer.Internal.Utils;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// A worker that processes jobs that need to be ran.
     /// </summary>
-    public class JobProcessorWorker : IWorker
+    internal class JobProcessorWorker : IWorker
     {
         private readonly ServerContext _serverContext;
         private readonly ILogger<JobProcessorWorker> _logger;
@@ -25,24 +25,24 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             _logger = serverContext.LoggerFactory.CreateLogger<JobProcessorWorker>();
         }
 
-        /// <summary>
-        /// Boots and runs the job processing worker instances as a long running task.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task RunAsync(CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        public async Task RunAsync()
         {
-            _logger.LogInformation(_serverContext, "Starting job processing tasks and booting the guinea pig treadmills.");
+            _logger.LogInformation(
+                _serverContext,
+                "Starting job processing tasks and booting the guinea pig treadmills."
+            );
 
             var processingTasks = Enumerable
-                .Range(1, _serverContext.WorkersToRun)
-                .Select(async _ => await RunSingleWorkerAsync(cancellationToken));
+                .Range(1, _serverContext.JobProcessingWorkersToRun)
+                .Select(async _ => await RunSingleWorkerAsync());
 
             await Task.WhenAll(processingTasks);
 
             _logger.LogInformation(_serverContext, "Finished job processing tasks.");
         }
 
-        private async Task RunSingleWorkerAsync(CancellationToken cancellationToken)
+        private async Task RunSingleWorkerAsync()
         {
             var worker = new Worker
             {
@@ -54,12 +54,12 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
             {
                 await writer.CreateWorkerAsync(
                     worker,
-                    cancellationToken
+                    CancellationToken.None
                 );
-                await writer.CommitAsync(cancellationToken);
+                await writer.CommitAsync(CancellationToken.None);
             }
 
-            var workerContext = new WorkerContext { ServerContext = _serverContext, Worker = worker };
+            var workerContext = new WorkerContext(_serverContext, worker);
 
             await ProcessJobsAsync(workerContext);
         }
@@ -77,13 +77,16 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
                         return;
                     }
 
-                    var dequeuedMessage = await _serverContext.Queue.DequeueAsync(_serverContext.ShutdownTokenSource.Token);
+                    var dequeuedMessage = await _serverContext.Queue.DequeueAsync(
+                        _serverContext.ShutdownTokenSource.Token
+                    );
                     if (dequeuedMessage == null)
                     {
                         continue;
                     }
 
-                    await new JobMessageHandler(workerContext).HandleMessageAsync(dequeuedMessage, CancellationToken.None);
+                    await new JobMessageHandler(workerContext)
+                        .HandleMessageAsync(dequeuedMessage, CancellationToken.None);
                 }
             }
             catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))

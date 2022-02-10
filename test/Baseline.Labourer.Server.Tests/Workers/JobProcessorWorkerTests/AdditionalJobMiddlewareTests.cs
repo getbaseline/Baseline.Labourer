@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.JobProcessorWorker;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;
@@ -180,11 +179,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         private void RunWorker(params Type[] jobMiddlewares)
         {
             Task.Run(
-                async () => await new JobProcessorWorker
-                    .JobProcessorWorker(
-                        GenerateServerContextAsync(s => s.AdditionalDispatchedJobMiddlewares = jobMiddlewares.ToList())
-                    )
-                    .RunAsync()
+                async () => await new LabourerServer(
+                    GenerateServerConfiguration(s => s.DispatchedJobMiddlewares = jobMiddlewares.ToList())
+                ).RunServerAsync()
             );
         }
     }

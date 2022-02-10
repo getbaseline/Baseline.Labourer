@@ -14,7 +14,7 @@ namespace Baseline.Labourer.Tests
             await Client.DispatchJobAsync<BasicJob>();
 
             // Assert.
-            var jobDefinition = TestStore.AssertJobWithTypesStored(typeof(BasicJob));
+            var jobDefinition = TestBackingStore.AssertJobWithTypesStored(typeof(BasicJob));
 
             var serialisedJobDefinition = await SerializationUtils.SerializeToStringAsync(
                 jobDefinition,

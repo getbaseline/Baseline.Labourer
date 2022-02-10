@@ -6,7 +6,7 @@ using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server
 {
     /// <summary>
     /// JobContext provides context and dependencies around a job that is running/is to be ran.
@@ -28,6 +28,13 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// </summary>
         public DispatchedJobDefinition JobDefinition { get; set; }
 
+        public JobContext(string originalMessageId, WorkerContext workerContext, DispatchedJobDefinition jobDefinition)
+        {
+            OriginalMessageId = originalMessageId;
+            WorkerContext = workerContext;
+            JobDefinition = jobDefinition;
+        }
+        
         /// <summary>
         /// Alias to the server context's <see cref="IStoreWriterTransactionManager.BeginTransaction"/> method.
         /// </summary>
@@ -74,7 +81,8 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// Increments the number of retries the job has had.
         /// </summary>
         /// <param name="writer">A transactionized store writer to use.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <param name="ca
+        /// ncellationToken">A cancellation token.</param>
         public async Task IncrementJobRetriesAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
         {
             JobDefinition.Retries += 1;

@@ -7,17 +7,17 @@ namespace Baseline.Labourer.Store.Memory
     /// </summary>
     public class MemoryStoreWriterTransactionManager : IStoreWriterTransactionManager
     {
-        private readonly MemoryStore _memoryStore;
+        private readonly MemoryBackingStore _memoryBackingStore;
 
-        public MemoryStoreWriterTransactionManager(MemoryStore memoryStore)
+        public MemoryStoreWriterTransactionManager(MemoryBackingStore memoryBackingStore)
         {
-            _memoryStore = memoryStore;
+            _memoryBackingStore = memoryBackingStore;
         }
 
         /// <inheritdoc />
         public ITransactionalStoreWriter BeginTransaction()
         {
-            return new MemoryTransactionalStoreWriter(_memoryStore);
+            return new MemoryTransactionalStoreWriter(_memoryBackingStore);
         }
     }
 }

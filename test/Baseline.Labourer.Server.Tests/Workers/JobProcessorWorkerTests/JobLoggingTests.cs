@@ -64,7 +64,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public JobLoggingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
+                async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
         }
 
@@ -90,10 +90,6 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         [Fact]
         public async Task It_Logs_Job_Messages_To_The_Wrapped_Logger_And_The_Server_Store()
         {
-            // Arrange.
-            var serverContext = GenerateServerContextAsync();
-            serverContext.LoggerFactory = new TestLoggerFactory();
-
             // Act.
             var jobId = await Client.DispatchJobAsync<LoggerTestJob>();
 
@@ -101,10 +97,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestLogger.HasLoggedMessage("Message one.");
-                TestStore.AssertMessageForJobLogged(jobId, "Message one.");
+                TestBackingStore.AssertMessageForJobLogged(jobId, "Message one.");
 
                 TestLogger.HasLoggedMessage("Message two.");
-                TestStore.AssertMessageForJobLogged(jobId, "Message two.");
+                TestBackingStore.AssertMessageForJobLogged(jobId, "Message two.");
             });
         }
     }

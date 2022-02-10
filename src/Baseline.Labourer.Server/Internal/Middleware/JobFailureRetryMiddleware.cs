@@ -3,10 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.JobProcessorWorker;
+using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Middleware
+namespace Baseline.Labourer.Server.Internal.Middleware
 {
     /// <summary>
     /// A middleware for retrying failed jobs. It determines whether or not they have exceeded their maximum amount of

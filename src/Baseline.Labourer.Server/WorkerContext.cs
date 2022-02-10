@@ -1,6 +1,6 @@
 ﻿using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server
 {
     /// <summary>
     /// WorkerContext provides worker-level related information and dependencies to jobs. Information that might be
@@ -18,5 +18,11 @@ namespace Baseline.Labourer.Server.JobProcessorWorker
         /// Gets or sets the worker being ran.
         /// </summary>
         public Worker Worker { get; set; }
+
+        public WorkerContext(ServerContext serverContext, Worker worker)
+        {
+            ServerContext = serverContext;
+            Worker = worker;
+        }
     }
 }

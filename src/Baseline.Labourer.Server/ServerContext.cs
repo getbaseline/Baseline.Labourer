@@ -22,7 +22,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
         /// </summary>
-        public List<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
+        public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
         
         /// <summary>
         /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
@@ -82,9 +82,29 @@ namespace Baseline.Labourer.Server
         public CancellationTokenSource ShutdownTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
-        /// Gets or sets the amount of workers to run within this particular server.
+        /// Gets or sets the amount of job processing workers to run within this particular server.
         /// </summary>
-        public int WorkersToRun { get; set; } = 1;
+        public int JobProcessingWorkersToRun { get; set; } = 1;
+
+        public ServerContext(ServerInstance serverInstance, BaselineServerConfiguration serverConfiguration)
+        {
+            // validate configuration
+            
+            Activator = serverConfiguration.Activator;
+            AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares!;
+            DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
+            JobLogStore = serverConfiguration.Store!.JobLogStore;
+            JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
+            LoggerFactory = serverConfiguration.LoggerFactory!();
+            Queue = serverConfiguration.Queue!;
+            ResourceLocker = serverConfiguration.Store.ResourceLocker;
+            ScheduledJobProcessorInterval = serverConfiguration.ScheduledJobProcessorInterval; 
+            StoreReader = serverConfiguration.Store.StoreReader;
+            ServerInstance = serverInstance;
+            StoreWriterTransactionManager = serverConfiguration.Store.StoreWriterTransactionManager;
+            ShutdownTokenSource = serverConfiguration.ShutdownTokenSource;
+            JobProcessingWorkersToRun = serverConfiguration.JobProcessingWorkersToRun;
+        }
 
         /// <summary>
         /// Creates and stores a heartbeat indicating that this server is still alive.

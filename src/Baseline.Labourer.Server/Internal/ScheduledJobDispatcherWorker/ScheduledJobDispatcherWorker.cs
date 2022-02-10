@@ -7,15 +7,15 @@ using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Extensions;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.JobProcessorWorker;
+using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
+namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
 {
     /// <summary>
     /// Queries scheduled jobs and dispatches those that need to be ran. 
     /// </summary>
-    public class ScheduledJobDispatcherWorker : IWorker
+    internal class ScheduledJobDispatcherWorker : IWorker
     {
         private readonly ServerContext _serverContext;
         private readonly JobDispatcher _jobDispatcher;
@@ -37,7 +37,7 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
         }
         
         /// <inheritdoc />
-        public async Task RunAsync(CancellationToken cancellationToken = default)
+        public async Task RunAsync()
         {
             _logger.LogInformation("Starting scheduled job dispatcher worker.");
             
@@ -49,7 +49,7 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
 
                     var jobsThatNeedRunning = await _serverContext.StoreReader.GetScheduledJobsDueToRunBeforeDateAsync(
                         beforeDate,
-                        cancellationToken
+                        CancellationToken.None
                     );
                     
                     _logger.LogDebug(
@@ -65,16 +65,16 @@ namespace Baseline.Labourer.Server.ScheduledJobDispatcherWorker
                             await using var _ = await job.LockJobAsync(
                                 _serverContext.ResourceLocker,
                                 TimeSpan.FromSeconds(10), 
-                                cancellationToken
+                                CancellationToken.None
                             );
                             
                             _logger.LogInformation(_serverContext, "Dispatching scheduled job {jobId}.", job.Id);
                         
-                            await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job), cancellationToken);
+                            await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job), CancellationToken.None);
 
                             await using var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction();
-                            await job.UpdateNextRunDateAsync(writer, _dateTimeProvider, cancellationToken);
-                            await job.UpdateLastRunDateAsync(writer, _dateTimeProvider, cancellationToken);
+                            await job.UpdateNextRunDateAsync(writer, _dateTimeProvider, CancellationToken.None);
+                            await job.UpdateLastRunDateAsync(writer, _dateTimeProvider, CancellationToken.None);
                         }
                         catch (ResourceLockedException)
                         {

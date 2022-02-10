@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// <see cref="JobExecutor"/> is where the magic happens for job processing.
     /// </summary>
-    public class JobExecutor
+    internal class JobExecutor
     {
         private readonly JobContext _jobContext;
         private readonly JobMiddlewareRunner _jobMiddlewareRunner;

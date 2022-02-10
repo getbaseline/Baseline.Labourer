@@ -1,13 +1,13 @@
 ﻿using Baseline.Labourer.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// JobLoggerFactory is an internal logger factory used to create <see cref="JobLogger"/> instances that optionally
     /// wrap a logger provided by a consumer of the library.
     /// </summary>
-    public class JobLoggerFactory : ILoggerFactory
+    internal class JobLoggerFactory : ILoggerFactory
     {
         private readonly string _jobId;
         private readonly ILoggerFactory _wrappedLoggerFactory;

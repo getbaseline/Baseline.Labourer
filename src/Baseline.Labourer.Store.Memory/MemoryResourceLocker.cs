@@ -18,16 +18,16 @@ namespace Baseline.Labourer.Store.Memory
     /// </summary>
     public class MemoryResourceLocker : IResourceLocker
     {
-        private readonly MemoryStore _memoryStore;
+        private readonly MemoryBackingStore _memoryBackingStore;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public MemoryResourceLocker(MemoryStore memoryStore) : this(memoryStore, new DateTimeProvider())
+        public MemoryResourceLocker(MemoryBackingStore memoryBackingStore) : this(memoryBackingStore, new DateTimeProvider())
         {
         }
 
-        protected MemoryResourceLocker(MemoryStore memoryStore, IDateTimeProvider dateTimeProvider)
+        protected MemoryResourceLocker(MemoryBackingStore memoryBackingStore, IDateTimeProvider dateTimeProvider)
         {
-            _memoryStore = memoryStore;
+            _memoryBackingStore = memoryBackingStore;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -40,11 +40,11 @@ namespace Baseline.Labourer.Store.Memory
         {
             var lockId = StringGenerationUtils.GenerateUniqueRandomString();
 
-            using (await _memoryStore.AcquireStoreLockAsync())
+            using (await _memoryBackingStore.AcquireStoreLockAsync())
             {
                 if (
-                    _memoryStore.Locks.ContainsKey(resource) && 
-                    _memoryStore.Locks[resource].Any(
+                    _memoryBackingStore.Locks.ContainsKey(resource) && 
+                    _memoryBackingStore.Locks[resource].Any(
                         @lock => @lock.Released == null && @lock.Until >= _dateTimeProvider.UtcNow()
                     )
                 )
@@ -52,12 +52,12 @@ namespace Baseline.Labourer.Store.Memory
                     throw new ResourceLockedException();
                 }
                 
-                if (!_memoryStore.Locks.ContainsKey(resource))
+                if (!_memoryBackingStore.Locks.ContainsKey(resource))
                 {
-                    _memoryStore.Locks.Add(resource, new List<MemoryLock>());
+                    _memoryBackingStore.Locks.Add(resource, new List<MemoryLock>());
                 }
 
-                _memoryStore.Locks[resource].Add(new MemoryLock
+                _memoryBackingStore.Locks[resource].Add(new MemoryLock
                 {
                     Id = lockId,
                     Until = DateTime.UtcNow.Add(@for)
@@ -66,9 +66,9 @@ namespace Baseline.Labourer.Store.Memory
 
             return new AsyncComposableDisposable(async () =>
             {
-                using (await _memoryStore.AcquireStoreLockAsync())
+                using (await _memoryBackingStore.AcquireStoreLockAsync())
                 {
-                    var lockToModify = _memoryStore.Locks[resource].First(@lock => @lock.Id == lockId);
+                    var lockToModify = _memoryBackingStore.Locks[resource].First(@lock => @lock.Id == lockId);
                     lockToModify.Released = DateTime.UtcNow;
                 }
             });

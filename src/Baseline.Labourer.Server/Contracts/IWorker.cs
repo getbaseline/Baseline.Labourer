@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Baseline.Labourer.Server.Contracts
 {
@@ -11,6 +10,6 @@ namespace Baseline.Labourer.Server.Contracts
         /// <summary>
         /// Runs the worker as a long running task.
         /// </summary>
-        Task RunAsync(CancellationToken cancellationToken = default);
+        Task RunAsync();
     }
 }
