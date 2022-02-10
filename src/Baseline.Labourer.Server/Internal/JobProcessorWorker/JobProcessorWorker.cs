@@ -25,10 +25,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
             _logger = serverContext.LoggerFactory.CreateLogger<JobProcessorWorker>();
         }
 
-        /// <summary>
-        /// Boots and runs the job processing worker instances as a long running task.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <inheritdoc />
         public async Task RunAsync()
         {
             _logger.LogInformation(
@@ -62,7 +59,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
                 await writer.CommitAsync(CancellationToken.None);
             }
 
-            var workerContext = new WorkerContext { ServerContext = _serverContext, Worker = worker };
+            var workerContext = new WorkerContext(_serverContext, worker);
 
             await ProcessJobsAsync(workerContext);
         }

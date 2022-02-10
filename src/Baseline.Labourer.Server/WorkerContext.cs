@@ -18,5 +18,11 @@ namespace Baseline.Labourer.Server
         /// Gets or sets the worker being ran.
         /// </summary>
         public Worker Worker { get; set; }
+
+        public WorkerContext(ServerContext serverContext, Worker worker)
+        {
+            ServerContext = serverContext;
+            Worker = worker;
+        }
     }
 }

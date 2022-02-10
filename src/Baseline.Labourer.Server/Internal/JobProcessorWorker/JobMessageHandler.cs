@@ -29,12 +29,11 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
         {
             _logger.LogDebug(_workerContext, "Handling job message with id of {messageId}.", job.MessageId);
 
-            var jobContext = new JobContext
-            {
-                OriginalMessageId = job.MessageId,
-                JobDefinition = await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken),
-                WorkerContext = _workerContext
-            };
+            var jobContext = new JobContext(
+                job.MessageId,
+                _workerContext,
+                await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken)
+            );
 
             try
             {

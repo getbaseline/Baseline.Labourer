@@ -10,6 +10,9 @@ using Baseline.Labourer.Server.Internal.ServerHeartbeatWorker;
 
 namespace Baseline.Labourer.Server
 {
+    /// <summary>
+    /// Entry point to running the Baseline.Labourer server and all relevant workers.
+    /// </summary>
     public class LabourerServer
     {
         private readonly BaselineServerConfiguration _serverConfiguration;
@@ -19,10 +22,28 @@ namespace Baseline.Labourer.Server
             _serverConfiguration = serverConfiguration;
         }
 
+        /// <summary>
+        /// Runs the Baseline.Labourer server, booting all relevant workers and entering an infinite processing loop
+        /// until the cancellation token source is called.
+        /// </summary>
         public async Task RunServerAsync()
         {
-            await using var writer = _serverConfiguration.Store!.StoreWriterTransactionManager.BeginTransaction();
+            var serverInstance = await CreateServerInstanceAsync();
+            var serverContext = new ServerContext(serverInstance, _serverConfiguration);
+
+            await RunServerBootTasksAsync();
             
+            await Task.WhenAll(
+                new ServerHeartbeatWorker(serverContext).RunAsync(),
+                new ScheduledJobDispatcherWorker(serverContext).RunAsync(),
+                new JobProcessorWorker(serverContext).RunAsync()
+            );
+        }
+
+        private async Task<ServerInstance> CreateServerInstanceAsync()
+        {
+            await using var writer = _serverConfiguration.Store!.StoreWriterTransactionManager.BeginTransaction();
+
             var serverInstance = new ServerInstance
             {
                 Hostname = Dns.GetHostName(),
@@ -32,13 +53,12 @@ namespace Baseline.Labourer.Server
             await writer.CreateServerAsync(serverInstance, CancellationToken.None);
             await writer.CommitAsync(CancellationToken.None);
 
-            var serverContext = new ServerContext(serverInstance, _serverConfiguration);
+            return serverInstance;
+        }
 
-            await Task.WhenAll(
-                new ServerHeartbeatWorker(serverContext).RunAsync(),
-                new ScheduledJobDispatcherWorker(serverContext).RunAsync(),
-                new JobProcessorWorker(serverContext).RunAsync()
-            );
+        private Task RunServerBootTasksAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets the configured delays for each retry.
         /// </summary>
-        public IEnumerable<TimeSpan> Delays { get; }
+        public IReadOnlyCollection<TimeSpan> Delays { get; }
         
         /// <summary>
         /// Gets the number of retries that should be attempted.
@@ -22,10 +22,10 @@ namespace Baseline.Labourer.Server
         public RetryConfiguration(uint retries, TimeSpan delay)
         {
             Retries = retries;
-            Delays = Enumerable.Repeat(delay, (int)retries);
+            Delays = Enumerable.Repeat(delay, (int)retries).ToList();
         }
 
-        public RetryConfiguration(uint retries, IEnumerable<TimeSpan> delays)
+        public RetryConfiguration(uint retries, IReadOnlyCollection<TimeSpan> delays)
         {
             var delaysAsList = delays.ToList();
             

@@ -23,10 +23,7 @@ namespace Baseline.Labourer.Server.Internal.ServerHeartbeatWorker
             _logger = serverContext.LoggerFactory.CreateLogger<ServerHeartbeatWorker>();
         }
 
-        /// <summary>
-        /// Runs the heartbeat worker.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <inheritdoc />
         public async Task RunAsync()
         {
             try
@@ -51,11 +48,11 @@ namespace Baseline.Labourer.Server.Internal.ServerHeartbeatWorker
             }
             catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
             {
-
+                _logger.LogInformation(_serverContext, "Shut down request received. Shutting down gracefully (hopefully).");
             }
             catch (Exception e)
             {
-
+                _logger.LogError(_serverContext, "Unexpected error received. Handling.", e);
             }
         }
     }
