@@ -2,13 +2,13 @@
 using Baseline.Labourer.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// JobLogger is an internal logger used to log messages and exceptions to the relevant job store whilst optionally
     /// wrapping a consumer provided logger to log the messages in a way configured by them too.
     /// </summary>
-    public class JobLogger : ILogger
+    internal class JobLogger : ILogger
     {
         private readonly string _jobId;
         private readonly ILogger _wrappedLogger;

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Middleware;
+using Baseline.Labourer.Server.Internal.Middleware;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// Runs the relevant middlewares for dispatched jobs. 
     /// </summary>
-    public class JobMiddlewareRunner
+    internal class JobMiddlewareRunner
     {
         private static readonly List<IJobMiddleware> SystemJobMiddlewares = new List<IJobMiddleware>
         {

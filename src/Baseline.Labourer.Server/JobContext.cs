@@ -6,7 +6,7 @@ using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server
 {
     /// <summary>
     /// JobContext provides context and dependencies around a job that is running/is to be ran.

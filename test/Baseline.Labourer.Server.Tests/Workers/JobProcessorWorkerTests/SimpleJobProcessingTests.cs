@@ -15,7 +15,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public SimpleJobProcessingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
+                async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
         }
 
@@ -67,8 +67,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() => SimpleQueuedJobWithParams.Count.Should().Be(100));
 
-            var serverId = TestStore.AssertHasRegisteredAServer();
-            TestStore.AssertHasRegisteredWorkersForServer(serverId);
+            var serverId = TestBackingStore.AssertHasRegisteredAServer();
+            TestBackingStore.AssertHasRegisteredWorkersForServer(serverId);
         }
 
         public class LateJob : IJob
@@ -110,11 +110,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJob>();
 
             // Assert.
-            await AssertionUtils.RetryAsync(() => TestStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
+            await AssertionUtils.RetryAsync(() => TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
             await AssertionUtils.RetryAsync(() =>
             {
-                TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                TestStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestBackingStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
             }, 25, 500);
         }
 
@@ -140,8 +140,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             {
                 foreach (var jobId in jobIds)
                 {
-                    TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                    TestStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+                    TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                    TestBackingStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
                 }
             });
         }

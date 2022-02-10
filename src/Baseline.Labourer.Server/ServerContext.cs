@@ -82,25 +82,28 @@ namespace Baseline.Labourer.Server
         public CancellationTokenSource ShutdownTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
-        /// Gets or sets the amount of workers to run within this particular server.
+        /// Gets or sets the amount of job processing workers to run within this particular server.
         /// </summary>
-        public int WorkersToRun { get; set; } = 1;
+        public int JobProcessingWorkersToRun { get; set; } = 1;
 
         public ServerContext(ServerInstance serverInstance, BaselineServerConfiguration serverConfiguration)
         {
+            // validate configuration
+            
             Activator = serverConfiguration.Activator;
-            AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares;
+            AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares!;
             DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
-            // JobLogStore = 
+            JobLogStore = serverConfiguration.Store!.JobLogStore;
             JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
-            LoggerFactory = serverConfiguration.LoggerFactory();
-            // Queue = 
-            // ResourceLocker = 
-            // ScheduledJobProcessorInterval = 
-            // StoreReader
+            LoggerFactory = serverConfiguration.LoggerFactory!();
+            Queue = serverConfiguration.Queue!;
+            ResourceLocker = serverConfiguration.Store.ResourceLocker;
+            ScheduledJobProcessorInterval = serverConfiguration.ScheduledJobProcessorInterval; 
+            StoreReader = serverConfiguration.Store.StoreReader;
             ServerInstance = serverInstance;
-            // StoreWriterTransactionManager =
+            StoreWriterTransactionManager = serverConfiguration.Store.StoreWriterTransactionManager;
             ShutdownTokenSource = serverConfiguration.ShutdownTokenSource;
+            JobProcessingWorkersToRun = serverConfiguration.JobProcessingWorkersToRun;
         }
 
         /// <summary>

@@ -15,13 +15,13 @@ namespace Baseline.Labourer.Server.Tests.Workers
         public async Task It_Successfully_Registers_A_Server_Heartbeat()
         {
             // Arrange.
-            var context = GenerateServerContextAsync();
+            var configuration = GenerateServerConfiguration();
 
             // Act.
-            Task.Run(async () => await new ServerHeartbeatWorker.ServerHeartbeatWorker(context).RunAsync());
+            Task.Run(async () => await new LabourerServer(configuration).RunServerAsync());
 
             // Assert.
-            await AssertionUtils.RetryAsync(() => TestStore.AssertHeartbeatRegisteredForServer(ServerId));
+            await AssertionUtils.RetryAsync(() => TestBackingStore.AssertHeartbeatRegisteredForServer(ServerId));
         }
     }
 }

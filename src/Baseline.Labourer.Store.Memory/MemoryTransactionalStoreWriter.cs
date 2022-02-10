@@ -13,7 +13,7 @@ namespace Baseline.Labourer.Store.Memory
     /// </summary>
     public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     {
-        private readonly MemoryStore _memoryStore;
+        private readonly MemoryBackingStore _memoryBackingStore;
 
         private readonly List<ServerInstance> _serverInstancesToCreate = new List<ServerInstance>();
 
@@ -33,46 +33,46 @@ namespace Baseline.Labourer.Store.Memory
         private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = 
             new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
 
-        public MemoryTransactionalStoreWriter(MemoryStore memoryStore)
+        public MemoryTransactionalStoreWriter(MemoryBackingStore memoryBackingStore)
         {
-            _memoryStore = memoryStore;
+            _memoryBackingStore = memoryBackingStore;
         }
 
         /// <inheritdoc />
         public async ValueTask CommitAsync(CancellationToken cancellationToken)
         {
-            using var _ = await _memoryStore.AcquireStoreLockAsync();
+            using var _ = await _memoryBackingStore.AcquireStoreLockAsync();
 
-            _memoryStore.Servers.AddRange(_serverInstancesToCreate);
+            _memoryBackingStore.Servers.AddRange(_serverInstancesToCreate);
 
             foreach (var heartbeat in _heartbeatsToCreate)
             {
-                if (!_memoryStore.ServerHeartbeats.ContainsKey(heartbeat.Key))
+                if (!_memoryBackingStore.ServerHeartbeats.ContainsKey(heartbeat.Key))
                 {
-                    _memoryStore.ServerHeartbeats[heartbeat.Key] = new List<DateTime>();
+                    _memoryBackingStore.ServerHeartbeats[heartbeat.Key] = new List<DateTime>();
                 }
 
-                _memoryStore.ServerHeartbeats[heartbeat.Key].AddRange(heartbeat.Value);
+                _memoryBackingStore.ServerHeartbeats[heartbeat.Key].AddRange(heartbeat.Value);
             }
 
             foreach (var worker in _workersToCreate)
             {
-                if (!_memoryStore.ServerWorkers.ContainsKey(worker.ServerInstanceId))
+                if (!_memoryBackingStore.ServerWorkers.ContainsKey(worker.ServerInstanceId))
                 {
-                    _memoryStore.ServerWorkers[worker.ServerInstanceId] = new List<Worker>();
+                    _memoryBackingStore.ServerWorkers[worker.ServerInstanceId] = new List<Worker>();
                 }
 
-                _memoryStore.ServerWorkers[worker.ServerInstanceId].Add(worker);
+                _memoryBackingStore.ServerWorkers[worker.ServerInstanceId].Add(worker);
             }
 
             foreach (var scheduledJobAdd in _scheduledJobsToCreate)
             {
-                _memoryStore.ScheduledJobs.Add(scheduledJobAdd.Id, scheduledJobAdd);    
+                _memoryBackingStore.ScheduledJobs.Add(scheduledJobAdd.Id, scheduledJobAdd);    
             }
 
             foreach (var scheduledJobUpdate in _scheduledJobUpdates)
             {
-                _memoryStore.ScheduledJobs.TryGetValue(scheduledJobUpdate.Key, out var scheduledJobToUpdate);
+                _memoryBackingStore.ScheduledJobs.TryGetValue(scheduledJobUpdate.Key, out var scheduledJobToUpdate);
 
                 if (scheduledJobToUpdate == null)
                 {
@@ -87,14 +87,14 @@ namespace Baseline.Labourer.Store.Memory
 
             foreach (var scheduledJobDeletion in _scheduledJobDeletions)
             {
-                _memoryStore.ScheduledJobs.Remove(scheduledJobDeletion);
+                _memoryBackingStore.ScheduledJobs.Remove(scheduledJobDeletion);
             }
 
-            _memoryStore.DispatchedJobs.AddRange(_jobDefinitionsToCreate);
+            _memoryBackingStore.DispatchedJobs.AddRange(_jobDefinitionsToCreate);
 
             foreach (var jobUpdate in _jobDefinitionUpdates)
             {
-                var jobToUpdate = _memoryStore.DispatchedJobs.FirstOrDefault(job => job.Id == jobUpdate.Key);
+                var jobToUpdate = _memoryBackingStore.DispatchedJobs.FirstOrDefault(job => job.Id == jobUpdate.Key);
                 if (jobToUpdate == null)
                 {
                     continue;
@@ -158,7 +158,7 @@ namespace Baseline.Labourer.Store.Memory
             CancellationToken cancellationToken
         )
         {
-            if (!_memoryStore.ScheduledJobs.ContainsKey(scheduledJobDefinition.Id))
+            if (!_memoryBackingStore.ScheduledJobs.ContainsKey(scheduledJobDefinition.Id))
             {
                 _scheduledJobsToCreate.Add(scheduledJobDefinition);
             }

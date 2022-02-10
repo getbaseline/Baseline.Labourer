@@ -18,7 +18,7 @@ namespace Baseline.Labourer.Server.Tests
 
         protected readonly TestMemoryQueue TestMemoryQueue;
 
-        protected readonly TestMemoryStore TestStore = new TestMemoryStore();
+        protected readonly TestMemoryBackingStore TestBackingStore = new TestMemoryBackingStore();
 
         protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
 
@@ -38,7 +38,7 @@ namespace Baseline.Labourer.Server.Tests
             });
 
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
-            TestResourceLocker = new TestMemoryResourceLocker(TestStore, TestDateTimeProvider);
+            TestResourceLocker = new TestMemoryResourceLocker(TestBackingStore, TestDateTimeProvider);
 
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
@@ -46,40 +46,27 @@ namespace Baseline.Labourer.Server.Tests
                     LoggerFactory = () => TestLoggerFactory
                 },
                 TestResourceLocker,
-                new MemoryStoreWriterTransactionManager(TestStore),
+                new MemoryStoreWriterTransactionManager(TestBackingStore),
                 TestMemoryQueue
             );
         }
 
-        public ServerContext GenerateServerContextAsync(Action<ServerContext>? configuror = null)
+        public BaselineServerConfiguration GenerateServerConfiguration(Action<BaselineServerConfiguration>? configuror = null)
         {
-            var serverInstance = new ServerInstance
-            {
-                Hostname = Dns.GetHostName(),
-                Key = StringGenerationUtils.GenerateUniqueRandomString()
-            };
-            TestStore.Servers.Add(serverInstance);
-
-            ServerId = serverInstance.Id;
-
-            var serverContext = new ServerContext
+            var configuration = new BaselineServerConfiguration
             {
                 Activator = new DefaultActivator(),
-                JobLogStore = new MemoryJobLogStore(TestStore),
-                StoreReader = new MemoryStoreReader(TestStore),
-                ResourceLocker = TestResourceLocker,
+                Store = new TestMemoryStore(TestBackingStore, TestDateTimeProvider),
                 Queue = TestMemoryQueue,
-                ServerInstance = serverInstance,
-                StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(TestStore),
                 ShutdownTokenSource = _cancellationTokenSource,
-                LoggerFactory = TestLoggerFactory,
+                LoggerFactory = () => TestLoggerFactory,
                 ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
                 DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero)
             };
+            
+            configuror?.Invoke(configuration);
 
-            configuror?.Invoke(serverContext);
-
-            return serverContext;
+            return configuration;
         }
 
         public void Dispose()

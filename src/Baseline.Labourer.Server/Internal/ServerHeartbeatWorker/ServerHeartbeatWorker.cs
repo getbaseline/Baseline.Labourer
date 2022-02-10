@@ -3,16 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Extensions;
 using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.JobProcessorWorker;
+using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.ServerHeartbeatWorker
+namespace Baseline.Labourer.Server.Internal.ServerHeartbeatWorker
 {
     /// <summary>
     /// Continuously dispatches heartbeat notifications to the server store, ensuring it remains visible and providing
     /// accurate diagnostics to consumers of the application.
     /// </summary>
-    public class ServerHeartbeatWorker : IWorker
+    internal class ServerHeartbeatWorker : IWorker
     {
         private readonly ServerContext _serverContext;
         private readonly ILogger<ServerHeartbeatWorker> _logger;
@@ -27,7 +27,7 @@ namespace Baseline.Labourer.Server.ServerHeartbeatWorker
         /// Runs the heartbeat worker.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token.</param>
-        public async Task RunAsync(CancellationToken cancellationToken = default)
+        public async Task RunAsync()
         {
             try
             {
@@ -42,8 +42,8 @@ namespace Baseline.Labourer.Server.ServerHeartbeatWorker
 
                     await using (var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction())
                     {
-                        await _serverContext.BeatAsync(writer, cancellationToken);
-                        await writer.CommitAsync(cancellationToken);
+                        await _serverContext.BeatAsync(writer, CancellationToken.None);
+                        await writer.CommitAsync(CancellationToken.None);
                     }
 
                     await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(TimeSpan.FromSeconds(30));

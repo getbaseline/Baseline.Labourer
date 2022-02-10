@@ -10,11 +10,11 @@ namespace Baseline.Labourer.Store.Memory
     /// </summary>
     public class MemoryJobLogStore : IJobLogStore
     {
-        private readonly MemoryStore _memoryStore;
+        private readonly MemoryBackingStore _memoryBackingStore;
 
-        public MemoryJobLogStore(MemoryStore memoryStore)
+        public MemoryJobLogStore(MemoryBackingStore memoryBackingStore)
         {
-            _memoryStore = memoryStore;
+            _memoryBackingStore = memoryBackingStore;
         }
 
         /// <inheritdoc />
@@ -23,9 +23,9 @@ namespace Baseline.Labourer.Store.Memory
             Task
                 .Run(async () =>
                 {
-                    using var _ = await _memoryStore.AcquireStoreLockAsync();
+                    using var _ = await _memoryBackingStore.AcquireStoreLockAsync();
 
-                    _memoryStore.LogEntries.Add(new MemoryLogEntry
+                    _memoryBackingStore.LogEntries.Add(new MemoryLogEntry
                     {
                         JobId = jobId,
                         LogLevel = logLevel,

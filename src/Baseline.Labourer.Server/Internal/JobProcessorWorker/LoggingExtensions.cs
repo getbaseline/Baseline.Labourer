@@ -2,12 +2,12 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
     /// <summary>
     /// Extension method class containing extensions related to logging for the server project.
     /// </summary>
-    public static class LoggingExtensions
+    internal static class LoggingExtensions
     {
         /// <summary>
         /// Logs a debug message for a given server context.

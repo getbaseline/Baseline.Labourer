@@ -25,17 +25,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
 
         public SimpleScheduledJobWorkerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            var context = GenerateServerContextAsync();
+            var configuration = GenerateServerConfiguration();
 
-            Task.Run(
-                async () =>
-                    await new ScheduledJobDispatcherWorker.ScheduledJobDispatcherWorker(context, TestDateTimeProvider)
-                        .RunAsync()
-            );
-
-            Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(context).RunAsync()
-            );
+            Task.Run(async () => await new LabourerServer(configuration).RunServerAsync());
         }
 
         [Fact]
@@ -44,7 +36,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
             // Arrange.
             var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 * * * *");
 
-            TestStore.ScheduledJobs[scheduledJobId].NextRunDate = DateTime.UtcNow.AddHours(-1); // Force the job to run.
+            TestBackingStore.ScheduledJobs[scheduledJobId].NextRunDate = DateTime.UtcNow.AddHours(-1); // Force the job to run.
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>
@@ -57,7 +49,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                     .AddMinutes(-currentDate.Minute)
                     .AddSeconds(-currentDate.Second);
 
-                var scheduledJob = TestStore.ScheduledJobs[scheduledJobId];
+                var scheduledJob = TestBackingStore.ScheduledJobs[scheduledJobId];
                 scheduledJob.LastRunDate.Should().BeCloseTo(currentDate, TimeSpan.FromSeconds(1));
                 scheduledJob.NextRunDate.Should().BeCloseTo(nextRunShouldBe, TimeSpan.FromMinutes(1));
             });
@@ -85,7 +77,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                     .Parse("0 0 0 * * *", new CrontabSchedule.ParseOptions { IncludingSeconds = true })
                     .GetNextOccurrence(DateTime.UtcNow.AddDays(1).Date.AddSeconds(3));
                 
-                TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
+                TestBackingStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
             });
         }
 
@@ -109,7 +101,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
                         .Parse("0 0 0 * * *", new CrontabSchedule.ParseOptions { IncludingSeconds = true })
                         .GetNextOccurrence(DateTime.UtcNow.AddDays(i).Date.AddSeconds(3));
                 
-                    TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
+                    TestBackingStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(nextRunShouldBe);
                 });
             }
         }
@@ -119,7 +111,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
         {
             // Arrange.
             var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 0 * * *");
-            TestStore.Locks[scheduledJobId].Add(new MemoryLock
+            TestBackingStore.Locks[scheduledJobId].Add(new MemoryLock
             {
                 Until = DateTime.UtcNow.AddDays(7)
             });
@@ -131,8 +123,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(DateTime.UtcNow.AddDays(1).Date);
-                TestStore.ScheduledJobs[scheduledJobId].LastRunDate.Should().BeNull();
+                TestBackingStore.ScheduledJobs[scheduledJobId].NextRunDate.Should().Be(DateTime.UtcNow.AddDays(1).Date);
+                TestBackingStore.ScheduledJobs[scheduledJobId].LastRunDate.Should().BeNull();
             });
         }
     }

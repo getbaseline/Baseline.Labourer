@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Memory;
@@ -21,16 +20,16 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             var jobId = await Client.DispatchJobAsync<BasicJob>();
-            TestStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
+            TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
+                async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
             await Task.Delay(1000);
             
             // Assert.
-            TestStore.AssertStatusForJobIs(jobId, JobStatus.Created);
+            TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Created);
         }
 
         [Fact]
@@ -38,11 +37,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             var jobId = await Client.DispatchJobAsync<BasicSuccessfulJob>();
-            TestStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
+            TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
             Task.Run(
-                async () => await new JobProcessorWorker.JobProcessorWorker(GenerateServerContextAsync()).RunAsync()
+                async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
             await Task.Delay(1000);
             TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddHours(2));
@@ -51,7 +50,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
             });
         }
     }
