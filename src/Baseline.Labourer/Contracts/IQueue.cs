@@ -11,6 +11,11 @@ namespace Baseline.Labourer
     public interface IQueue
     {
         /// <summary>
+        /// Bootstraps the queue implementation (for example running database migrations if the queue is database based).
+        /// </summary>
+        ValueTask BootstrapAsync();
+        
+        /// <summary>
         /// Enqueues a message to the queue.
         /// </summary>
         /// <param name="messageToQueue">A message that should be serialized and queued.</param>

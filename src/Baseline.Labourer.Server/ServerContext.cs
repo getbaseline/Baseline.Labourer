@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
@@ -28,12 +29,12 @@ namespace Baseline.Labourer.Server
         /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
         /// </summary>
         public RetryConfiguration DefaultRetryConfiguration { get; set; } = RetryConfiguration.Default;
-
+        
         /// <summary>
-        /// Gets or sets the job log store to be utilised within the server.
+        /// Gets or sets the amount of job processing workers to run within this particular server.
         /// </summary>
-        public IJobLogStore JobLogStore { get; set; }
-
+        public int JobProcessingWorkersToRun { get; set; } = 1;
+        
         /// <summary>
         /// Gets or sets the custom retries for specific job types.
         /// </summary>
@@ -51,29 +52,14 @@ namespace Baseline.Labourer.Server
         public IQueue Queue { get; set; }
         
         /// <summary>
-        /// Gets or sets a resource locker to use.
-        /// </summary>
-        public IResourceLocker ResourceLocker { get; set; }
-
-        /// <summary>
         /// Gets or sets the interval between each run of the scheduled job processor.
         /// </summary>
         public TimeSpan ScheduledJobProcessorInterval { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <summary>
-        /// Gets or sets the reader to use to read the store.
-        /// </summary>
-        public IStoreReader StoreReader { get; set; }
-
-        /// <summary>
         /// Gets or sets the server instance this context relates to.
         /// </summary>
         public ServerInstance ServerInstance { get; set; }
-
-        /// <summary>
-        /// Gets or sets the writer transaction manager to use to transactionally write modifications to the relevant server store.
-        /// </summary>
-        public IStoreWriterTransactionManager StoreWriterTransactionManager { get; set; }
 
         /// <summary>
         /// Gets or sets a <see cref="CancellationTokenSource"/> used to perform a graceful shutdown of all processing
@@ -82,9 +68,9 @@ namespace Baseline.Labourer.Server
         public CancellationTokenSource ShutdownTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
-        /// Gets or sets the amount of job processing workers to run within this particular server.
+        /// Gets or sets the store to be utilised within the server.
         /// </summary>
-        public int JobProcessingWorkersToRun { get; set; } = 1;
+        public IStore Store { get; set; }
 
         public ServerContext(ServerInstance serverInstance, BaselineServerConfiguration serverConfiguration)
         {
@@ -93,16 +79,13 @@ namespace Baseline.Labourer.Server
             Activator = serverConfiguration.Activator;
             AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares!;
             DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
-            JobLogStore = serverConfiguration.Store!.JobLogStore;
             JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
             LoggerFactory = serverConfiguration.LoggerFactory!();
             Queue = serverConfiguration.Queue!;
-            ResourceLocker = serverConfiguration.Store.ResourceLocker;
             ScheduledJobProcessorInterval = serverConfiguration.ScheduledJobProcessorInterval; 
-            StoreReader = serverConfiguration.Store.StoreReader;
             ServerInstance = serverInstance;
-            StoreWriterTransactionManager = serverConfiguration.Store.StoreWriterTransactionManager;
             ShutdownTokenSource = serverConfiguration.ShutdownTokenSource;
+            Store = serverConfiguration.Store!;
             JobProcessingWorkersToRun = serverConfiguration.JobProcessingWorkersToRun;
         }
 

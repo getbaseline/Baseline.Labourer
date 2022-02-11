@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 
 namespace Baseline.Labourer.Store.Memory
@@ -14,10 +15,10 @@ namespace Baseline.Labourer.Store.Memory
         public IResourceLocker ResourceLocker { get; }
         
         /// <inheritdoc />
-        public IStoreReader StoreReader { get; }
+        public IStoreReader Reader { get; }
         
         /// <inheritdoc />
-        public IStoreWriterTransactionManager StoreWriterTransactionManager { get; }
+        public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
         public MemoryStore() : this(new MemoryBackingStore())
         {
@@ -27,8 +28,14 @@ namespace Baseline.Labourer.Store.Memory
         {
             JobLogStore = new MemoryJobLogStore(memoryBackingStore);
             ResourceLocker = new MemoryResourceLocker(memoryBackingStore);
-            StoreReader = new MemoryStoreReader(memoryBackingStore);
-            StoreWriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryBackingStore);
+            Reader = new MemoryStoreReader(memoryBackingStore);
+            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryBackingStore);
+        }
+
+        /// <inheritdoc />
+        public ValueTask BootstrapAsync()
+        {
+            return new ValueTask();
         }
     }
 }

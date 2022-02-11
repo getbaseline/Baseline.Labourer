@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 
 namespace Baseline.Labourer
@@ -21,11 +22,16 @@ namespace Baseline.Labourer
         /// <summary>
         /// Gets the store reader.
         /// </summary>
-        IStoreReader StoreReader { get; }
+        IStoreReader Reader { get; }
         
         /// <summary>
         /// Gets the store writer transaction manager.
         /// </summary>
-        IStoreWriterTransactionManager StoreWriterTransactionManager { get; }
+        IStoreWriterTransactionManager WriterTransactionManager { get; }
+
+        /// <summary>
+        /// Bootstraps the current store (i.e. runs database migrations if using a database backed store).
+        /// </summary>
+        ValueTask BootstrapAsync();
     }
 }

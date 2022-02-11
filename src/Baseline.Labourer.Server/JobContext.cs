@@ -40,7 +40,7 @@ namespace Baseline.Labourer.Server
         /// </summary>
         public ITransactionalStoreWriter BeginTransaction()
         {
-            return WorkerContext.ServerContext.StoreWriterTransactionManager.BeginTransaction();
+            return WorkerContext.ServerContext.Store.WriterTransactionManager.BeginTransaction();
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Baseline.Labourer.Server
             CancellationToken cancellationToken
         )
         {
-            WorkerContext.ServerContext.JobLogStore.LogEntryForJob(
+            WorkerContext.ServerContext.Store.JobLogStore.LogEntryForJob(
                 JobDefinition.Id,
                 LogLevel.Information,
                 $"Job status changed from {JobDefinition.Status} to {status}.",
@@ -138,7 +138,7 @@ namespace Baseline.Labourer.Server
         /// <param name="cancellationToken">A cancellation token.</param>
         public async Task<IAsyncDisposable> AcquireJobLockAsync(CancellationToken cancellationToken)
         {
-            return await WorkerContext.ServerContext.ResourceLocker.LockResourceAsync(
+            return await WorkerContext.ServerContext.Store.ResourceLocker.LockResourceAsync(
                 JobDefinition.Id,
                 TimeSpan.FromSeconds(59),
                 cancellationToken

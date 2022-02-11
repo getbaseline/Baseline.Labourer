@@ -24,7 +24,7 @@ namespace Baseline.Labourer.Server.Tests
 
         protected readonly ILoggerFactory TestLoggerFactory;
 
-        protected string ServerId;
+        protected readonly TestMemoryStore TestMemoryStore;
 
         public LabourerClient Client { get; }
 
@@ -39,7 +39,8 @@ namespace Baseline.Labourer.Server.Tests
 
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
             TestResourceLocker = new TestMemoryResourceLocker(TestBackingStore, TestDateTimeProvider);
-
+            TestMemoryStore = new TestMemoryStore(TestBackingStore, TestDateTimeProvider);
+            
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
                 {
@@ -56,12 +57,14 @@ namespace Baseline.Labourer.Server.Tests
             var configuration = new BaselineServerConfiguration
             {
                 Activator = new DefaultActivator(),
-                Store = new TestMemoryStore(TestBackingStore, TestDateTimeProvider),
+                Store = TestMemoryStore,
                 Queue = TestMemoryQueue,
                 ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = () => TestLoggerFactory,
                 ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
-                DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero)
+                DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero),
+                JobProcessingWorkersToRun = 1,
+                DateTimeProvider = TestDateTimeProvider
             };
             
             configuror?.Invoke(configuration);
