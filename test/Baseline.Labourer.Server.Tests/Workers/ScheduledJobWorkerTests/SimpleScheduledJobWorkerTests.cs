@@ -90,6 +90,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
             for (int i = 1; i < 4; i++)
             {
                 // Act.
+                TestScheduledJob.Ran = false;
                 TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddDays(i).Date.AddSeconds(3));
             
                 // Assert.

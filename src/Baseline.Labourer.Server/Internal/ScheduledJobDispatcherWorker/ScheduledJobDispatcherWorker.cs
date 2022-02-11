@@ -25,7 +25,7 @@ namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
         public ScheduledJobDispatcherWorker(ServerContext serverContext)
         {
             _serverContext = serverContext;
-            _jobDispatcher = new JobDispatcher(serverContext.StoreWriterTransactionManager, serverContext.Queue);
+            _jobDispatcher = new JobDispatcher(serverContext.Store.WriterTransactionManager, serverContext.Queue);
             _dateTimeProvider = new DateTimeProvider();
             _logger = _serverContext.LoggerFactory.CreateLogger<ScheduledJobDispatcherWorker>();
         }
@@ -47,7 +47,7 @@ namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
                 {
                     var beforeDate = _dateTimeProvider.UtcNow().AddSeconds(1);
 
-                    var jobsThatNeedRunning = await _serverContext.StoreReader.GetScheduledJobsDueToRunBeforeDateAsync(
+                    var jobsThatNeedRunning = await _serverContext.Store.Reader.GetScheduledJobsDueToRunBeforeDateAsync(
                         beforeDate,
                         CancellationToken.None
                     );
@@ -63,7 +63,7 @@ namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
                         try
                         {
                             await using var _ = await job.LockJobAsync(
-                                _serverContext.ResourceLocker,
+                                _serverContext.Store.ResourceLocker,
                                 TimeSpan.FromSeconds(10), 
                                 CancellationToken.None
                             );
@@ -72,7 +72,7 @@ namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
                         
                             await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job), CancellationToken.None);
 
-                            await using var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction();
+                            await using var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction();
                             await job.UpdateNextRunDateAsync(writer, _dateTimeProvider, CancellationToken.None);
                             await job.UpdateLastRunDateAsync(writer, _dateTimeProvider, CancellationToken.None);
                         }

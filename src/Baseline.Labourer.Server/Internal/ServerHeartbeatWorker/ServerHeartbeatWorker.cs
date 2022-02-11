@@ -37,7 +37,7 @@ namespace Baseline.Labourer.Server.Internal.ServerHeartbeatWorker
                         return;
                     }
 
-                    await using (var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction())
+                    await using (var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction())
                     {
                         await _serverContext.BeatAsync(writer, CancellationToken.None);
                         await writer.CommitAsync(CancellationToken.None);

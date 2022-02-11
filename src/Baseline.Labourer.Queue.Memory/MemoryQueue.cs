@@ -25,9 +25,15 @@ namespace Baseline.Labourer.Queue.Memory
         {
         }
 
-        protected MemoryQueue(IDateTimeProvider dateTimeProvider)
+        public MemoryQueue(IDateTimeProvider dateTimeProvider)
         {
             _dateTimeProvider = dateTimeProvider;
+        }
+
+        /// <inheritdoc />
+        public ValueTask BootstrapAsync()
+        {
+            return new ValueTask();
         }
 
         /// <inheritdoc />

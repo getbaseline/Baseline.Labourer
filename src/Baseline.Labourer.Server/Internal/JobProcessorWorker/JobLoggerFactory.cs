@@ -17,7 +17,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
         {
             _jobId = jobContext.JobDefinition.Id;
             _wrappedLoggerFactory = jobContext.WorkerContext.ServerContext.LoggerFactory;
-            _jobLogStore = jobContext.WorkerContext.ServerContext.JobLogStore;
+            _jobLogStore = jobContext.WorkerContext.ServerContext.Store.JobLogStore;
         }
 
         /// <inheritdoc />

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +18,11 @@ namespace Baseline.Labourer.Server
         /// etc.
         /// </summary>
         public IActivator Activator { get; set; } = new DefaultActivator();
+
+        /// <summary>
+        /// Gets or sets the date time provider to use. Normally won't need to be changed.
+        /// </summary>
+        public IDateTimeProvider DateTimeProvider { get; set; } = new DateTimeProvider();
 
         /// <summary>
         /// Gets or sets the default amount of retries that apply to a job. Defaults to 3.

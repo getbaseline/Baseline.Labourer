@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,7 +22,11 @@ namespace Baseline.Labourer.Server.Tests.Workers
             Task.Run(async () => await new LabourerServer(configuration).RunServerAsync());
 
             // Assert.
-            await AssertionUtils.RetryAsync(() => TestBackingStore.AssertHeartbeatRegisteredForServer(ServerId));
+            await AssertionUtils.RetryAsync(() =>
+            {
+                var serverId = TestBackingStore.Servers.First().Id;
+                TestBackingStore.AssertHeartbeatRegisteredForServer(serverId);
+            });
         }
     }
 }

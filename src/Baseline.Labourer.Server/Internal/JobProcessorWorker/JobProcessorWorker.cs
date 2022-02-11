@@ -50,7 +50,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
                 ServerInstanceId = _serverContext.ServerInstance.Id
             };
 
-            await using (var writer = _serverContext.StoreWriterTransactionManager.BeginTransaction())
+            await using (var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction())
             {
                 await writer.CreateWorkerAsync(
                     worker,

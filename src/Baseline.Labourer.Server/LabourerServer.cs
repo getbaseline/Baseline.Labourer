@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Server.Contracts;
+using Baseline.Labourer.Server.Internal.BootTasks;
 using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker;
 using Baseline.Labourer.Server.Internal.ServerHeartbeatWorker;
@@ -31,18 +33,18 @@ namespace Baseline.Labourer.Server
             var serverInstance = await CreateServerInstanceAsync();
             var serverContext = new ServerContext(serverInstance, _serverConfiguration);
 
-            await RunServerBootTasksAsync();
+            await RunServerBootTasksAsync(serverContext);
             
             await Task.WhenAll(
                 new ServerHeartbeatWorker(serverContext).RunAsync(),
-                new ScheduledJobDispatcherWorker(serverContext).RunAsync(),
+                new ScheduledJobDispatcherWorker(serverContext, _serverConfiguration.DateTimeProvider).RunAsync(),
                 new JobProcessorWorker(serverContext).RunAsync()
             );
         }
 
         private async Task<ServerInstance> CreateServerInstanceAsync()
         {
-            await using var writer = _serverConfiguration.Store!.StoreWriterTransactionManager.BeginTransaction();
+            await using var writer = _serverConfiguration.Store!.WriterTransactionManager.BeginTransaction();
 
             var serverInstance = new ServerInstance
             {
@@ -56,9 +58,18 @@ namespace Baseline.Labourer.Server
             return serverInstance;
         }
 
-        private Task RunServerBootTasksAsync()
+        private async Task RunServerBootTasksAsync(ServerContext serverContext)
         {
-            return Task.CompletedTask;
+            var bootTasks = new IBootTask[]
+            {
+                new BootstrapQueueBootTask(),
+                new BootstrapStoreBootTask()
+            };
+
+            foreach (var bootTask in bootTasks)
+            {
+                await bootTask.OnBootAsync(serverContext);
+            }
         }
     }
 }
