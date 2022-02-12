@@ -23,12 +23,12 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
         /// </summary>
-        public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; } = new List<Type>();
+        public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; }
         
         /// <summary>
         /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
         /// </summary>
-        public RetryConfiguration DefaultRetryConfiguration { get; set; } = RetryConfiguration.Default;
+        public RetryConfiguration DefaultRetryConfiguration { get; set; }
         
         /// <summary>
         /// Gets or sets the amount of job processing workers to run within this particular server.
@@ -38,7 +38,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets the custom retries for specific job types.
         /// </summary>
-        public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } = new Dictionary<Type, RetryConfiguration>();
+        public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; }
 
         /// <summary>
         /// Gets or sets an optional logger factory instance to use to log messages to destinations configured by the
@@ -54,7 +54,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets or sets the interval between each run of the scheduled job processor.
         /// </summary>
-        public TimeSpan ScheduledJobProcessorInterval { get; set; } = TimeSpan.FromSeconds(30);
+        public TimeSpan ScheduledJobProcessorInterval { get; set; }
 
         /// <summary>
         /// Gets or sets the server instance this context relates to.
@@ -65,7 +65,7 @@ namespace Baseline.Labourer.Server
         /// Gets or sets a <see cref="CancellationTokenSource"/> used to perform a graceful shutdown of all processing
         /// tasks.
         /// </summary>
-        public CancellationTokenSource ShutdownTokenSource { get; set; } = new CancellationTokenSource();
+        public CancellationTokenSource ShutdownTokenSource { get; set; }
 
         /// <summary>
         /// Gets or sets the store to be utilised within the server.
