@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Contracts
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Defines what job log stores must implement. This is separate from the rest of the transactional write stores for two reasons: <br /><br />

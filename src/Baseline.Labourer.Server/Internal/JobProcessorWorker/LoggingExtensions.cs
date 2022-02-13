@@ -95,11 +95,6 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
             }
 
             logger.LogInternal(serverContext, LogLevel.Information, message, null, args);
-            if (!logger.IsEnabled(LogLevel.Error))
-            {
-                return;
-            }
-
         }
 
         /// <summary>

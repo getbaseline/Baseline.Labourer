@@ -12,7 +12,7 @@ namespace Baseline.Labourer.Tests
         {
             var job = DispatchedJobs.FirstOrDefault(j => j.Id == jobId);
             job.Should().NotBeNull();
-            job.FinishedAt!.Should().BeCloseTo(closeToValue, TimeSpan.FromSeconds(5));
+            job!.FinishedAt!.Should().BeCloseTo(closeToValue, TimeSpan.FromSeconds(5));
         }
 
         public void AssertStatusForJobIs(string jobId, JobStatus status)
@@ -22,7 +22,7 @@ namespace Baseline.Labourer.Tests
             job!.Status.Should().Be(status);
         }
 
-        public DispatchedJobDefinition AssertJobWithTypesStored(Type jobType, Type parametersType = null)
+        public DispatchedJobDefinition AssertJobWithTypesStored(Type jobType, Type? parametersType = null)
         {
             var jobDefinition = DispatchedJobs.FirstOrDefault(
                 j => j.Type == jobType.AssemblyQualifiedName &&
@@ -32,7 +32,7 @@ namespace Baseline.Labourer.Tests
             if (jobDefinition == null)
             {
                 throw new Exception(
-                    $"No jobs found with job type of {jobType.AssemblyQualifiedName} and parameter type of {parametersType.AssemblyQualifiedName}."
+                    $"No jobs found with job type of {jobType.AssemblyQualifiedName} and parameter type of {parametersType?.AssemblyQualifiedName}."
                 );
             }
 
@@ -82,10 +82,10 @@ namespace Baseline.Labourer.Tests
 
         public void AssertScheduledJobExists(
             string id, 
-            string cronExpression = null,
-            string type = null,
-            string parametersType = null,
-            string serializedParameters = null
+            string? cronExpression = null,
+            string? type = null,
+            string? parametersType = null,
+            string? serializedParameters = null
         )
         {
             ScheduledJobs.Should().ContainKey(id);

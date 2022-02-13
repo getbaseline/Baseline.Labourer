@@ -13,12 +13,12 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the id of the message.
         /// </summary>
-        public string MessageId { get; set; }
+        public string MessageId { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the serialized definition of the job.
         /// </summary>
-        public string SerializedDefinition { get; set; }
+        public string SerializedDefinition { get; set; } = null!;
 
         /// <summary>
         /// Identifies if one <see cref="QueuedJob"/> is equal to the current instance.
@@ -33,7 +33,7 @@ namespace Baseline.Labourer.Internal.Models
         /// Identifies if one object is equal to the current one.
         /// </summary>
         /// <param name="obj">The object to compare.</param>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -46,6 +46,7 @@ namespace Baseline.Labourer.Internal.Models
         /// </summary>
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return HashCode.Combine(SerializedDefinition);
         }
 

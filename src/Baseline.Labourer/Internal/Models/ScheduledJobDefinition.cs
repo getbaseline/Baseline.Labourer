@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Internal.Extensions;
 using NCrontab;
@@ -13,7 +12,7 @@ namespace Baseline.Labourer.Internal.Models
     /// </summary>
     public class ScheduledJobDefinition : JobDefinition
     {
-        private string _name;
+        private string _name = string.Empty;
 
         /// <summary>
         /// Gets or sets the id of the scheduled job.
@@ -23,7 +22,7 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the cron expression used to define when the job will be executed and/or reoccur.
         /// </summary>
-        public string CronExpression { get; set; }
+        public string CronExpression { get; set; } = null!;
         
         /// <summary>
         /// Gets or sets when the job last completed.
@@ -41,7 +40,7 @@ namespace Baseline.Labourer.Internal.Models
         public string Name
         {
             get => _name;
-            set => _name = value?.Replace(ResourceKeyPrefixes.ScheduledJob, string.Empty);
+            set => _name = value.Replace(ResourceKeyPrefixes.ScheduledJob, string.Empty);
         }
 
         /// <summary>

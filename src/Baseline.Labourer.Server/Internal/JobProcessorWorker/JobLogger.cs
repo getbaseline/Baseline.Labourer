@@ -1,5 +1,4 @@
 ﻿using System;
-using Baseline.Labourer.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
@@ -36,9 +35,9 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
         {
             try
             {
-                if (_wrappedLogger?.IsEnabled(logLevel) ?? false)
+                if (_wrappedLogger.IsEnabled(logLevel))
                 {
-                    _wrappedLogger?.Log(logLevel, eventId, state, exception, formatter);
+                    _wrappedLogger.Log(logLevel, eventId, state, exception, formatter);
                 }
 
                 _jobLogStore.LogEntryForJob(
@@ -48,7 +47,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
                     exception
                 );
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // Wrap all exceptions cos' the last thing you want to happen is your logger breaks your application!
             }
@@ -63,7 +62,14 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
         /// <inheritdoc />
         public IDisposable BeginScope<TState>(TState state)
         {
-            return null;
+            return new NoOpDisposable();
+        }
+
+        private class NoOpDisposable : IDisposable
+        {
+            public void Dispose()
+            {
+            }
         }
     }
 }

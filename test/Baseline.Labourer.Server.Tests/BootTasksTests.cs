@@ -45,7 +45,9 @@ namespace Baseline.Labourer.Server.Tests
         public async Task It_Bootstraps_The_Store()
         {
             // Act.
+#pragma warning disable CS4014
             Task.Run(async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync());
+#pragma warning restore CS4014
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>
@@ -61,7 +63,9 @@ namespace Baseline.Labourer.Server.Tests
             var queue = new BootMemoryQueue();
             
             // Act.
+#pragma warning disable CS4014
             Task.Run(async () => await new LabourerServer(GenerateServerConfiguration(c => c.Queue = queue)).RunServerAsync());
+#pragma warning restore CS4014
             
             // Act.
             await AssertionUtils.RetryAsync(() =>

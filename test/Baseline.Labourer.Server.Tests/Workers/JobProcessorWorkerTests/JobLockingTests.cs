@@ -23,7 +23,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
+#pragma warning disable CS4014
             Task.Run(
+#pragma warning restore CS4014
                 async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
             await Task.Delay(1000);
@@ -40,7 +42,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
+#pragma warning disable CS4014
             Task.Run(
+#pragma warning restore CS4014
                 async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
             );
             await Task.Delay(1000);

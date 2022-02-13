@@ -19,7 +19,9 @@ namespace Baseline.Labourer.Server.Tests.Workers
             var configuration = GenerateServerConfiguration();
 
             // Act.
+#pragma warning disable CS4014
             Task.Run(async () => await new LabourerServer(configuration).RunServerAsync());
+#pragma warning restore CS4014
 
             // Assert.
             await AssertionUtils.RetryAsync(() =>

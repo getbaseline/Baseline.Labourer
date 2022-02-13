@@ -11,5 +11,10 @@ namespace Baseline.Labourer.Exceptions
         /// Gets the resource that was locked.
         /// </summary>
         public string ResourceId { get; }
+
+        public ResourceLockedException(string resourceId) : base($"The resource {resourceId} is locked.")
+        {
+            ResourceId = resourceId;
+        }
     }
 }

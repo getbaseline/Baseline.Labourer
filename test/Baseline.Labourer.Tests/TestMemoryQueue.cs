@@ -25,7 +25,7 @@ namespace Baseline.Labourer.Tests
             var jobDefinitions = RemovedQueue.Select(j => new
             {
                 VisibilityDelay = j.PreviousVisibilityDelay,
-                JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)
+                JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)!
             });
 
             jobDefinitions.Should().ContainSingle(

@@ -12,7 +12,7 @@ namespace Baseline.Labourer.Store.Memory
         /// <summary>
         /// Gets or sets the id of the job.
         /// </summary>
-        public string JobId { get; set; }
+        public string JobId { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the level of the log.
@@ -22,11 +22,11 @@ namespace Baseline.Labourer.Store.Memory
         /// <summary>
         /// Gets or sets the message of the log.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the exception of the log (if applicable).
         /// </summary>
-        public Exception Exception { get; set; }
+        public Exception? Exception { get; set; }
     }
 }

@@ -18,9 +18,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class CatastrophicErrorJob : IJob
         {
-            public async ValueTask HandleAsync(CancellationToken cancellationToken)
+            public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
         }
 
@@ -43,7 +43,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class FailedJobThatCompletes : IJob
         {
-            private static int _executions = 0;
+            private static int _executions;
 
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
@@ -51,7 +51,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
                 if (_executions != 3) // Pass on the third retry.
                 {
-                    throw new System.NotImplementedException();
+                    throw new NotImplementedException();
                 }
 
                 return new ValueTask();
@@ -223,8 +223,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         }
 
         private void RunWorker(
-            RetryConfiguration defaultRetryConfiguration = null,
-            Dictionary<Type, RetryConfiguration> jobRetryConfigurations = null
+            RetryConfiguration? defaultRetryConfiguration = null,
+            Dictionary<Type, RetryConfiguration>? jobRetryConfigurations = null
         )
         {
             Task.Run(

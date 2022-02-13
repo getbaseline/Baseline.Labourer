@@ -16,7 +16,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         public async Task It_Creates_And_Registers_The_Workers_Specified_In_The_Server_Context()
         {
             // Arrange.
+#pragma warning disable CS4014
             Task.Run(async () => await new LabourerServer(
+#pragma warning restore CS4014
                 GenerateServerConfiguration(s => s.JobProcessingWorkersToRun = 10)
             ).RunServerAsync());
 

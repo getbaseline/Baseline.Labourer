@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
 
 namespace Baseline.Labourer
 {

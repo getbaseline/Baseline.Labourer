@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer.Contracts
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Provides a contract which transaction aware store writers must implement. Should a failure occur prior to the

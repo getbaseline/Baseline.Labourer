@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Contracts
+﻿namespace Baseline.Labourer
 {
     /// <summary>
     /// Allows a write transaction to be created. This ensures writes only occur when every operation completes successfully.
