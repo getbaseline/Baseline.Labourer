@@ -30,4 +30,4 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Test
-      run: dotnet test --verbosity normal -f "${{ matrix.framework }}"
+      run: dotnet test -f "${{ matrix.framework }}"
