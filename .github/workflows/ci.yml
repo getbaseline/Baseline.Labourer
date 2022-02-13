@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dotnet: 3.1.x
+            framework: netcoreapp3.1
+    # services:
+      # localstack:
+      #   image: localstack/localstack:latest
+      #   env:
+      #     SERVICES: s3
+      #     DEFAULT_REGION: eu-west-1
+      #   ports:
+      #     - 4566:4566
+      #     - 4571:4571
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Test
+      run: dotnet test --verbosity normal -f "${{ matrix.framework }}"
