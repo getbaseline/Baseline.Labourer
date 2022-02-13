@@ -1,5 +1,3 @@
-using Baseline.Labourer.Contracts;
-
 namespace Baseline.Labourer.Store.NoOp
 {
     /// <summary>

@@ -19,8 +19,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 LogLevel logLevel,
                 EventId eventId,
                 TState state,
-                Exception exception,
-                Func<TState, Exception, string> formatter
+                Exception? exception,
+                Func<TState, Exception?, string> formatter
             )
             {
                 LoggedMessages.Add(formatter(state, exception));
@@ -45,7 +45,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                 return LoggedMessages.Contains(message);
             }
         }
-        protected class TestLoggerFactory : ILoggerFactory
+        protected new class TestLoggerFactory : ILoggerFactory
         {
             public void Dispose()
             {

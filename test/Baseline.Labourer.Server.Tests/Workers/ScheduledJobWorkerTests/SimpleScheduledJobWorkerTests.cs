@@ -14,7 +14,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
     {
         public class TestScheduledJob : IJob
         {
-            public static bool Ran = false;
+            public static bool Ran;
 
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
@@ -62,7 +62,9 @@ namespace Baseline.Labourer.Server.Tests.Workers.ScheduledJobWorkerTests
             var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<TestScheduledJob>("test", "0 0 * * *");
 
             // Act.
+#pragma warning disable CS4014
             Task.Run(async () =>
+#pragma warning restore CS4014
             {
                 await Task.Delay(500);
                 TestDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddDays(1).Date.AddSeconds(3));

@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
-using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Baseline.Labourer.Server
 {
@@ -80,7 +79,7 @@ namespace Baseline.Labourer.Server
             AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares!;
             DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
             JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
-            LoggerFactory = serverConfiguration.LoggerFactory!();
+            LoggerFactory = serverConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
             Queue = serverConfiguration.Queue!;
             ScheduledJobProcessorInterval = serverConfiguration.ScheduledJobProcessorInterval; 
             ServerInstance = serverInstance;

@@ -21,7 +21,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class SimpleQueuedJob : IJob
         {
-            internal static bool Handled = false;
+            internal static bool Handled;
 
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
@@ -47,7 +47,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class SimpleQueuedJobWithParams : IJob<SimpleQueuedJobWithParamsParams>
         {
-            public static int Count = 0;
+            public static int Count;
 
             public Task HandleAsync(SimpleQueuedJobWithParamsParams parameters, CancellationToken cancellationToken)
             {
@@ -73,7 +73,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
         public class LateJob : IJob
         {
-            public static bool Handled = false;
+            public static bool Handled;
 
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {

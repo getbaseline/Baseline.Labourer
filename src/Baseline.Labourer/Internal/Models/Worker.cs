@@ -8,17 +8,12 @@
         /// <summary>
         /// Gets or sets the unique id of the worker.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the id of the server that the worker belongs to.
         /// </summary>
-        public string ServerInstanceId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the worker.
-        /// </summary>
-        public WorkerType Type { get; set; }
+        public string ServerInstanceId { get; set; } = null!;
 
         /// <inheritdoc />
         public override string ToString()

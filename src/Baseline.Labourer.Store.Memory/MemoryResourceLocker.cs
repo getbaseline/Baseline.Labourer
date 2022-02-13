@@ -49,7 +49,7 @@ namespace Baseline.Labourer.Store.Memory
                     )
                 )
                 {
-                    throw new ResourceLockedException();
+                    throw new ResourceLockedException(resource);
                 }
                 
                 if (!_memoryBackingStore.Locks.ContainsKey(resource))

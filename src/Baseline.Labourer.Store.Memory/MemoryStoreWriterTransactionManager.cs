@@ -1,6 +1,4 @@
-﻿using Baseline.Labourer.Contracts;
-
-namespace Baseline.Labourer.Store.Memory
+﻿namespace Baseline.Labourer.Store.Memory
 {
     /// <summary>
     /// Memory store based transaction manager that handles the creation of a transaction.

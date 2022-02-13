@@ -33,7 +33,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
                 _logger.LogInformation(_jobContext, "Job processing started.");
                 await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
 
-                await ActivateAndExecuteJobAsync(cancellationToken);
+                await ActivateAndExecuteJobAsync();
 
                 _logger.LogInformation(_jobContext, "Job processing complete.");
                 await _jobMiddlewareRunner.JobCompletedAsync(_jobContext, cancellationToken);
@@ -48,7 +48,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
             }
         }
 
-        private async Task ActivateAndExecuteJobAsync(CancellationToken cancellationToken)
+        private async Task ActivateAndExecuteJobAsync()
         {
             if (_jobContext.JobDefinition.HasParameters)
             {
@@ -75,11 +75,11 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 
         private async Task<object> DeserializeParametersFromContextAsync()
         {
-            var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType);
+            var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType!);
 
             var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
-                _jobContext.JobDefinition.SerializedParameters,
-                parametersType,
+                _jobContext.JobDefinition.SerializedParameters!,
+                parametersType!,
                 CancellationToken.None
             );
 

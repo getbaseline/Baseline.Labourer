@@ -1,5 +1,4 @@
-﻿using Baseline.Labourer.Contracts;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
 {
@@ -23,7 +22,7 @@ namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
         /// <inheritdoc />
         public void Dispose()
         {
-            _wrappedLoggerFactory?.Dispose();
+            _wrappedLoggerFactory.Dispose();
         }
 
         /// <inheritdoc />

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +45,7 @@ namespace Baseline.Labourer.Server
         /// <summary>
         /// Gets the type of the job that this job context relates to.
         /// </summary>
-        public Type JobType => Type.GetType(JobDefinition.Type);
+        public Type JobType => Type.GetType(JobDefinition.Type)!;
 
         /// <summary>
         /// Updates the job's state.
@@ -81,8 +80,7 @@ namespace Baseline.Labourer.Server
         /// Increments the number of retries the job has had.
         /// </summary>
         /// <param name="writer">A transactionized store writer to use.</param>
-        /// <param name="ca
-        /// ncellationToken">A cancellation token.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         public async Task IncrementJobRetriesAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
         {
             JobDefinition.Retries += 1;

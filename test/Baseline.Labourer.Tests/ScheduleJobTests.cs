@@ -31,7 +31,7 @@ namespace Baseline.Labourer.Tests
         {
             public ValueTask HandleAsync(CancellationToken cancellationToken)
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
         }
 
@@ -44,7 +44,7 @@ namespace Baseline.Labourer.Tests
         {
             public Task HandleAsync(TestScheduledParameters parameters, CancellationToken cancellationToken)
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
         }
 

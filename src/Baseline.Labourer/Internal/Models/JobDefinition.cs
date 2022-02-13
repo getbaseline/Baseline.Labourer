@@ -11,7 +11,7 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the fully qualified type of the job itself.
         /// </summary>
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         /// <summary>
         /// Gets whether the job has parameters or not.
@@ -21,12 +21,12 @@ namespace Baseline.Labourer.Internal.Models
         /// <summary>
         /// Gets or sets the fully qualified type of the job's parameters.
         /// </summary>
-        public string ParametersType { get; set; }
+        public string? ParametersType { get; set; }
 
         /// <summary>
         /// Gets or sets the serialized JSON representation of the job.
         /// </summary>
-        public string SerializedParameters { get; set; }
+        public string? SerializedParameters { get; set; }
 
         /// <summary>
         /// Gets or sets when the job was created.

@@ -1,5 +1,4 @@
-﻿using Baseline.Labourer.Contracts;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -18,7 +17,7 @@ namespace Baseline.Labourer.Store.Memory
         }
 
         /// <inheritdoc />
-        public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception exception)
+        public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
         {
             Task
                 .Run(async () =>

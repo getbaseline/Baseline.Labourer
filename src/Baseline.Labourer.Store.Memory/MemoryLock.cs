@@ -10,7 +10,7 @@ namespace Baseline.Labourer.Store.Memory
         /// <summary>
         /// Gets or sets the id of the lock.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         
         /// <summary>
         /// Gets or sets when the lock was released.

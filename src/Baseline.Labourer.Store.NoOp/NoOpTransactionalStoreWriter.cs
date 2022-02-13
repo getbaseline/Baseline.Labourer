@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Store.NoOp

@@ -21,7 +21,7 @@ namespace Baseline.Labourer.Internal.Utils
         public static async Task<string> SerializeToStringAsync<T>(T obj, CancellationToken cancellationToken = default)
         {
             await using var memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync<T>(memoryStream, obj, new JsonSerializerOptions(), cancellationToken);
+            await JsonSerializer.SerializeAsync(memoryStream, obj, new JsonSerializerOptions(), cancellationToken);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return await new StreamReader(memoryStream).ReadToEndAsync();
         }
@@ -39,7 +39,7 @@ namespace Baseline.Labourer.Internal.Utils
         )
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-            return await JsonSerializer.DeserializeAsync(stream, type, new JsonSerializerOptions(), cancellationToken);
+            return (await JsonSerializer.DeserializeAsync(stream, type, new JsonSerializerOptions(), cancellationToken))!;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Baseline.Labourer.Internal.Utils
         )
         {
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-            return await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions(), cancellationToken);
+            return (await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions(), cancellationToken))!;
         }
     }
 }

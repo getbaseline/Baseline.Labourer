@@ -13,12 +13,12 @@
         /// <summary>
         /// Gets or sets the hostname of the server that the server instance is running on.
         /// </summary>
-        public string Hostname { get; set; }
+        public string Hostname { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the uniquely identifitable key of the server.
         /// </summary>
-        public string Key { get; set; }
+        public string Key { get; set; } = null!;
 
         /// <inheritdoc />
         public override string ToString() => $"server:{Id}";

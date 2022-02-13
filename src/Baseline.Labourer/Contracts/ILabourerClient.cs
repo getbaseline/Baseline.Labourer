@@ -40,7 +40,7 @@ namespace Baseline.Labourer
             string cronExpression,
             TParams jobParameters,
             CancellationToken cancellationToken = default
-        ) where TJob : IJob<TParams>;
+        ) where TJob : IJob<TParams> where TParams : class;
 
         /// <summary>
         /// Deletes a scheduled job.
@@ -66,6 +66,6 @@ namespace Baseline.Labourer
         Task<string> DispatchJobAsync<TParams, TJob>(
             TParams jobParameters,
             CancellationToken cancellationToken = default
-        ) where TJob : IJob<TParams>;
+        ) where TJob : IJob<TParams> where TParams : class;
     }
 }

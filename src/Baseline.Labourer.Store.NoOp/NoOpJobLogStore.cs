@@ -1,5 +1,4 @@
 using System;
-using Baseline.Labourer.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Store.NoOp

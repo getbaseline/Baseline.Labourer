@@ -234,6 +234,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             }
             catch (Exception)
             {
+                // Ignore.
             }
 
             // Assert.

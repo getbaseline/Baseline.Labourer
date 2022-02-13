@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Baseline.Labourer.Contracts;
 using Baseline.Labourer.Internal.Contracts;
 using Baseline.Labourer.Store.Memory;
 
