@@ -143,7 +143,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
                     TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
                     TestBackingStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
                 }
-            });
+            }, 50);
         }
     }
 }
