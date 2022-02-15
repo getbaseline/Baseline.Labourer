@@ -12,7 +12,7 @@ namespace Baseline.Labourer.Server.Internal.Middleware
     /// A middleware for retrying failed jobs. It determines whether or not they have exceeded their maximum amount of
     /// retries and, if they have not, schedules them to be executed again.
     /// </summary>
-    public class JobFailureRetryMiddleware : JobMiddleware
+    internal class JobFailureRetryMiddleware : JobMiddleware
     {
         /// <inheritdoc />
         public override async ValueTask<MiddlewareContinuation> JobFailedAsync(

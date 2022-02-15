@@ -9,7 +9,7 @@ namespace Baseline.Labourer.Server.Internal.Middleware
     /// <summary>
     /// Middleware for updating the status of the relevant job based on events that occur.
     /// </summary>
-    public class JobUpdateProgressAndCompletionStatusMiddleware : JobMiddleware
+    internal class JobUpdateProgressAndCompletionStatusMiddleware : JobMiddleware
     {
         /// <summary>
         /// Updates the job's status to mark it as completed.
