@@ -10,9 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - dotnet: 3.1.x
-            framework: netcoreapp3.1
+        dotnet: ['3.1.x']
     # services:
       # localstack:
       #   image: localstack/localstack:latest
@@ -30,6 +28,6 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Build
-      run: dotnet build -f "${{ matrix.framework }}"
+      run: dotnet build 
     - name: Test
-      run: dotnet test --no-build -f "${{ matrix.framework }}"
+      run: dotnet test --no-build
