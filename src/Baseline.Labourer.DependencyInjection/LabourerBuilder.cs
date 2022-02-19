@@ -4,8 +4,8 @@ namespace Baseline.Labourer
     {
         public IQueue 
             
-            // queue and store here
+            // queue and store and logger factory here
             
-            // allow additional client/ server options to be configured
+            // allow additional client/server specific options to be configured in one go
     }
 }
