@@ -67,8 +67,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() => SimpleQueuedJobWithParams.Count.Should().Be(100));
 
-            var serverId = TestBackingStore.AssertHasRegisteredAServer();
-            TestBackingStore.AssertHasRegisteredWorkersForServer(serverId);
+            var serverId = TestStoreDataContainer.AssertHasRegisteredAServer();
+            TestStoreDataContainer.AssertHasRegisteredWorkersForServer(serverId);
         }
 
         public class LateJob : IJob
@@ -110,11 +110,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJob>();
 
             // Assert.
-            await AssertionUtils.RetryAsync(() => TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.InProgress));
+            await AssertionUtils.RetryAsync(() => TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.InProgress));
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                TestBackingStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
             }, 25, 500);
         }
 
@@ -140,8 +140,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             {
                 foreach (var jobId in jobIds)
                 {
-                    TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                    TestBackingStore.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
+                    TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                    TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
                 }
             }, 50);
         }

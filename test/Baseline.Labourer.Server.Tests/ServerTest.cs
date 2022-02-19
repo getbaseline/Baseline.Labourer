@@ -14,7 +14,7 @@ namespace Baseline.Labourer.Server.Tests
 
         protected readonly TestMemoryQueue TestMemoryQueue;
 
-        protected readonly TestMemoryBackingStore TestBackingStore = new TestMemoryBackingStore();
+        protected readonly TestMemoryStoreDataContainer TestStoreDataContainer = new TestMemoryStoreDataContainer();
 
         protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
 
@@ -34,8 +34,8 @@ namespace Baseline.Labourer.Server.Tests
             });
 
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
-            TestResourceLocker = new TestMemoryResourceLocker(TestBackingStore, TestDateTimeProvider);
-            TestMemoryStore = new TestMemoryStore(TestBackingStore, TestDateTimeProvider);
+            TestResourceLocker = new TestMemoryResourceLocker(TestStoreDataContainer, TestDateTimeProvider);
+            TestMemoryStore = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider);
             
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration

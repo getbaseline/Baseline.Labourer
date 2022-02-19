@@ -19,7 +19,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             var jobId = await Client.DispatchJobAsync<BasicJob>();
-            TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
+            TestStoreDataContainer.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
 #pragma warning disable CS4014
@@ -30,7 +30,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await Task.Delay(1000);
             
             // Assert.
-            TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Created);
+            TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Created);
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
         {
             // Arrange.
             var jobId = await Client.DispatchJobAsync<BasicSuccessfulJob>();
-            TestBackingStore.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
+            TestStoreDataContainer.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
             
             // Act.
 #pragma warning disable CS4014
@@ -53,7 +53,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
             });
         }
     }

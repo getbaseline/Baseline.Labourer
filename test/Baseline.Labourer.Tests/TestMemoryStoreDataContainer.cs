@@ -5,7 +5,7 @@ using FluentAssertions;
 
 namespace Baseline.Labourer.Tests
 {
-    public class TestMemoryBackingStore : MemoryBackingStore
+    public class TestMemoryStoreDataContainer : MemoryStoreDataContainer
     {
         public void AssertJobHasFinishedAtValueWithin5SecondsOf(string jobId, DateTime closeToValue)
         {

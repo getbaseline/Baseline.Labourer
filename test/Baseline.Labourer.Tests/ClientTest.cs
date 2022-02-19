@@ -4,7 +4,7 @@
     {
         protected LabourerClient Client { get; }
 
-        protected TestMemoryBackingStore TestBackingStore { get; } = new TestMemoryBackingStore();
+        protected TestMemoryStoreDataContainer TestStoreDataContainer { get; } = new TestMemoryStoreDataContainer();
 
         protected TestDateTimeProvider TestDateTimeProvider { get; } = new TestDateTimeProvider();
 
@@ -17,7 +17,7 @@
                 new BaselineLabourerConfiguration
                 {
                     Queue = TestMemoryQueue,
-                    Store = new TestMemoryStore(TestBackingStore, TestDateTimeProvider)
+                    Store = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider)
                 }
             );
         }

@@ -19,16 +19,12 @@ namespace Baseline.Labourer
         /// <inheritdoc />
         public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
-        public MemoryStore() : this(new MemoryBackingStore())
+        public MemoryStore(MemoryStoreDataContainer memoryStoreDataContainer)
         {
-        }
-
-        public MemoryStore(MemoryBackingStore memoryBackingStore)
-        {
-            JobLogStore = new MemoryJobLogStore(memoryBackingStore);
-            ResourceLocker = new MemoryResourceLocker(memoryBackingStore);
-            Reader = new MemoryStoreReader(memoryBackingStore);
-            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryBackingStore);
+            JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
+            ResourceLocker = new MemoryResourceLocker(memoryStoreDataContainer);
+            Reader = new MemoryStoreReader(memoryStoreDataContainer);
+            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryStoreDataContainer);
         }
 
         /// <inheritdoc />

@@ -97,10 +97,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 TestLogger.HasLoggedMessage("Message one.");
-                TestBackingStore.AssertMessageForJobLogged(jobId, "Message one.");
+                TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message one.");
 
                 TestLogger.HasLoggedMessage("Message two.");
-                TestBackingStore.AssertMessageForJobLogged(jobId, "Message two.");
+                TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message two.");
             });
         }
     }

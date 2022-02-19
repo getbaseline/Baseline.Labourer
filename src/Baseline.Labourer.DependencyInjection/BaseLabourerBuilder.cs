@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.DependencyInjection
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Base class for all interim configuration objects built for dependency injection.

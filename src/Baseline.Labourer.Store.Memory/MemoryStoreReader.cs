@@ -12,11 +12,11 @@ namespace Baseline.Labourer
     /// </summary>
     public class MemoryStoreReader : IStoreReader
     {
-        private readonly MemoryBackingStore _memoryBackingStore;
+        private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
 
-        public MemoryStoreReader(MemoryBackingStore memoryBackingStore)
+        public MemoryStoreReader(MemoryStoreDataContainer memoryStoreDataContainer)
         {
-            _memoryBackingStore = memoryBackingStore;
+            _memoryStoreDataContainer = memoryStoreDataContainer;
         }
 
         /// <inheritdoc />
@@ -25,9 +25,9 @@ namespace Baseline.Labourer
             CancellationToken cancellationToken
         )
         {
-            using var _ = await _memoryBackingStore.AcquireStoreLockAsync();
+            using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
-            return _memoryBackingStore.ScheduledJobs
+            return _memoryStoreDataContainer.ScheduledJobs
                 .Values
                 .Where(job => job.NextRunDate <= before)
                 .ToList();

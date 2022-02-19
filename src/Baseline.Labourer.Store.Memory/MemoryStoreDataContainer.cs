@@ -10,7 +10,7 @@ namespace Baseline.Labourer
     /// A collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place
     /// to manage store state.
     /// </summary>
-    public class MemoryBackingStore
+    public class MemoryStoreDataContainer
     {
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 

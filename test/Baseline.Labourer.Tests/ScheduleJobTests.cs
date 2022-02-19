@@ -21,7 +21,7 @@ namespace Baseline.Labourer.Tests
 
             // Assert.
             scheduledJobId.Should().Be("scheduled-job:created-job");
-            TestBackingStore.AssertScheduledJobExists(scheduledJobId, cronExpression);
+            TestStoreDataContainer.AssertScheduledJobExists(scheduledJobId, cronExpression);
         }
 
         public class TestScheduledJob : IJob
@@ -62,7 +62,7 @@ namespace Baseline.Labourer.Tests
             );
 
             // Assert.
-            TestBackingStore.AssertScheduledJobExists(
+            TestStoreDataContainer.AssertScheduledJobExists(
                 scheduledJobId,
                 "0 * * * *",
                 typeof(TestScheduledJobWithParameters).AssemblyQualifiedName,
@@ -81,7 +81,7 @@ namespace Baseline.Labourer.Tests
                 CancellationToken.None
             );
             
-            TestBackingStore.Locks[scheduledJobId].Add(new MemoryLock
+            TestStoreDataContainer.Locks[scheduledJobId].Add(new MemoryLock
             {
                 Id = StringGenerationUtils.GenerateUniqueRandomString(),
                 Until = DateTime.Today.AddDays(1)
@@ -111,7 +111,7 @@ namespace Baseline.Labourer.Tests
             await Client.DeleteScheduledJobAsync(scheduledJobId);
 
             // Assert.
-            TestBackingStore.AssertScheduledJobDoesNotExist(scheduledJobId);
+            TestStoreDataContainer.AssertScheduledJobDoesNotExist(scheduledJobId);
         }
 
         [Fact]
@@ -119,8 +119,8 @@ namespace Baseline.Labourer.Tests
         {
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition {Name = "active-lock-established"};
-            TestBackingStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
-            TestBackingStore.Locks.Add(
+            TestStoreDataContainer.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            TestStoreDataContainer.Locks.Add(
                 scheduledJob.Id, 
                 new List<MemoryLock>
                 {
@@ -144,8 +144,8 @@ namespace Baseline.Labourer.Tests
         {
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition {Name = "outdated-lock"};
-            TestBackingStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
-            TestBackingStore.Locks.Add(
+            TestStoreDataContainer.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            TestStoreDataContainer.Locks.Add(
                 scheduledJob.Id, 
                 new List<MemoryLock>
                 {

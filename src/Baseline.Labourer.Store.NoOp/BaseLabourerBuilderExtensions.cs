@@ -1,5 +1,4 @@
-﻿using Baseline.Labourer.DependencyInjection;
-using Baseline.Labourer.Store.NoOp;
+﻿using Baseline.Labourer.Store.NoOp;
 
 namespace Baseline.Labourer
 {

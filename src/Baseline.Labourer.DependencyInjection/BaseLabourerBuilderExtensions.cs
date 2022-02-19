@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.DependencyInjection
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Extension methods that apply to all inheritors or the <see cref="BaseLabourerBuilder"/> class.

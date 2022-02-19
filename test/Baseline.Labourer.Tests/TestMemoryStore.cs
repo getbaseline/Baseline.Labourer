@@ -11,12 +11,12 @@ namespace Baseline.Labourer.Tests
         public IStoreReader Reader { get; }
         public IStoreWriterTransactionManager WriterTransactionManager { get; }
         
-        public TestMemoryStore(TestMemoryBackingStore memoryBackingStore, IDateTimeProvider dateTimeProvider)
+        public TestMemoryStore(TestMemoryStoreDataContainer memoryStoreDataContainer, IDateTimeProvider dateTimeProvider)
         {
-            JobLogStore = new MemoryJobLogStore(memoryBackingStore);
-            ResourceLocker = new TestMemoryResourceLocker(memoryBackingStore, dateTimeProvider);
-            Reader = new MemoryStoreReader(memoryBackingStore);
-            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryBackingStore);
+            JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
+            ResourceLocker = new TestMemoryResourceLocker(memoryStoreDataContainer, dateTimeProvider);
+            Reader = new MemoryStoreReader(memoryStoreDataContainer);
+            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryStoreDataContainer);
         }
         
         public ValueTask BootstrapAsync()

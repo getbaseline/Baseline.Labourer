@@ -25,8 +25,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                var serverId = TestBackingStore.Servers.First().Id;
-                TestBackingStore.AssertHasRegisteredWorkersForServer(serverId, 10);
+                var serverId = TestStoreDataContainer.Servers.First().Id;
+                TestStoreDataContainer.AssertHasRegisteredWorkersForServer(serverId, 10);
             }, 50);
         }
     }

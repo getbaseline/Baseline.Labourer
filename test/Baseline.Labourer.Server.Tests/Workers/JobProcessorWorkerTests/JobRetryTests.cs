@@ -36,8 +36,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertJobHasRetryCount(jobId, 3);
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertJobHasRetryCount(jobId, 3);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
             });
         }
 
@@ -70,8 +70,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertJobHasRetryCount(jobId, 2);
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestStoreDataContainer.AssertJobHasRetryCount(jobId, 2);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
             });
         }
 
@@ -87,8 +87,8 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertJobHasRetryCount(jobId, 10);
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertJobHasRetryCount(jobId, 10);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
             });
         }
 
@@ -119,10 +119,10 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertJobHasRetryCount(standardJobId, 5);
-                TestBackingStore.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
-                TestBackingStore.AssertJobHasRetryCount(changedJobId, 2);
-                TestBackingStore.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertJobHasRetryCount(standardJobId, 5);
+                TestStoreDataContainer.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertJobHasRetryCount(changedJobId, 2);
+                TestStoreDataContainer.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
             });
         }
 
@@ -145,7 +145,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Failed);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 1, TimeSpan.FromSeconds(10));
             });
             
@@ -153,7 +153,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Failed);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 2, TimeSpan.FromSeconds(10));
             });
             
@@ -161,7 +161,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Failed);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 3, TimeSpan.FromSeconds(10));
             });
             
@@ -169,7 +169,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.Failed);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Failed);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 4, TimeSpan.FromSeconds(10));
             });
             
@@ -177,7 +177,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
 
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.FailedExceededMaximumRetries);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(jobId, 5, TimeSpan.FromSeconds(10));
             });
         }
@@ -204,11 +204,11 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             // Assert.
             await AssertionUtils.RetryAsync(() =>
             {
-                TestBackingStore.AssertJobHasRetryCount(changedJobId, 1);
-                TestBackingStore.AssertStatusForJobIs(changedJobId, JobStatus.Failed);
+                TestStoreDataContainer.AssertJobHasRetryCount(changedJobId, 1);
+                TestStoreDataContainer.AssertStatusForJobIs(changedJobId, JobStatus.Failed);
                 
                 // Verify the standard job with the no delay has been completed (and failed).
-                TestBackingStore.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertStatusForJobIs(standardJobId, JobStatus.FailedExceededMaximumRetries);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(standardJobId, 5, TimeSpan.Zero);
             });
             
@@ -217,7 +217,7 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests
             await AssertionUtils.RetryAsync(() =>
             {
                 // Verify the long delayed job has been completed (and failed).
-                TestBackingStore.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
+                TestStoreDataContainer.AssertStatusForJobIs(changedJobId, JobStatus.FailedExceededMaximumRetries);
                 TestMemoryQueue.AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(changedJobId, 1, TimeSpan.FromSeconds(60));
             });
         }
