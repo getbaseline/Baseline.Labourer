@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Provides a memory based <see cref="IResourceLocker"/> implementation. As with the other components of the

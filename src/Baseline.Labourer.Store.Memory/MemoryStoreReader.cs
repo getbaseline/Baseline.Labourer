@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Store reader implementation for the memory store. 

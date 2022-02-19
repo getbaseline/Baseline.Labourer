@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Baseline.Labourer.Store.Memory;
 using Baseline.Labourer.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -41,11 +40,10 @@ namespace Baseline.Labourer.Server.Tests
             Client = new LabourerClient(
                 new BaselineLabourerConfiguration
                 {
-                    LoggerFactory = () => TestLoggerFactory
-                },
-                TestResourceLocker,
-                new MemoryStoreWriterTransactionManager(TestBackingStore),
-                TestMemoryQueue
+                    LoggerFactory = () => TestLoggerFactory,
+                    Queue = TestMemoryQueue,
+                    Store = TestMemoryStore
+                }
             );
         }
 

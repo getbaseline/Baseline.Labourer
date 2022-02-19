@@ -1,5 +1,4 @@
 ﻿using Baseline.Labourer.Internal;
-using Baseline.Labourer.Store.Memory;
 
 namespace Baseline.Labourer.Tests
 {

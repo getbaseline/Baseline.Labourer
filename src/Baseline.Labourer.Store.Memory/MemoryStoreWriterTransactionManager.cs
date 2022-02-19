@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Store.Memory
+﻿namespace Baseline.Labourer
 {
     /// <summary>
     /// Memory store based transaction manager that handles the creation of a transaction.

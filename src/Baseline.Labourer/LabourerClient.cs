@@ -13,22 +13,13 @@ namespace Baseline.Labourer
     {
         // ReSharper disable once NotAccessedField.Local
         private readonly BaselineLabourerConfiguration _configuration;
-        private readonly IResourceLocker _resourceLocker;
-        private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
         private readonly JobDispatcher _jobDispatcher;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public LabourerClient(
-            BaselineLabourerConfiguration configuration,
-            IResourceLocker resourceLocker,
-            IStoreWriterTransactionManager storeWriterTransactionManager,
-            IQueue queue
-        )
+        public LabourerClient(BaselineLabourerConfiguration configuration)
         {
             _configuration = configuration;
-            _resourceLocker = resourceLocker;
-            _storeWriterTransactionManager = storeWriterTransactionManager;
-            _jobDispatcher = new JobDispatcher(storeWriterTransactionManager, queue);
+            _jobDispatcher = new JobDispatcher(_configuration.Store.WriterTransactionManager, _configuration.Queue);
             _dateTimeProvider = new DateTimeProvider();
         }
 
@@ -61,13 +52,13 @@ namespace Baseline.Labourer
         /// <inheritdoc />
         public async Task DeleteScheduledJobAsync(string nameOrId, CancellationToken cancellationToken = default)
         {
-            await using var _ = await _resourceLocker.LockResourceAsync(
+            await using var _ = await _configuration.Store.ResourceLocker.LockResourceAsync(
                 nameOrId.AsNormalizedScheduledJobId(), 
                 TimeSpan.FromSeconds(10),
                 cancellationToken
             );
             
-            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+            await using var storeWriter = _configuration.Store.WriterTransactionManager.BeginTransaction();
             await storeWriter.DeleteScheduledJobAsync(nameOrId.AsNormalizedScheduledJobId(), cancellationToken);
             await storeWriter.CommitAsync(cancellationToken);
         }
@@ -129,13 +120,13 @@ namespace Baseline.Labourer
                 UpdatedAt = _dateTimeProvider.UtcNow()
             };
 
-            await using var _ = await _resourceLocker.LockResourceAsync(
+            await using var _ = await _configuration.Store.ResourceLocker.LockResourceAsync(
                 scheduledJobDefinition.Id, 
                 TimeSpan.FromSeconds(10),
                 cancellationToken
             );
             
-            await using var storeWriter = _storeWriterTransactionManager.BeginTransaction();
+            await using var storeWriter = _configuration.Store.WriterTransactionManager.BeginTransaction();
                 
             await storeWriter.CreateOrUpdateScheduledJobAsync(scheduledJobDefinition, cancellationToken);
             await scheduledJobDefinition.UpdateNextRunDateAsync(storeWriter, _dateTimeProvider, cancellationToken);

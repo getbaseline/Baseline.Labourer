@@ -1,6 +1,4 @@
-﻿using Baseline.Labourer.Store.Memory;
-
-namespace Baseline.Labourer.Tests
+﻿namespace Baseline.Labourer.Tests
 {
     public class ClientTest
     {
@@ -16,10 +14,11 @@ namespace Baseline.Labourer.Tests
         {
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
             Client = new LabourerClient(
-                new BaselineLabourerConfiguration(),
-                new TestMemoryResourceLocker(TestBackingStore, TestDateTimeProvider),
-                new MemoryStoreWriterTransactionManager(TestBackingStore),
-                TestMemoryQueue
+                new BaselineLabourerConfiguration
+                {
+                    Queue = TestMemoryQueue,
+                    Store = new TestMemoryStore(TestBackingStore, TestDateTimeProvider)
+                }
             );
         }
     }

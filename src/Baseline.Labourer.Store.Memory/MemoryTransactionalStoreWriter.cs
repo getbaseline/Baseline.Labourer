@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Memory based transactional store writer. Ensures all writes within a given context are atomic and all succeed or all fail.
