@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baseline.Labourer.Internal.Utils
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Contains numerous utilities related to the generation of strings.

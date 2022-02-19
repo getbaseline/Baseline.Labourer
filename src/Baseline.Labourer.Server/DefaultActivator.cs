@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Baseline.Labourer.Server.Contracts;
 
 namespace Baseline.Labourer.Server
 {

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Server.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server

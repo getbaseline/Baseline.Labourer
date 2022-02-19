@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Internal.Models
+﻿namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Job status represents each status that a job can be in.

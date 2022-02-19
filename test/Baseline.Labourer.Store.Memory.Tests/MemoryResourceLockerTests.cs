@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Server.Contracts
+namespace Baseline.Labourer.Server
 {
     /// <summary>
     /// Represents what all dispatched job middlewares must implement.

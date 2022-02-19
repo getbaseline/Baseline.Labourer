@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Internal.Utils
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Contains numerous utilities related to serialization/deserialization of objects to/from JSON.

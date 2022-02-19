@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-using Baseline.Labourer.Server.Contracts;
 
-namespace Baseline.Labourer.Server.Internal.BootTasks
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// A boot task to bootstrap the chosen store if it's not already been done.

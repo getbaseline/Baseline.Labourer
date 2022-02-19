@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Store.Memory.Internal;
+using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// A collection of all entities and components that a store can manage. Its sole purpose is to provide a centralised place

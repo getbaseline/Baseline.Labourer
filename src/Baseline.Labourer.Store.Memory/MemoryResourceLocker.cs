@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Store.Memory.Internal;
 
 namespace Baseline.Labourer.Store.Memory
 {

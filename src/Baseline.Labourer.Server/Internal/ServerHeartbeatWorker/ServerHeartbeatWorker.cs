@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Extensions;
-using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal.JobProcessorWorker;
+using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.ServerHeartbeatWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// Continuously dispatches heartbeat notifications to the server store, ensuring it remains visible and providing

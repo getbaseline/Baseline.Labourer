@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Represents an in memory lock of a resource.

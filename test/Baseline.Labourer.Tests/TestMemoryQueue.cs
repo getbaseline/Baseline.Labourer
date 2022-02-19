@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Queue.Memory;
+using Baseline.Labourer.Internal;
 using FluentAssertions;
 
 namespace Baseline.Labourer.Tests

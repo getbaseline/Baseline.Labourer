@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baseline.Labourer.Store.Memory.Internal
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// An <see cref="IDisposable"/> implementation that can perform a specific action when dispose is called.

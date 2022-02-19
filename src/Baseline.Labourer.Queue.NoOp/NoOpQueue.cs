@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Queue.NoOp
+namespace Baseline.Labourer
 {
     /// <summary>
     /// NoOpQueue is an <see cref="IQueue"/> implementation that literally does nothing. Useful for testing if you

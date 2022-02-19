@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Store.Memory;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
 using Xunit;
 using Xunit.Abstractions;

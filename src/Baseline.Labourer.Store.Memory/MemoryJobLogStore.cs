@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Provides a log store implementation for the memory store project.

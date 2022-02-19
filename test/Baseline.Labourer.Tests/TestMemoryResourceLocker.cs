@@ -1,4 +1,4 @@
-﻿using Baseline.Labourer.Internal.Contracts;
+﻿using Baseline.Labourer.Internal;
 using Baseline.Labourer.Store.Memory;
 
 namespace Baseline.Labourer.Tests

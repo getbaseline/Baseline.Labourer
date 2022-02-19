@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Extensions;
 using NCrontab;
 
-namespace Baseline.Labourer.Internal.Models
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Represents a job that is scheduled to run in the future and potentially recurring basis.

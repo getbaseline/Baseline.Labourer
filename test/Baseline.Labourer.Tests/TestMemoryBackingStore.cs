@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Store.Memory;
+using Baseline.Labourer.Internal;
 using FluentAssertions;
 
 namespace Baseline.Labourer.Tests

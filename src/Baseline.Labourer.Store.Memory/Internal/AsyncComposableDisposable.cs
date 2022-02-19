@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Store.Memory.Internal
+namespace Baseline.Labourer.Internal
 {
     public class AsyncComposableDisposable : IAsyncDisposable
     {

@@ -1,13 +1,8 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal.BootTasks;
-using Baseline.Labourer.Server.Internal.JobProcessorWorker;
-using Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker;
-using Baseline.Labourer.Server.Internal.ServerHeartbeatWorker;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Server.Internal;
 
 namespace Baseline.Labourer.Server
 {

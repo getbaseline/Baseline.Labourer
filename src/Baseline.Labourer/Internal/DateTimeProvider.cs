@@ -1,5 +1,4 @@
 using System;
-using Baseline.Labourer.Internal.Contracts;
 
 namespace Baseline.Labourer.Internal
 {

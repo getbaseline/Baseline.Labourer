@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Exceptions;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Store.Memory;
+using Baseline.Labourer.Internal;
 using FluentAssertions;
 using Xunit;
 

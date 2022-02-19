@@ -1,14 +1,11 @@
 ﻿using System;
-using Baseline.Labourer.Internal.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer.Queue.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// <see cref="MemoryQueue"/> is an <see cref="IQueue"/> implementation that persists and processes queue messages in memory.
