@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="6.5.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+        <PackageReference Include="coverlet.collector" Version="1.2.0" />
+        <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Baseline.Labourer.DependencyInjection\Baseline.Labourer.DependencyInjection.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.Memory\Baseline.Labourer.Queue.Memory.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.NoOp\Baseline.Labourer.Queue.NoOp.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Store.Memory\Baseline.Labourer.Store.Memory.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Store.NoOp\Baseline.Labourer.Store.NoOp.csproj" />
+      <ProjectReference Include="..\Baseline.Labourer.Tests\Baseline.Labourer.Tests.csproj" />
+    </ItemGroup>
+
+</Project>

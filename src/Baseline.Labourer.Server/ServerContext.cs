@@ -70,21 +70,21 @@ namespace Baseline.Labourer.Server
         /// </summary>
         public IStore Store { get; set; }
 
-        public ServerContext(ServerInstance serverInstance, BaselineServerConfiguration serverConfiguration)
+        public ServerContext(ServerInstance serverInstance, BaselineLabourerServerConfiguration labourerServerConfiguration)
         {
             // validate configuration
             
-            Activator = serverConfiguration.Activator;
-            AdditionalDispatchedJobMiddlewares = serverConfiguration.DispatchedJobMiddlewares!;
-            DefaultRetryConfiguration = serverConfiguration.DefaultRetryConfiguration;
-            JobRetryConfigurations = serverConfiguration.JobRetryConfigurations;
-            LoggerFactory = serverConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
-            Queue = serverConfiguration.Queue!;
-            ScheduledJobProcessorInterval = serverConfiguration.ScheduledJobProcessorInterval; 
+            Activator = labourerServerConfiguration.Activator;
+            AdditionalDispatchedJobMiddlewares = labourerServerConfiguration.DispatchedJobMiddlewares!;
+            DefaultRetryConfiguration = labourerServerConfiguration.DefaultRetryConfiguration;
+            JobRetryConfigurations = labourerServerConfiguration.JobRetryConfigurations;
+            LoggerFactory = labourerServerConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
+            Queue = labourerServerConfiguration.Queue!;
+            ScheduledJobProcessorInterval = labourerServerConfiguration.ScheduledJobProcessorInterval; 
             ServerInstance = serverInstance;
-            ShutdownTokenSource = serverConfiguration.ShutdownTokenSource;
-            Store = serverConfiguration.Store!;
-            JobProcessingWorkersToRun = serverConfiguration.JobProcessingWorkersToRun;
+            ShutdownTokenSource = labourerServerConfiguration.ShutdownTokenSource;
+            Store = labourerServerConfiguration.Store!;
+            JobProcessingWorkersToRun = labourerServerConfiguration.JobProcessingWorkersToRun;
         }
 
         /// <summary>

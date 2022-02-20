@@ -7,20 +7,33 @@ namespace Baseline.Labourer
     /// <summary>
     /// Extension methods that apply to all inheritors or the <see cref="BaseLabourerBuilder"/> class.
     /// </summary>
-    public static class BaseLabourerBuilderExtensions
+    public static class LabourerBuilderExtensions
     {
+        /// <summary>
+        /// Allows the server to be configured fluently.
+        /// </summary>
+        /// <param name="builder">The labourer builder to configure.</param>
+        /// <param name="serverBuilder">The server builder delegate that configures the server options.</param>
+        public static LabourerBuilder ConfigureServer(
+            this LabourerBuilder builder,
+            Action<LabourerServerBuilder> serverBuilder)
+        {
+            serverBuilder(builder.ServerBuilder);
+            return builder;
+        }
+
         /// <summary>
         /// Resolves the <see cref="ILoggerFactory"/> instance from the container and uses that in the Baseline.Labourer
         /// configuration.
         /// </summary>
         /// <param name="builder">The builder instance.</param>
         /// <param name="serviceProvider">The service provider to resolve the logger factory from.</param>
-        public static T UseLoggerFactoryFromContainer<T>(
-            this T builder,
+        public static LabourerBuilder UseLoggerFactoryResolvedFromContainer(
+            this LabourerBuilder builder,
             IServiceProvider serviceProvider
-        ) where T : BaseLabourerBuilder
+        )
         {
-            builder.LoggerFactory = () => serviceProvider.GetService<ILoggerFactory>();
+            builder.LoggerFactory = () => serviceProvider.GetService<ILoggerFactory>()!;
             return builder;
         }
 
@@ -29,10 +42,10 @@ namespace Baseline.Labourer
         /// </summary>
         /// <param name="builder">The builder instance.</param>
         /// <param name="loggerFactory">The logger factory instance.</param>
-        public static T UseDefinedLoggerFactory<T>(
-            this T builder, 
+        public static LabourerBuilder UseThisLoggerFactory(
+            this LabourerBuilder builder, 
             ILoggerFactory loggerFactory
-        ) where T : BaseLabourerBuilder
+        )
         {
             builder.LoggerFactory = () => loggerFactory;
             return builder;
@@ -44,10 +57,10 @@ namespace Baseline.Labourer
         /// </summary>
         /// <param name="builder">The builder instance.</param>
         /// <param name="loggerFactory">A delegate that yields a logger factory instance.</param>
-        public static T UseDefinedLoggerFactory<T>(
-            this T builder,
+        public static LabourerBuilder UseThisLoggerFactory(
+            this LabourerBuilder builder,
             Func<ILoggerFactory> loggerFactory
-        ) where T : BaseLabourerBuilder
+        )
         {
             builder.LoggerFactory = loggerFactory;
             return builder;

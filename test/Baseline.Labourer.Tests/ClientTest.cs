@@ -14,7 +14,7 @@
         {
             TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
             Client = new LabourerClient(
-                new BaselineLabourerConfiguration
+                new BaselineLabourerClientConfiguration
                 {
                     Queue = TestMemoryQueue,
                     Store = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider)

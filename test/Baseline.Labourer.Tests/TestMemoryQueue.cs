@@ -9,18 +9,18 @@ namespace Baseline.Labourer.Tests
 {
     public class TestMemoryQueue : MemoryQueue
     {
-        public TestMemoryQueue(IDateTimeProvider dateTimeProvider) : base(new MemoryQueueDataContainer(), dateTimeProvider)
+        public TestMemoryQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
         {
         }
         
         public void AssertMessageDispatched(Expression<Func<MemoryQueuedJob, bool>> predicate)
         {
-            _dataContainer.Queue.Should().ContainSingle(predicate);
+            Queue.Should().ContainSingle(predicate);
         }
 
         public void AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(string jobId, uint retryCount, TimeSpan delay)
         {
-            var jobDefinitions = _dataContainer.RemovedQueue.Select(j => new
+            var jobDefinitions = RemovedQueue.Select(j => new
             {
                 VisibilityDelay = j.PreviousVisibilityDelay,
                 JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)!
@@ -35,7 +35,7 @@ namespace Baseline.Labourer.Tests
 
         public void MakeAllMessagesVisible()
         {
-            _dataContainer.Queue.ForEach(q => q.VisibilityDelay = null);
+            Queue.ForEach(q => q.VisibilityDelay = null);
         }
     }
 }

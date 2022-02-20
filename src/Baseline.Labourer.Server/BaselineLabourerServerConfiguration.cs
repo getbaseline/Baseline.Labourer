@@ -9,7 +9,7 @@ namespace Baseline.Labourer.Server
     /// <summary>
     /// A configuration object used to configure the Baseline.Labourer server components.
     /// </summary>
-    public class BaselineServerConfiguration
+    public class BaselineLabourerServerConfiguration
     {
         /// <summary>
         /// Gets or sets the activator used to create instances of Baseline.Labourer components such as jobs, middlewares
@@ -31,11 +31,6 @@ namespace Baseline.Labourer.Server
         /// Gets or sets the middlewares used for dispatched jobs.
         /// </summary>
         public IReadOnlyCollection<Type>? DispatchedJobMiddlewares { get; set; } = new List<Type>();
-
-        /// <summary>
-        /// Gets or sets the number of job processor tasks to run within this instance of the Baseline.Labourer server.
-        /// </summary>
-        public uint JobProcessorTasksToRun { get; set; } = 1;
         
         /// <summary>
         /// Gets or sets the delegate used to receive an <see cref="ILoggerFactory"/> instance which is used throughout

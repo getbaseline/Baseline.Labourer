@@ -13,16 +13,17 @@ namespace Baseline.Labourer
     public class MemoryQueue : IQueue
     {
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
-        protected readonly MemoryQueueDataContainer _dataContainer;
         private readonly IDateTimeProvider _dateTimeProvider;
+        
+        protected List<MemoryQueuedJob> Queue { get; } = new List<MemoryQueuedJob>();
+        protected List<MemoryQueuedJob> RemovedQueue { get; } = new List<MemoryQueuedJob>();
 
-        public MemoryQueue(MemoryQueueDataContainer dataContainer) : this(dataContainer, new DateTimeProvider())
+        public MemoryQueue() : this(new DateTimeProvider())
         {
         }
 
-        public MemoryQueue(MemoryQueueDataContainer dataContainer, IDateTimeProvider dateTimeProvider)
+        public MemoryQueue(IDateTimeProvider dateTimeProvider)
         {
-            _dataContainer = dataContainer;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -43,7 +44,7 @@ namespace Baseline.Labourer
             {
                 await _semaphore.WaitAsync(cancellationToken);
 
-                _dataContainer.Queue.Add(new MemoryQueuedJob
+                Queue.Add(new MemoryQueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
@@ -72,7 +73,7 @@ namespace Baseline.Labourer
                     // This semaphore will prevent other queues from snatching up our messages!
                     await _semaphore.WaitAsync(cancellationToken);
 
-                    var firstMessage = _dataContainer.Queue.FirstOrDefault(
+                    var firstMessage = Queue.FirstOrDefault(
                         q => q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero) <= _dateTimeProvider.UtcNow()
                     );
 
@@ -108,10 +109,10 @@ namespace Baseline.Labourer
             {
                 await _semaphore.WaitAsync(cancellationToken);
 
-                var messagesToRemove = _dataContainer.Queue.Where(qm => qm.MessageId == messageId).ToList();
+                var messagesToRemove = Queue.Where(qm => qm.MessageId == messageId).ToList();
                 
-                _dataContainer.RemovedQueue.AddRange(messagesToRemove);
-                _dataContainer.Queue.RemoveAll(qm => messagesToRemove.Any(m => m.MessageId == qm.MessageId));
+                RemovedQueue.AddRange(messagesToRemove);
+                Queue.RemoveAll(qm => messagesToRemove.Any(m => m.MessageId == qm.MessageId));
             }
             finally
             {

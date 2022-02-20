@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer
 {
-    public class BaselineLabourerConfiguration
+    public class BaselineLabourerClientConfiguration
     {
         /// <summary>
         /// Gets or sets the delegate used to receive an <see cref="ILoggerFactory"/> instance which is used throughout

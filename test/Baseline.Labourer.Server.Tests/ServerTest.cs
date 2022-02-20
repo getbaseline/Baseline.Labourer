@@ -38,7 +38,7 @@ namespace Baseline.Labourer.Server.Tests
             TestMemoryStore = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider);
             
             Client = new LabourerClient(
-                new BaselineLabourerConfiguration
+                new BaselineLabourerClientConfiguration
                 {
                     LoggerFactory = () => TestLoggerFactory,
                     Queue = TestMemoryQueue,
@@ -47,9 +47,9 @@ namespace Baseline.Labourer.Server.Tests
             );
         }
 
-        public BaselineServerConfiguration GenerateServerConfiguration(Action<BaselineServerConfiguration>? configuror = null)
+        public BaselineLabourerServerConfiguration GenerateServerConfiguration(Action<BaselineLabourerServerConfiguration>? configuror = null)
         {
-            var configuration = new BaselineServerConfiguration
+            var configuration = new BaselineLabourerServerConfiguration
             {
                 Activator = new DefaultActivator(),
                 Store = TestMemoryStore,

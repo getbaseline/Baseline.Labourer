@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Baseline.Labourer.Server\Baseline.Labourer.Server.csproj" />
       <ProjectReference Include="..\Baseline.Labourer\Baseline.Labourer.csproj" />
     </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Baseline.Labourer.Server;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Baseline.Labourer
@@ -13,31 +14,32 @@ namespace Baseline.Labourer
         /// Adds the Baseline.Labourer client to the service collection.
         /// </summary>
         /// <param name="serviceCollection">The service collection to add the client to.</param>
-        /// <param name="builder">A delegate used to configure the client.</param>
-        public static IServiceCollection AddBaselineLabourerClient(
+        /// <param name="labourerBuilder">A delegate used to configure the client.</param>
+        public static IServiceCollection AddBaselineLabourer(
             this IServiceCollection serviceCollection,
-            Action<IServiceProvider, LabourerClientBuilder> builder
+            Action<IServiceProvider, LabourerBuilder> labourerBuilder
         )
         {
-            return serviceCollection.AddSingleton<ILabourerClient, LabourerClient>(serviceProvider =>
+            serviceCollection.AddSingleton(serviceProvider =>
             {
-                var b = new LabourerClientBuilder();
-                builder(serviceProvider, b);
+                var builderInstance = new LabourerBuilder();
+                labourerBuilder(serviceProvider, builderInstance);
 
-                return new LabourerClient(b.ToConfiguration());
+                return builderInstance;
             });
-        }
 
-        /// <summary>
-        /// Adds the Baseline.Labourer server to the service collection.
-        /// </summary>
-        /// <param name="serviceCollection">The service collection to add the server to.</param>
-        /// <param name="builder">A delegate used to configure the server.</param>
-        public static IServiceCollection AddBaselineLabourerServer(
-            this IServiceCollection serviceCollection,
-            Action<IServiceProvider, LabourerClientBuilder> builder
-        )
-        {
+            serviceCollection.AddSingleton<ILabourerClient, LabourerClient>(serviceProvider =>
+            {
+                var b = serviceProvider.GetService<LabourerBuilder>()!;
+                return new LabourerClient(b.ToClientConfiguration());
+            });
+
+            serviceCollection.AddSingleton(serviceProvider =>
+            {
+                var b = serviceProvider.GetService<LabourerBuilder>()!;
+                return new LabourerServer(b.ToServerConfiguration(serviceProvider));
+            });
+
             return serviceCollection;
         }
     }
