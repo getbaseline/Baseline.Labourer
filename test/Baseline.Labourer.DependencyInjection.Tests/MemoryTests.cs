@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
@@ -41,8 +40,8 @@ namespace Baseline.Labourer.DependencyInjection.Tests
                 builder.UseMemoryQueue();
             });
 
-            Task.Run(async () => await Server.RunServerAsync());
-            
+            RunServer();
+
             // Act.
             await Client.DispatchJobAsync<Job>();
             

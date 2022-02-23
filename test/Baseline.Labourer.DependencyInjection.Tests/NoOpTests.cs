@@ -31,7 +31,7 @@ namespace Baseline.Labourer.DependencyInjection.Tests
                 builder.UseNoOpQueue();
             });
             
-            // Act.
+            // Act.     
             Func<Task> sut = async () => await Client.DispatchJobAsync<NoOpJob>();
             
             // Assert.

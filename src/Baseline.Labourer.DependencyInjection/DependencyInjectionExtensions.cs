@@ -23,6 +23,7 @@ namespace Baseline.Labourer
             serviceCollection.AddSingleton(serviceProvider =>
             {
                 var builderInstance = new LabourerBuilder();
+                builderInstance.UseLoggerFactoryResolvedFromContainer(serviceProvider);
                 labourerBuilder(serviceProvider, builderInstance);
 
                 return builderInstance;

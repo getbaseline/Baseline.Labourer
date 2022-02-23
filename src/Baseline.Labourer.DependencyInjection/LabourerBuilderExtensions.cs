@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Baseline.Labourer
 {
     /// <summary>
-    /// Extension methods that apply to all inheritors or the <see cref="BaseLabourerBuilder"/> class.
+    /// Extension methods that apply to all inheritors or the <see cref="LabourerBuilder"/> class.
     /// </summary>
     public static class LabourerBuilderExtensions
     {

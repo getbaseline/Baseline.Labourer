@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Baseline.Labourer.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,5 +34,10 @@ namespace Baseline.Labourer.DependencyInjection.Tests
         }
 
         protected T Resolve<T>() => _serviceProvider.GetService<T>();
+
+        protected void RunServer()
+        {
+            Task.Run(async () => await Server.RunServerAsync());
+        }
     }
 }
