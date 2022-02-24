@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -38,8 +39,8 @@ namespace Baseline.Labourer.DependencyInjection.Tests
                 LogLevel logLevel, 
                 EventId eventId, 
                 TState state, 
-                Exception? exception, 
-                Func<TState, Exception?, string> formatter
+                Exception exception, 
+                Func<TState, Exception, string> formatter
             )
             {
                 MessageLogged = true;

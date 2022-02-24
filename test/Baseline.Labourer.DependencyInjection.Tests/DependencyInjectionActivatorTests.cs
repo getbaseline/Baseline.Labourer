@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,14 +51,14 @@ namespace Baseline.Labourer.DependencyInjection.Tests
             Dependency.Ran.Should().BeTrue();
         }
 
-        public class ProvidedLogger : ILogger<HasDependencyInjected>
+        public class ProvidedLogger : ILogger<HasLoggerInjected>
         {
             public void Log<TState>(
                 LogLevel logLevel, 
                 EventId eventId, 
                 TState state, 
-                Exception? exception, 
-                Func<TState, Exception?, string> formatter
+                Exception exception, 
+                Func<TState, Exception, string> formatter
             )
             {
             }
@@ -75,11 +74,19 @@ namespace Baseline.Labourer.DependencyInjection.Tests
             }
         }
 
+        public class SecondaryDependency
+        {
+        }
+        
         public class HasLoggerInjected
         {
             public static Type InjectedLoggerType;
             
-            public HasLoggerInjected(ILogger<HasLoggerInjected> logger)
+            public HasLoggerInjected(
+                Dependency dependency, 
+                ILogger<HasLoggerInjected> logger, 
+                SecondaryDependency secondaryDependency
+            )
             {
                 InjectedLoggerType = logger.GetType();
             }
@@ -91,6 +98,7 @@ namespace Baseline.Labourer.DependencyInjection.Tests
             // Arrange.
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<Dependency>();
+            serviceCollection.AddSingleton<SecondaryDependency>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var activator = new DependencyInjectionActivator(serviceProvider);

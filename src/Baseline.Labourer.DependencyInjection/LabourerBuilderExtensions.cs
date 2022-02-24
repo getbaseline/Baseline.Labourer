@@ -16,7 +16,8 @@ namespace Baseline.Labourer
         /// <param name="serverBuilder">The server builder delegate that configures the server options.</param>
         public static LabourerBuilder ConfigureServer(
             this LabourerBuilder builder,
-            Action<LabourerServerBuilder> serverBuilder)
+            Action<LabourerServerBuilder> serverBuilder
+        )
         {
             serverBuilder(builder.ServerBuilder);
             return builder;

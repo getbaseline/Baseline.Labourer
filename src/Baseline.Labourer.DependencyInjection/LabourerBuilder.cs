@@ -44,8 +44,8 @@ namespace Baseline.Labourer
             return new BaselineLabourerClientConfiguration
             {
                 LoggerFactory = LoggerFactory,
-                Store = Store,
-                Queue = Queue
+                Store = Store!,
+                Queue = Queue!
             };
         }
 

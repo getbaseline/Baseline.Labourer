@@ -17,7 +17,7 @@ namespace Baseline.Labourer
         /// <summary>
         /// Gets or sets the middlewares used for dispatched jobs.
         /// </summary>
-        internal List<Type>? DispatchedJobMiddlewares { get; set; } = new List<Type>();
+        internal List<Type> DispatchedJobMiddlewares { get; set; } = new List<Type>();
 
         /// <summary>
         /// Gets or sets the number of job processing workers to run.
