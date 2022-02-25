@@ -1,13 +1,8 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Internal.Utils;
-using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal.BootTasks;
-using Baseline.Labourer.Server.Internal.JobProcessorWorker;
-using Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker;
-using Baseline.Labourer.Server.Internal.ServerHeartbeatWorker;
+using Baseline.Labourer.Internal;
+using Baseline.Labourer.Server.Internal;
 
 namespace Baseline.Labourer.Server
 {
@@ -16,11 +11,11 @@ namespace Baseline.Labourer.Server
     /// </summary>
     public class LabourerServer
     {
-        private readonly BaselineServerConfiguration _serverConfiguration;
+        private readonly BaselineLabourerServerConfiguration _labourerServerConfiguration;
 
-        public LabourerServer(BaselineServerConfiguration serverConfiguration)
+        public LabourerServer(BaselineLabourerServerConfiguration labourerServerConfiguration)
         {
-            _serverConfiguration = serverConfiguration;
+            _labourerServerConfiguration = labourerServerConfiguration;
         }
 
         /// <summary>
@@ -30,20 +25,20 @@ namespace Baseline.Labourer.Server
         public async Task RunServerAsync()
         {
             var serverInstance = await CreateServerInstanceAsync();
-            var serverContext = new ServerContext(serverInstance, _serverConfiguration);
+            var serverContext = new ServerContext(serverInstance, _labourerServerConfiguration);
 
             await RunServerBootTasksAsync(serverContext);
             
             await Task.WhenAll(
                 new ServerHeartbeatWorker(serverContext).RunAsync(),
-                new ScheduledJobDispatcherWorker(serverContext, _serverConfiguration.DateTimeProvider).RunAsync(),
+                new ScheduledJobDispatcherWorker(serverContext, _labourerServerConfiguration.DateTimeProvider).RunAsync(),
                 new JobProcessorWorker(serverContext).RunAsync()
             );
         }
 
         private async Task<ServerInstance> CreateServerInstanceAsync()
         {
-            await using var writer = _serverConfiguration.Store!.WriterTransactionManager.BeginTransaction();
+            await using var writer = _labourerServerConfiguration.Store!.WriterTransactionManager.BeginTransaction();
 
             var serverInstance = new ServerInstance
             {

@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Internal.Extensions;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// Queries scheduled jobs and dispatches those that need to be ran. 

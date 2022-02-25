@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// JobLoggerFactory is an internal logger factory used to create <see cref="JobLogger"/> instances that optionally

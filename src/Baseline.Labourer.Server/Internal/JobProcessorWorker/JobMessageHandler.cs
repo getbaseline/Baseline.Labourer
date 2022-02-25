@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Exceptions;
-using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// <see cref="JobMessageHandler"/> contains logic related to the handling of any job messages.

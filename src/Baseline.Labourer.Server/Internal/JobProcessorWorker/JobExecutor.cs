@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// <see cref="JobExecutor"/> is where the magic happens for job processing.

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Store reader implementation for the memory store. 
     /// </summary>
     public class MemoryStoreReader : IStoreReader
     {
-        private readonly MemoryBackingStore _memoryBackingStore;
+        private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
 
-        public MemoryStoreReader(MemoryBackingStore memoryBackingStore)
+        public MemoryStoreReader(MemoryStoreDataContainer memoryStoreDataContainer)
         {
-            _memoryBackingStore = memoryBackingStore;
+            _memoryStoreDataContainer = memoryStoreDataContainer;
         }
 
         /// <inheritdoc />
@@ -25,9 +25,9 @@ namespace Baseline.Labourer.Store.Memory
             CancellationToken cancellationToken
         )
         {
-            using var _ = await _memoryBackingStore.AcquireStoreLockAsync();
+            using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
-            return _memoryBackingStore.ScheduledJobs
+            return _memoryStoreDataContainer.ScheduledJobs
                 .Values
                 .Where(job => job.NextRunDate <= before)
                 .ToList();

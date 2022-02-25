@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Server.Contracts;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;

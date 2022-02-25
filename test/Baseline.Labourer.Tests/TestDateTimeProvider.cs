@@ -1,5 +1,5 @@
 using System;
-using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal;
 
 namespace Baseline.Labourer.Tests
 {

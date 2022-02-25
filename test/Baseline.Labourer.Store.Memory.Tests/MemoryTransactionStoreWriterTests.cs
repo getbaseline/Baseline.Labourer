@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Models;
-using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;
@@ -11,12 +10,12 @@ namespace Baseline.Labourer.Store.Memory.Tests
 {
     public class MemoryTransactionStoreWriterTests
     {
-        private readonly TestMemoryBackingStore _memoryBackingStore = new TestMemoryBackingStore();
+        private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer = new TestMemoryStoreDataContainer();
         private readonly MemoryStoreWriterTransactionManager _transactionManager;
 
         public MemoryTransactionStoreWriterTests()
         {
-            _transactionManager = new MemoryStoreWriterTransactionManager(_memoryBackingStore);
+            _transactionManager = new MemoryStoreWriterTransactionManager(_memoryStoreDataContainer);
         }
         
         [Fact]
@@ -30,7 +29,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.Servers.Should().ContainSingle(s => s.Id == "foo-bar");
+            _memoryStoreDataContainer.Servers.Should().ContainSingle(s => s.Id == "foo-bar");
         }
 
         [Fact]
@@ -44,7 +43,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.ServerHeartbeats["abc"].Should().HaveCount(1);
+            _memoryStoreDataContainer.ServerHeartbeats["abc"].Should().HaveCount(1);
         }
 
         [Fact]
@@ -58,7 +57,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.ServerWorkers["foo"].Should().ContainSingle(w => w.Id == "foo");
+            _memoryStoreDataContainer.ServerWorkers["foo"].Should().ContainSingle(w => w.Id == "foo");
         }
 
         [Fact]
@@ -75,7 +74,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.ScheduledJobs["scheduled-job:scheduled-job"].CronExpression.Should().Be("abc");
+            _memoryStoreDataContainer.ScheduledJobs["scheduled-job:scheduled-job"].CronExpression.Should().Be("abc");
         }
 
         [Fact]
@@ -88,7 +87,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 CronExpression = "abc", 
                 NextRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryBackingStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            _memoryStoreDataContainer.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -101,7 +100,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.ScheduledJobs[scheduledJob.Id].NextRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
+            _memoryStoreDataContainer.ScheduledJobs[scheduledJob.Id].NextRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -114,7 +113,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 CronExpression = "abc", 
                 LastRunDate = DateTime.UtcNow.Date.AddDays(-3)
             };
-            _memoryBackingStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            _memoryStoreDataContainer.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -127,7 +126,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.ScheduledJobs[scheduledJob.Id].LastRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
+            _memoryStoreDataContainer.ScheduledJobs[scheduledJob.Id].LastRunDate.Should().Be(DateTime.UtcNow.Date.AddDays(7));
         }
 
         [Fact]
@@ -144,7 +143,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.DispatchedJobs.Should().ContainSingle(j => j.Id == "bar");
+            _memoryStoreDataContainer.DispatchedJobs.Should().ContainSingle(j => j.Id == "bar");
         }
 
         [Fact]
@@ -152,7 +151,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
         {
             // Arrange.
             var jobDefinition = new DispatchedJobDefinition {Id = "abc"};
-            _memoryBackingStore.DispatchedJobs.Add(jobDefinition);
+            _memoryStoreDataContainer.DispatchedJobs.Add(jobDefinition);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -166,7 +165,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.DispatchedJobs.Should().ContainSingle(
+            _memoryStoreDataContainer.DispatchedJobs.Should().ContainSingle(
                 j => j.Id == jobDefinition.Id &&
                      j.Status == JobStatus.Complete &&
                      j.FinishedAt == DateTime.UtcNow.Date
@@ -178,7 +177,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
         {
             // Arrange.
             var jobDefinition = new DispatchedJobDefinition {Id = "abc"};
-            _memoryBackingStore.DispatchedJobs.Add(jobDefinition);
+            _memoryStoreDataContainer.DispatchedJobs.Add(jobDefinition);
             
             await using var writer = _transactionManager.BeginTransaction();
             
@@ -191,7 +190,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.DispatchedJobs.Should().ContainSingle(j => j.Id == jobDefinition.Id && j.Retries == 25);
+            _memoryStoreDataContainer.DispatchedJobs.Should().ContainSingle(j => j.Id == jobDefinition.Id && j.Retries == 25);
         }
 
         [Fact]
@@ -199,7 +198,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
         {
             // Arrange.
             var scheduledJob = new ScheduledJobDefinition {Name = "to-delete"};
-            _memoryBackingStore.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
+            _memoryStoreDataContainer.ScheduledJobs.Add(scheduledJob.Id, scheduledJob);
 
             await using var writer = _transactionManager.BeginTransaction();
 
@@ -208,7 +207,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
             
             // Assert.
-            _memoryBackingStore.AssertScheduledJobDoesNotExist(scheduledJob.Id);
+            _memoryStoreDataContainer.AssertScheduledJobDoesNotExist(scheduledJob.Id);
         }
 
         [Fact]
@@ -220,7 +219,7 @@ namespace Baseline.Labourer.Store.Memory.Tests
                 Status = JobStatus.Created
             };
 
-            _memoryBackingStore.DispatchedJobs.Add(jobDefinition);
+            _memoryStoreDataContainer.DispatchedJobs.Add(jobDefinition);
 
             // Act.
             try
@@ -238,8 +237,8 @@ namespace Baseline.Labourer.Store.Memory.Tests
             }
 
             // Assert.
-            _memoryBackingStore.AssertJobHasRetryCount(jobDefinition.Id, 0);
-            _memoryBackingStore.AssertStatusForJobIs(jobDefinition.Id, JobStatus.Created);
+            _memoryStoreDataContainer.AssertJobHasRetryCount(jobDefinition.Id, 0);
+            _memoryStoreDataContainer.AssertStatusForJobIs(jobDefinition.Id, JobStatus.Created);
         }
 
         [Fact]
@@ -274,13 +273,13 @@ namespace Baseline.Labourer.Store.Memory.Tests
             await writer.CommitAsync(CancellationToken.None);
 
             // Assert.
-            _memoryBackingStore.AssertHasRegisteredAServer();
-            _memoryBackingStore.AssertHeartbeatRegisteredForServer(server.Id, 4);
-            _memoryBackingStore.AssertHasRegisteredWorkersForServer(server.Id, 1);
-            _memoryBackingStore.AssertScheduledJobExists(scheduledJob.Id);
-            _memoryBackingStore.AssertNextRunDateForScheduledJobIsCloseTo(scheduledJob.Id, DateTime.Now.AddDays(1).Date);
-            _memoryBackingStore.AssertStatusForJobIs(dispatchedJob.Id, JobStatus.Complete);
-            _memoryBackingStore.AssertJobHasRetryCount(dispatchedJob.Id, 25);
+            _memoryStoreDataContainer.AssertHasRegisteredAServer();
+            _memoryStoreDataContainer.AssertHeartbeatRegisteredForServer(server.Id, 4);
+            _memoryStoreDataContainer.AssertHasRegisteredWorkersForServer(server.Id, 1);
+            _memoryStoreDataContainer.AssertScheduledJobExists(scheduledJob.Id);
+            _memoryStoreDataContainer.AssertNextRunDateForScheduledJobIsCloseTo(scheduledJob.Id, DateTime.Now.AddDays(1).Date);
+            _memoryStoreDataContainer.AssertStatusForJobIs(dispatchedJob.Id, JobStatus.Complete);
+            _memoryStoreDataContainer.AssertJobHasRetryCount(dispatchedJob.Id, 25);
         }
     }
 }

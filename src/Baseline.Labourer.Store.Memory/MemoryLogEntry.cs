@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// <see cref="MemoryLogEntry" /> represents a log entry that is stored in memory. As it is not truly persisted anywhere,

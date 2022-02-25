@@ -1,14 +1,13 @@
-﻿using Baseline.Labourer.Internal.Contracts;
-using Baseline.Labourer.Store.Memory;
+﻿using Baseline.Labourer.Internal;
 
 namespace Baseline.Labourer.Tests
 {
     public class TestMemoryResourceLocker : MemoryResourceLocker
     {
         public TestMemoryResourceLocker(
-            MemoryBackingStore memoryBackingStore, 
+            MemoryStoreDataContainer memoryStoreDataContainer, 
             IDateTimeProvider dateTimeProvider
-        ) : base(memoryBackingStore, dateTimeProvider)
+        ) : base(memoryStoreDataContainer, dateTimeProvider)
         {
         }
     }

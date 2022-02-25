@@ -1,7 +1,7 @@
 using System;
-using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Queue.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// A queued job representation with additional information related to processing them in memory.

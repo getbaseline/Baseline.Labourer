@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Internal;
 using Xunit;
 
 namespace Baseline.Labourer.Tests
@@ -14,7 +14,7 @@ namespace Baseline.Labourer.Tests
             await Client.DispatchJobAsync<BasicJob>();
 
             // Assert.
-            var jobDefinition = TestBackingStore.AssertJobWithTypesStored(typeof(BasicJob));
+            var jobDefinition = TestStoreDataContainer.AssertJobWithTypesStored(typeof(BasicJob));
 
             var serialisedJobDefinition = await SerializationUtils.SerializeToStringAsync(
                 jobDefinition,

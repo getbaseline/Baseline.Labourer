@@ -1,6 +1,6 @@
 using System;
 
-namespace Baseline.Labourer.Internal.Contracts
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// IDateTimeProvider is an abstraction used to ensure tests can work without waiting 73 billion years for scheduled

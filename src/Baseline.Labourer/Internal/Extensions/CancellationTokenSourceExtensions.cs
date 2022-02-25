@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Internal.Extensions
+namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Contains a number of extension methods related to <see cref="CancellationTokenSource"/> instances.

@@ -2,18 +2,18 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Provides a log store implementation for the memory store project.
     /// </summary>
     public class MemoryJobLogStore : IJobLogStore
     {
-        private readonly MemoryBackingStore _memoryBackingStore;
+        private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
 
-        public MemoryJobLogStore(MemoryBackingStore memoryBackingStore)
+        public MemoryJobLogStore(MemoryStoreDataContainer memoryStoreDataContainer)
         {
-            _memoryBackingStore = memoryBackingStore;
+            _memoryStoreDataContainer = memoryStoreDataContainer;
         }
 
         /// <inheritdoc />
@@ -22,9 +22,9 @@ namespace Baseline.Labourer.Store.Memory
             Task
                 .Run(async () =>
                 {
-                    using var _ = await _memoryBackingStore.AcquireStoreLockAsync();
+                    using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
-                    _memoryBackingStore.LogEntries.Add(new MemoryLogEntry
+                    _memoryStoreDataContainer.LogEntries.Add(new MemoryLogEntry
                     {
                         JobId = jobId,
                         LogLevel = logLevel,

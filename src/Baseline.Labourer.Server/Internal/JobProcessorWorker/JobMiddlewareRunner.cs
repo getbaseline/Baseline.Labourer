@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Server.Contracts;
-using Baseline.Labourer.Server.Internal.Middleware;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal.JobProcessorWorker
+namespace Baseline.Labourer.Server.Internal
 {
     /// <summary>
     /// Runs the relevant middlewares for dispatched jobs. 

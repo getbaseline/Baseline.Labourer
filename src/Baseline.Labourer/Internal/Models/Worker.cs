@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Internal.Models
+﻿namespace Baseline.Labourer.Internal
 {
     /// <summary>
     /// Worker represents a running worker instance within a server that runs a specific task.

@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Baseline.Labourer.DependencyInjection\Baseline.Labourer.DependencyInjection.csproj" />
       <ProjectReference Include="..\Baseline.Labourer\Baseline.Labourer.csproj" />
     </ItemGroup>
 

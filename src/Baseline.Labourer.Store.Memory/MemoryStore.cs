@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Store.Memory
+namespace Baseline.Labourer
 {
     /// <summary>
     /// Provides a memory based <see cref="IStore"/> with all relevant store contract implementations contained within.
@@ -19,16 +19,16 @@ namespace Baseline.Labourer.Store.Memory
         /// <inheritdoc />
         public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
-        public MemoryStore() : this(new MemoryBackingStore())
+        public MemoryStore() : this(new MemoryStoreDataContainer())
         {
         }
 
-        public MemoryStore(MemoryBackingStore memoryBackingStore)
+        public MemoryStore(MemoryStoreDataContainer memoryStoreDataContainer)
         {
-            JobLogStore = new MemoryJobLogStore(memoryBackingStore);
-            ResourceLocker = new MemoryResourceLocker(memoryBackingStore);
-            Reader = new MemoryStoreReader(memoryBackingStore);
-            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryBackingStore);
+            JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
+            ResourceLocker = new MemoryResourceLocker(memoryStoreDataContainer);
+            Reader = new MemoryStoreReader(memoryStoreDataContainer);
+            WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryStoreDataContainer);
         }
 
         /// <inheritdoc />
