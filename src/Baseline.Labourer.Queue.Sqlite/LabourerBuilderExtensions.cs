@@ -1,0 +1,17 @@
+﻿namespace Baseline.Labourer;
+
+/// <summary>
+/// Extension methods related to the SQLite queue for inherits of the <see cref="LabourerBuilder"/> class.
+/// </summary>
+public static class LabourerBuilderExtensions
+{
+    /// <summary>
+    /// Configures the <see cref="LabourerBuilder"/> instance to use the SQLite queue provider.
+    /// </summary>
+    /// <param name="builder">The builder to configure to use the SQLite queue provider.</param>
+    /// <returns></returns>
+    public static LabourerBuilder UseSqliteQueue(this LabourerBuilder builder)
+    {
+        return builder;
+    }
+}

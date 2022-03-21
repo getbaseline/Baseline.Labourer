@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Internal
-{
-    public class AsyncComposableDisposable : IAsyncDisposable
-    {
-        private readonly Func<ValueTask> _action;
+namespace Baseline.Labourer.Internal;
 
-        public AsyncComposableDisposable(Func<ValueTask> action)
-        {
-            _action = action;
-        }
+public class AsyncComposableDisposable : IAsyncDisposable
+{
+    private readonly Func<ValueTask> _action;
+
+    public AsyncComposableDisposable(Func<ValueTask> action)
+    {
+        _action = action;
+    }
         
-        public async ValueTask DisposeAsync()
-        {
-            await _action();
-        }
+    public async ValueTask DisposeAsync()
+    {
+        await _action();
     }
 }

@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace Baseline.Labourer.Internal
+namespace Baseline.Labourer.Internal;
+
+/// <summary>
+/// Contains numerous utilities related to the generation of strings.
+/// </summary>
+public class StringGenerationUtils
 {
     /// <summary>
-    /// Contains numerous utilities related to the generation of strings.
+    /// Generates a random string pretty much guaranteed to be unique.
     /// </summary>
-    public class StringGenerationUtils
+    public static string GenerateUniqueRandomString()
     {
-        /// <summary>
-        /// Generates a random string pretty much guaranteed to be unique.
-        /// </summary>
-        public static string GenerateUniqueRandomString()
-        {
-            return Guid.NewGuid().ToString().Replace("-", "");
-        }
+        return Guid.NewGuid().ToString().Replace("-", "");
     }
 }

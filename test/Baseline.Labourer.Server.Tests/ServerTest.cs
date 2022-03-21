@@ -4,72 +4,71 @@ using Baseline.Labourer.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Server.Tests
+namespace Baseline.Labourer.Server.Tests;
+
+public class ServerTest : IDisposable
 {
-    public class ServerTest : IDisposable
+    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+    protected readonly TestMemoryResourceLocker TestResourceLocker;
+
+    protected readonly TestMemoryQueue TestMemoryQueue;
+
+    protected readonly TestMemoryStoreDataContainer TestStoreDataContainer = new TestMemoryStoreDataContainer();
+
+    protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
+
+    protected readonly ILoggerFactory TestLoggerFactory;
+
+    protected readonly TestMemoryStore TestMemoryStore;
+
+    public LabourerClient Client { get; }
+
+    public ServerTest(ITestOutputHelper testOutputHelper)
     {
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-
-        protected readonly TestMemoryResourceLocker TestResourceLocker;
-
-        protected readonly TestMemoryQueue TestMemoryQueue;
-
-        protected readonly TestMemoryStoreDataContainer TestStoreDataContainer = new TestMemoryStoreDataContainer();
-
-        protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
-
-        protected readonly ILoggerFactory TestLoggerFactory;
-
-        protected readonly TestMemoryStore TestMemoryStore;
-
-        public LabourerClient Client { get; }
-
-        public ServerTest(ITestOutputHelper testOutputHelper)
+        TestLoggerFactory = LoggerFactory.Create(logger =>
         {
-            TestLoggerFactory = LoggerFactory.Create(logger =>
-            {
-                logger
-                    .AddXUnit(testOutputHelper)
-                    .SetMinimumLevel(LogLevel.Debug);
-            });
+            logger
+                .AddXUnit(testOutputHelper)
+                .SetMinimumLevel(LogLevel.Debug);
+        });
 
-            TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
-            TestResourceLocker = new TestMemoryResourceLocker(TestStoreDataContainer, TestDateTimeProvider);
-            TestMemoryStore = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider);
+        TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
+        TestResourceLocker = new TestMemoryResourceLocker(TestStoreDataContainer, TestDateTimeProvider);
+        TestMemoryStore = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider);
             
-            Client = new LabourerClient(
-                new BaselineLabourerClientConfiguration
-                {
-                    LoggerFactory = () => TestLoggerFactory,
-                    Queue = TestMemoryQueue,
-                    Store = TestMemoryStore
-                }
-            );
-        }
-
-        public BaselineLabourerServerConfiguration GenerateServerConfiguration(Action<BaselineLabourerServerConfiguration>? configuror = null)
-        {
-            var configuration = new BaselineLabourerServerConfiguration
+        Client = new LabourerClient(
+            new BaselineLabourerClientConfiguration
             {
-                Activator = new DefaultActivator(),
-                Store = TestMemoryStore,
-                Queue = TestMemoryQueue,
-                ShutdownTokenSource = _cancellationTokenSource,
                 LoggerFactory = () => TestLoggerFactory,
-                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
-                DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero),
-                JobProcessingWorkersToRun = 1,
-                DateTimeProvider = TestDateTimeProvider
-            };
-            
-            configuror?.Invoke(configuration);
+                Queue = TestMemoryQueue,
+                Store = TestMemoryStore
+            }
+        );
+    }
 
-            return configuration;
-        }
-
-        public void Dispose()
+    public BaselineLabourerServerConfiguration GenerateServerConfiguration(Action<BaselineLabourerServerConfiguration>? configuror = null)
+    {
+        var configuration = new BaselineLabourerServerConfiguration
         {
-            _cancellationTokenSource.Cancel();
-        }
+            Activator = new DefaultActivator(),
+            Store = TestMemoryStore,
+            Queue = TestMemoryQueue,
+            ShutdownTokenSource = _cancellationTokenSource,
+            LoggerFactory = () => TestLoggerFactory,
+            ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
+            DefaultRetryConfiguration = new RetryConfiguration(3, TimeSpan.Zero),
+            JobProcessingWorkersToRun = 1,
+            DateTimeProvider = TestDateTimeProvider
+        };
+            
+        configuror?.Invoke(configuration);
+
+        return configuration;
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel();
     }
 }

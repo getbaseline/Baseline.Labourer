@@ -2,19 +2,18 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace Baseline.Labourer.Server.Tests
+namespace Baseline.Labourer.Server.Tests;
+
+public class RetryConfigurationTests
 {
-    public class RetryConfigurationTests
+    [Fact]
+    public void It_Throws_An_Exception_If_An_Incorrect_Number_Of_Delays_Are_Provided()
     {
-        [Fact]
-        public void It_Throws_An_Exception_If_An_Incorrect_Number_Of_Delays_Are_Provided()
-        {
-            // Act.
-            // ReSharper disable once ObjectCreationAsStatement
-            Action act = () => new RetryConfiguration(3, new[] {TimeSpan.Zero, TimeSpan.Zero});
+        // Act.
+        // ReSharper disable once ObjectCreationAsStatement
+        Action act = () => new RetryConfiguration(3, new[] {TimeSpan.Zero, TimeSpan.Zero});
             
-            // Assert.
-            act.Should().ThrowExactly<ArgumentException>();
-        }
+        // Assert.
+        act.Should().ThrowExactly<ArgumentException>();
     }
 }

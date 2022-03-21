@@ -7,71 +7,70 @@ using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Server.Tests
+namespace Baseline.Labourer.Server.Tests;
+
+public class BootTasksTests : ServerTest
 {
-    public class BootTasksTests : ServerTest
+    private class BootMemoryQueue : IQueue
     {
-        private class BootMemoryQueue : IQueue
-        {
-            public bool Bootstrapped { get; private set; }
+        public bool Bootstrapped { get; private set; }
             
-            public ValueTask BootstrapAsync()
-            {
-                Bootstrapped = true;
-                return new ValueTask();
-            }
-
-            public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
-        }
-        
-        public BootTasksTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public ValueTask BootstrapAsync()
         {
+            Bootstrapped = true;
+            return new ValueTask();
         }
-        
-        [Fact]
-        public async Task It_Bootstraps_The_Store()
+
+        public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken)
         {
-            // Act.
+            throw new NotImplementedException();
+        }
+
+        public Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+    }
+        
+    public BootTasksTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+        
+    [Fact]
+    public async Task It_Bootstraps_The_Store()
+    {
+        // Act.
 #pragma warning disable CS4014
-            Task.Run(async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync());
+        Task.Run(async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync());
 #pragma warning restore CS4014
 
-            // Assert.
-            await AssertionUtils.RetryAsync(() =>
-            {
-                TestMemoryStore.Bootstrapped.Should().BeTrue();
-            });
-        }
-
-        [Fact]
-        public async Task It_Bootstraps_The_Queue()
+        // Assert.
+        await AssertionUtils.RetryAsync(() =>
         {
-            // Arrange.
-            var queue = new BootMemoryQueue();
+            TestMemoryStore.Bootstrapped.Should().BeTrue();
+        });
+    }
+
+    [Fact]
+    public async Task It_Bootstraps_The_Queue()
+    {
+        // Arrange.
+        var queue = new BootMemoryQueue();
             
-            // Act.
+        // Act.
 #pragma warning disable CS4014
-            Task.Run(async () => await new LabourerServer(GenerateServerConfiguration(c => c.Queue = queue)).RunServerAsync());
+        Task.Run(async () => await new LabourerServer(GenerateServerConfiguration(c => c.Queue = queue)).RunServerAsync());
 #pragma warning restore CS4014
             
-            // Act.
-            await AssertionUtils.RetryAsync(() =>
-            {
-                queue.Bootstrapped.Should().BeTrue();
-            });
-        }
+        // Act.
+        await AssertionUtils.RetryAsync(() =>
+        {
+            queue.Bootstrapped.Should().BeTrue();
+        });
     }
 }

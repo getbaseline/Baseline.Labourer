@@ -5,37 +5,36 @@ using System.Text.Json;
 using Baseline.Labourer.Internal;
 using FluentAssertions;
 
-namespace Baseline.Labourer.Tests
+namespace Baseline.Labourer.Tests;
+
+public class TestMemoryQueue : MemoryQueue
 {
-    public class TestMemoryQueue : MemoryQueue
+    public TestMemoryQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
     {
-        public TestMemoryQueue(IDateTimeProvider dateTimeProvider) : base(dateTimeProvider)
-        {
-        }
+    }
         
-        public void AssertMessageDispatched(Expression<Func<MemoryQueuedJob, bool>> predicate)
-        {
-            Queue.Should().ContainSingle(predicate);
-        }
+    public void AssertMessageDispatched(Expression<Func<MemoryQueuedJob, bool>> predicate)
+    {
+        Queue.Should().ContainSingle(predicate);
+    }
 
-        public void AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(string jobId, uint retryCount, TimeSpan delay)
+    public void AssertJobMessageRemovedOnCompletionWithIdRetryCountAndDelay(string jobId, uint retryCount, TimeSpan delay)
+    {
+        var jobDefinitions = RemovedQueue.Select(j => new
         {
-            var jobDefinitions = RemovedQueue.Select(j => new
-            {
-                VisibilityDelay = j.PreviousVisibilityDelay,
-                JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)!
-            });
+            VisibilityDelay = j.PreviousVisibilityDelay,
+            JobDefinition = JsonSerializer.Deserialize<DispatchedJobDefinition>(j.SerializedDefinition)!
+        });
 
-            jobDefinitions.Should().ContainSingle(
-                j => j.JobDefinition.Id == jobId && 
-                     j.JobDefinition.Retries == retryCount &&
-                     j.VisibilityDelay == delay
-            );
-        }
+        jobDefinitions.Should().ContainSingle(
+            j => j.JobDefinition.Id == jobId && 
+                 j.JobDefinition.Retries == retryCount &&
+                 j.VisibilityDelay == delay
+        );
+    }
 
-        public void MakeAllMessagesVisible()
-        {
-            Queue.ForEach(q => q.VisibilityDelay = null);
-        }
+    public void MakeAllMessagesVisible()
+    {
+        Queue.ForEach(q => q.VisibilityDelay = null);
     }
 }

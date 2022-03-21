@@ -5,39 +5,38 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.DependencyInjection.Tests
+namespace Baseline.Labourer.DependencyInjection.Tests;
+
+public class BaseDependencyInjectionTest
 {
-    public class BaseDependencyInjectionTest
+    private readonly ILoggerFactory _loggerFactory;
+    private IServiceProvider _serviceProvider;
+
+    protected ILabourerClient Client => Resolve<ILabourerClient>();
+    protected LabourerServer Server => Resolve<LabourerServer>();
+
+    protected BaseDependencyInjectionTest(ITestOutputHelper testOutputHelper)
     {
-        private readonly ILoggerFactory _loggerFactory;
-        private IServiceProvider _serviceProvider;
-
-        protected ILabourerClient Client => Resolve<ILabourerClient>();
-        protected LabourerServer Server => Resolve<LabourerServer>();
-
-        protected BaseDependencyInjectionTest(ITestOutputHelper testOutputHelper)
+        _loggerFactory = LoggerFactory.Create(logging =>
         {
-            _loggerFactory = LoggerFactory.Create(logging =>
-            {
-                logging.AddXUnit(testOutputHelper);
-            });
-        }
+            logging.AddXUnit(testOutputHelper);
+        });
+    }
 
-        protected void ConfigureServices(Action<IServiceProvider, LabourerBuilder> builder)
-        {
-            var serviceCollection = new ServiceCollection();
+    protected void ConfigureServices(Action<IServiceProvider, LabourerBuilder> builder)
+    {
+        var serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddSingleton(_loggerFactory);
-            serviceCollection.AddBaselineLabourer(builder);
+        serviceCollection.AddSingleton(_loggerFactory);
+        serviceCollection.AddBaselineLabourer(builder);
 
-            _serviceProvider = serviceCollection.BuildServiceProvider();
-        }
+        _serviceProvider = serviceCollection.BuildServiceProvider();
+    }
 
-        protected T Resolve<T>() => _serviceProvider.GetService<T>();
+    protected T Resolve<T>() => _serviceProvider.GetService<T>();
 
-        protected void RunServer()
-        {
-            Task.Run(async () => await Server.RunServerAsync());
-        }
+    protected void RunServer()
+    {
+        Task.Run(async () => await Server.RunServerAsync());
     }
 }

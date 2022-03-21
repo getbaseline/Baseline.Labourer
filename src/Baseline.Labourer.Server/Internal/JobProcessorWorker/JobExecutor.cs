@@ -4,96 +4,95 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal
+namespace Baseline.Labourer.Server.Internal;
+
+/// <summary>
+/// <see cref="JobExecutor"/> is where the magic happens for job processing.
+/// </summary>
+internal class JobExecutor
 {
-    /// <summary>
-    /// <see cref="JobExecutor"/> is where the magic happens for job processing.
-    /// </summary>
-    internal class JobExecutor
+    private readonly JobContext _jobContext;
+    private readonly JobMiddlewareRunner _jobMiddlewareRunner;
+    private readonly ILogger<JobExecutor> _logger;
+
+    public JobExecutor(JobContext jobContext)
     {
-        private readonly JobContext _jobContext;
-        private readonly JobMiddlewareRunner _jobMiddlewareRunner;
-        private readonly ILogger<JobExecutor> _logger;
+        _jobContext = jobContext;
+        _jobMiddlewareRunner = new JobMiddlewareRunner(jobContext.WorkerContext.ServerContext);
+        _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
+    }
 
-        public JobExecutor(JobContext jobContext)
+    /// <summary>
+    /// Executes a job handling any associated tasks that need to be ran during it.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    public async Task ExecuteJobAsync(CancellationToken cancellationToken)
+    {
+        try
         {
-            _jobContext = jobContext;
-            _jobMiddlewareRunner = new JobMiddlewareRunner(jobContext.WorkerContext.ServerContext);
-            _logger = jobContext.WorkerContext.ServerContext.LoggerFactory.CreateLogger<JobExecutor>();
-        }
+            _logger.LogInformation(_jobContext, "Job processing started.");
+            await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
 
-        /// <summary>
-        /// Executes a job handling any associated tasks that need to be ran during it.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        public async Task ExecuteJobAsync(CancellationToken cancellationToken)
+            await ActivateAndExecuteJobAsync();
+
+            _logger.LogInformation(_jobContext, "Job processing complete.");
+            await _jobMiddlewareRunner.JobCompletedAsync(_jobContext, cancellationToken);
+        }
+        catch (Exception e)
         {
-            try
-            {
-                _logger.LogInformation(_jobContext, "Job processing started.");
-                await _jobMiddlewareRunner.JobStartedAsync(_jobContext, cancellationToken);
-
-                await ActivateAndExecuteJobAsync();
-
-                _logger.LogInformation(_jobContext, "Job processing complete.");
-                await _jobMiddlewareRunner.JobCompletedAsync(_jobContext, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                await _jobMiddlewareRunner.JobFailedAsync(_jobContext, e, cancellationToken);
-            }
-            finally
-            {
-                await _jobContext.RemoveMessageFromQueueAsync(cancellationToken);
-            }
+            await _jobMiddlewareRunner.JobFailedAsync(_jobContext, e, cancellationToken);
         }
-
-        private async Task ActivateAndExecuteJobAsync()
+        finally
         {
-            if (_jobContext.JobDefinition.HasParameters)
-            {
-                var deserializedParameters = await DeserializeParametersFromContextAsync();
-                await ActivateAndExecuteJobWithMethodParametersAsync(deserializedParameters, CancellationToken.None);
-            }
-            else
-            {
-                await ActivateAndExecuteJobWithMethodParametersAsync(CancellationToken.None);
-            }
+            await _jobContext.RemoveMessageFromQueueAsync(cancellationToken);
         }
+    }
 
-        private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
+    private async Task ActivateAndExecuteJobAsync()
+    {
+        if (_jobContext.JobDefinition.HasParameters)
         {
-            var jobType = _jobContext.JobType;
-            var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
-
-            await (
-                (ValueTask)jobType
-                    .GetMethod(nameof(IJob.HandleAsync))!
-                    .Invoke(jobInstance, methodParameters)
-            );
+            var deserializedParameters = await DeserializeParametersFromContextAsync();
+            await ActivateAndExecuteJobWithMethodParametersAsync(deserializedParameters, CancellationToken.None);
         }
-
-        private async Task<object> DeserializeParametersFromContextAsync()
+        else
         {
-            var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType!);
-
-            var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
-                _jobContext.JobDefinition.SerializedParameters!,
-                parametersType!,
-                CancellationToken.None
-            );
-
-            return deserializedParameters;
+            await ActivateAndExecuteJobWithMethodParametersAsync(CancellationToken.None);
         }
+    }
 
-        private object ActivateJobWithDefaults(JobContext jobContext, Type jobType)
-        {
-            var genericLogger = Activator.CreateInstance(
-                typeof(Logger<>).MakeGenericType(jobType),
-                new JobLoggerFactory(jobContext)
-            );
+    private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
+    {
+        var jobType = _jobContext.JobType;
+        var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
-            return jobContext.WorkerContext.ServerContext.Activator.ActivateType(jobType, genericLogger);
-        }
+        await (
+            (ValueTask)jobType
+                .GetMethod(nameof(IJob.HandleAsync))!
+                .Invoke(jobInstance, methodParameters)
+        );
+    }
+
+    private async Task<object> DeserializeParametersFromContextAsync()
+    {
+        var parametersType = Type.GetType(_jobContext.JobDefinition.ParametersType!);
+
+        var deserializedParameters = await SerializationUtils.DeserializeFromStringAsync(
+            _jobContext.JobDefinition.SerializedParameters!,
+            parametersType!,
+            CancellationToken.None
+        );
+
+        return deserializedParameters;
+    }
+
+    private object ActivateJobWithDefaults(JobContext jobContext, Type jobType)
+    {
+        var genericLogger = Activator.CreateInstance(
+            typeof(Logger<>).MakeGenericType(jobType),
+            new JobLoggerFactory(jobContext)
+        );
+
+        return jobContext.WorkerContext.ServerContext.Activator.ActivateType(jobType, genericLogger);
     }
 }

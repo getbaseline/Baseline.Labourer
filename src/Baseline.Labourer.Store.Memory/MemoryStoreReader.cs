@@ -5,32 +5,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer
+namespace Baseline.Labourer;
+
+/// <summary>
+/// Store reader implementation for the memory store. 
+/// </summary>
+public class MemoryStoreReader : IStoreReader
 {
-    /// <summary>
-    /// Store reader implementation for the memory store. 
-    /// </summary>
-    public class MemoryStoreReader : IStoreReader
+    private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
+
+    public MemoryStoreReader(MemoryStoreDataContainer memoryStoreDataContainer)
     {
-        private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
+        _memoryStoreDataContainer = memoryStoreDataContainer;
+    }
 
-        public MemoryStoreReader(MemoryStoreDataContainer memoryStoreDataContainer)
-        {
-            _memoryStoreDataContainer = memoryStoreDataContainer;
-        }
+    /// <inheritdoc />
+    public async ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
+        DateTime before, 
+        CancellationToken cancellationToken
+    )
+    {
+        using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
-        /// <inheritdoc />
-        public async ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-            DateTime before, 
-            CancellationToken cancellationToken
-        )
-        {
-            using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
-
-            return _memoryStoreDataContainer.ScheduledJobs
-                .Values
-                .Where(job => job.NextRunDate <= before)
-                .ToList();
-        }
+        return _memoryStoreDataContainer.ScheduledJobs
+            .Values
+            .Where(job => job.NextRunDate <= before)
+            .ToList();
     }
 }

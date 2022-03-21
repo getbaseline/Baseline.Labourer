@@ -1,20 +1,19 @@
 using System;
 using Baseline.Labourer.Internal;
 
-namespace Baseline.Labourer.Tests
-{
-    public class TestDateTimeProvider : IDateTimeProvider
-    {
-        private Func<DateTime> _dateTimer = () => DateTime.UtcNow;
-        
-        public DateTime UtcNow()
-        {
-            return _dateTimer();
-        }
+namespace Baseline.Labourer.Tests;
 
-        public void SetUtcNow(DateTime dateTime)
-        {
-            _dateTimer = () => dateTime;
-        }
+public class TestDateTimeProvider : IDateTimeProvider
+{
+    private Func<DateTime> _dateTimer = () => DateTime.UtcNow;
+        
+    public DateTime UtcNow()
+    {
+        return _dateTimer();
+    }
+
+    public void SetUtcNow(DateTime dateTime)
+    {
+        _dateTimer = () => dateTime;
     }
 }

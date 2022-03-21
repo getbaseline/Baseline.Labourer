@@ -1,18 +1,17 @@
 using System;
 
-namespace Baseline.Labourer.Internal
+namespace Baseline.Labourer.Internal;
+
+/// <summary>
+/// Standard implementation of the <see cref="IDateTimeProvider"/> interface.
+/// </summary>
+public class DateTimeProvider : IDateTimeProvider
 {
     /// <summary>
-    /// Standard implementation of the <see cref="IDateTimeProvider"/> interface.
+    /// Gets the current date and time in UTC format.
     /// </summary>
-    public class DateTimeProvider : IDateTimeProvider
+    public DateTime UtcNow()
     {
-        /// <summary>
-        /// Gets the current date and time in UTC format.
-        /// </summary>
-        public DateTime UtcNow()
-        {
-            return DateTime.UtcNow;
-        }
+        return DateTime.UtcNow;
     }
 }
