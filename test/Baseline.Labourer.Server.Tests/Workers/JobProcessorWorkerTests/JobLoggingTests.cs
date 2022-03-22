@@ -36,29 +36,24 @@ public class JobLoggingTests : ServerTest
             return this;
         }
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
 
         public static bool HasLoggedMessage(string message)
         {
             return LoggedMessages.Contains(message);
         }
     }
+
     protected new class TestLoggerFactory : ILoggerFactory
     {
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
 
         public ILogger CreateLogger(string categoryName)
         {
             return new TestLogger();
         }
 
-        public void AddProvider(ILoggerProvider provider)
-        {
-        }
+        public void AddProvider(ILoggerProvider provider) { }
     }
 
     public JobLoggingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -94,13 +89,15 @@ public class JobLoggingTests : ServerTest
         var jobId = await Client.DispatchJobAsync<LoggerTestJob>();
 
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            TestLogger.HasLoggedMessage("Message one.");
-            TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message one.");
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                TestLogger.HasLoggedMessage("Message one.");
+                TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message one.");
 
-            TestLogger.HasLoggedMessage("Message two.");
-            TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message two.");
-        });
+                TestLogger.HasLoggedMessage("Message two.");
+                TestStoreDataContainer.AssertMessageForJobLogged(jobId, "Message two.");
+            }
+        );
     }
 }

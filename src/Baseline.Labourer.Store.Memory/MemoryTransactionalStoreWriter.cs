@@ -16,21 +16,26 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
 
     private readonly List<ServerInstance> _serverInstancesToCreate = new List<ServerInstance>();
 
-    private readonly Dictionary<string, List<DateTime>> _heartbeatsToCreate = new Dictionary<string, List<DateTime>>();
+    private readonly Dictionary<string, List<DateTime>> _heartbeatsToCreate =
+        new Dictionary<string, List<DateTime>>();
 
     private readonly List<Worker> _workersToCreate = new List<Worker>();
 
-    private readonly List<ScheduledJobDefinition> _scheduledJobsToCreate = new List<ScheduledJobDefinition>();
+    private readonly List<ScheduledJobDefinition> _scheduledJobsToCreate =
+        new List<ScheduledJobDefinition>();
 
     private readonly Dictionary<string, List<Action<ScheduledJobDefinition>>> _scheduledJobUpdates =
         new Dictionary<string, List<Action<ScheduledJobDefinition>>>();
 
     private readonly List<string> _scheduledJobDeletions = new List<string>();
 
-    private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate = new List<DispatchedJobDefinition>();
-        
-    private readonly Dictionary<string, List<Action<DispatchedJobDefinition>>> _jobDefinitionUpdates = 
-        new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
+    private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate =
+        new List<DispatchedJobDefinition>();
+
+    private readonly Dictionary<
+        string,
+        List<Action<DispatchedJobDefinition>>
+    > _jobDefinitionUpdates = new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
 
     public MemoryTransactionalStoreWriter(MemoryStoreDataContainer memoryStoreDataContainer)
     {
@@ -58,7 +63,8 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
         {
             if (!_memoryStoreDataContainer.ServerWorkers.ContainsKey(worker.ServerInstanceId))
             {
-                _memoryStoreDataContainer.ServerWorkers[worker.ServerInstanceId] = new List<Worker>();
+                _memoryStoreDataContainer.ServerWorkers[worker.ServerInstanceId] =
+                    new List<Worker>();
             }
 
             _memoryStoreDataContainer.ServerWorkers[worker.ServerInstanceId].Add(worker);
@@ -66,12 +72,15 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
 
         foreach (var scheduledJobAdd in _scheduledJobsToCreate)
         {
-            _memoryStoreDataContainer.ScheduledJobs.Add(scheduledJobAdd.Id, scheduledJobAdd);    
+            _memoryStoreDataContainer.ScheduledJobs.Add(scheduledJobAdd.Id, scheduledJobAdd);
         }
 
         foreach (var scheduledJobUpdate in _scheduledJobUpdates)
         {
-            _memoryStoreDataContainer.ScheduledJobs.TryGetValue(scheduledJobUpdate.Key, out var scheduledJobToUpdate);
+            _memoryStoreDataContainer.ScheduledJobs.TryGetValue(
+                scheduledJobUpdate.Key,
+                out var scheduledJobToUpdate
+            );
 
             if (scheduledJobToUpdate == null)
             {
@@ -93,7 +102,9 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
 
         foreach (var jobUpdate in _jobDefinitionUpdates)
         {
-            var jobToUpdate = _memoryStoreDataContainer.DispatchedJobs.FirstOrDefault(job => job.Id == jobUpdate.Key);
+            var jobToUpdate = _memoryStoreDataContainer.DispatchedJobs.FirstOrDefault(
+                job => job.Id == jobUpdate.Key
+            );
             if (jobToUpdate == null)
             {
                 continue;
@@ -107,14 +118,20 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken)
+    public ValueTask CreateServerAsync(
+        ServerInstance serverInstance,
+        CancellationToken cancellationToken
+    )
     {
         _serverInstancesToCreate.Add(serverInstance);
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(string serverId, CancellationToken cancellationToken)
+    public ValueTask CreateServerHeartbeatAsync(
+        string serverId,
+        CancellationToken cancellationToken
+    )
     {
         if (!_heartbeatsToCreate.ContainsKey(serverId))
         {
@@ -187,7 +204,11 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken)
+    public ValueTask UpdateJobRetriesAsync(
+        string jobId,
+        uint retries,
+        CancellationToken cancellationToken
+    )
     {
         UpdateJob(jobId, job => job.Retries = retries);
         return new ValueTask();
@@ -215,8 +236,8 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
 
     /// <inheritdoc />
     public ValueTask UpdateScheduledJobNextRunDateAsync(
-        string jobId, 
-        DateTime nextRunDate, 
+        string jobId,
+        DateTime nextRunDate,
         CancellationToken cancellationToken
     )
     {
@@ -224,7 +245,11 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
         return new ValueTask();
     }
 
-    public ValueTask UpdateScheduledJobLastRunDateAsync(string jobId, DateTime? lastRunDate, CancellationToken cancellationToken)
+    public ValueTask UpdateScheduledJobLastRunDateAsync(
+        string jobId,
+        DateTime? lastRunDate,
+        CancellationToken cancellationToken
+    )
     {
         UpdateScheduledJob(jobId, job => job.LastRunDate = lastRunDate);
         return new ValueTask();
@@ -246,7 +271,7 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
         {
             _scheduledJobUpdates[jobId] = new List<Action<ScheduledJobDefinition>>();
         }
-            
+
         _scheduledJobUpdates[jobId].Add(updateAction);
     }
 }

@@ -4,7 +4,8 @@ public class ClientTest
 {
     protected LabourerClient Client { get; }
 
-    protected TestMemoryStoreDataContainer TestStoreDataContainer { get; } = new TestMemoryStoreDataContainer();
+    protected TestMemoryStoreDataContainer TestStoreDataContainer { get; } =
+        new TestMemoryStoreDataContainer();
 
     protected TestDateTimeProvider TestDateTimeProvider { get; } = new TestDateTimeProvider();
 

@@ -22,17 +22,17 @@ public class ServerContext
     /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
     /// </summary>
     public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
     /// </summary>
     public RetryConfiguration DefaultRetryConfiguration { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the amount of job processing workers to run within this particular server.
     /// </summary>
     public int JobProcessingWorkersToRun { get; set; } = 1;
-        
+
     /// <summary>
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
@@ -48,7 +48,7 @@ public class ServerContext
     /// Gets or sets the queue instance to be utilised within the server.
     /// </summary>
     public IQueue Queue { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the interval between each run of the scheduled job processor.
     /// </summary>
@@ -70,17 +70,21 @@ public class ServerContext
     /// </summary>
     public IStore Store { get; set; }
 
-    public ServerContext(ServerInstance serverInstance, BaselineLabourerServerConfiguration labourerServerConfiguration)
+    public ServerContext(
+        ServerInstance serverInstance,
+        BaselineLabourerServerConfiguration labourerServerConfiguration
+    )
     {
         // validate configuration
-            
+
         Activator = labourerServerConfiguration.Activator;
         AdditionalDispatchedJobMiddlewares = labourerServerConfiguration.DispatchedJobMiddlewares!;
         DefaultRetryConfiguration = labourerServerConfiguration.DefaultRetryConfiguration;
         JobRetryConfigurations = labourerServerConfiguration.JobRetryConfigurations;
-        LoggerFactory = labourerServerConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
+        LoggerFactory =
+            labourerServerConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
         Queue = labourerServerConfiguration.Queue!;
-        ScheduledJobProcessorInterval = labourerServerConfiguration.ScheduledJobProcessorInterval; 
+        ScheduledJobProcessorInterval = labourerServerConfiguration.ScheduledJobProcessorInterval;
         ServerInstance = serverInstance;
         ShutdownTokenSource = labourerServerConfiguration.ShutdownTokenSource;
         Store = labourerServerConfiguration.Store!;
@@ -92,14 +96,14 @@ public class ServerContext
     /// </summary>
     /// <param name="writer">A transactionized writer to use.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task BeatAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
+    public async Task BeatAsync(
+        ITransactionalStoreWriter writer,
+        CancellationToken cancellationToken
+    )
     {
-        await writer.CreateServerHeartbeatAsync(
-            ServerInstance.Id,
-            cancellationToken
-        );
+        await writer.CreateServerHeartbeatAsync(ServerInstance.Id, cancellationToken);
     }
-        
+
     /// <summary>
     /// Identies and returns whether any additional dispatched job middlewares have been configured.
     /// </summary>

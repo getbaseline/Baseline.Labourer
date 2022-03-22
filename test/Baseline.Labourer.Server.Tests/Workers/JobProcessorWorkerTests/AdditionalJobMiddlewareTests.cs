@@ -17,27 +17,40 @@ public class AdditionalJobMiddlewareTests : ServerTest
         public static bool JobFailed;
         public static bool JobStarted;
         public static bool JobFailedAndExceededRetries;
-        
-        public override ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
+
+        public override ValueTask JobCompletedAsync(
+            JobContext jobContext,
+            CancellationToken cancellationToken
+        )
         {
             JobCompleted = true;
             return new ValueTask();
         }
 
-        public override ValueTask<MiddlewareContinuation> JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken)
+        public override ValueTask<MiddlewareContinuation> JobFailedAsync(
+            JobContext jobContext,
+            Exception? exception,
+            CancellationToken cancellationToken
+        )
         {
             JobFailed = true;
             return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
         }
 
-        public override ValueTask JobFailedAndExceededRetriesAsync(JobContext jobContext, Exception? exception,
-            CancellationToken cancellationToken)
+        public override ValueTask JobFailedAndExceededRetriesAsync(
+            JobContext jobContext,
+            Exception? exception,
+            CancellationToken cancellationToken
+        )
         {
             JobFailedAndExceededRetries = true;
             return new ValueTask();
         }
 
-        public override ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
+        public override ValueTask JobStartedAsync(
+            JobContext jobContext,
+            CancellationToken cancellationToken
+        )
         {
             JobStarted = true;
             return new ValueTask();
@@ -59,26 +72,27 @@ public class AdditionalJobMiddlewareTests : ServerTest
             throw new NotImplementedException();
         }
     }
-        
+
     public AdditionalJobMiddlewareTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-    {
-    }
+    { }
 
     [Fact]
     public async Task It_Dispatches_User_Defined_JobStarted_And_JobCompleted_Job_Middlewares()
     {
         // Arrange.
         RunWorker(typeof(TestJobMiddleware));
-            
+
         // Act.
         await Client.DispatchJobAsync<SimpleQueuedJob>();
-            
+
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            TestJobMiddleware.JobStarted.Should().BeTrue();
-            TestJobMiddleware.JobCompleted.Should().BeTrue();
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                TestJobMiddleware.JobStarted.Should().BeTrue();
+                TestJobMiddleware.JobCompleted.Should().BeTrue();
+            }
+        );
     }
 
     [Fact]
@@ -86,25 +100,27 @@ public class AdditionalJobMiddlewareTests : ServerTest
     {
         // Arrange.
         RunWorker(typeof(TestJobMiddleware));
-            
+
         // Act.
         await Client.DispatchJobAsync<JobThatWillFail>();
-            
+
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            TestJobMiddleware.JobFailed.Should().BeTrue();
-            TestJobMiddleware.JobFailedAndExceededRetries.Should().BeTrue();
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                TestJobMiddleware.JobFailed.Should().BeTrue();
+                TestJobMiddleware.JobFailedAndExceededRetries.Should().BeTrue();
+            }
+        );
     }
 
     public class NoContinueMiddleware : JobMiddleware
     {
         public static bool Ran;
-            
+
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
-            JobContext jobContext, 
-            Exception? exception, 
+            JobContext jobContext,
+            Exception? exception,
             CancellationToken cancellationToken
         )
         {
@@ -116,14 +132,14 @@ public class AdditionalJobMiddlewareTests : ServerTest
     public class AfterContinueMiddleware : JobMiddleware
     {
         public static bool Ran;
-            
+
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
-            JobContext jobContext, 
-            Exception? exception, 
+            JobContext jobContext,
+            Exception? exception,
             CancellationToken cancellationToken
         )
         {
-            Ran = true;    
+            Ran = true;
             return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
         }
     }
@@ -133,25 +149,31 @@ public class AdditionalJobMiddlewareTests : ServerTest
     {
         // Arrange.
         RunWorker(typeof(NoContinueMiddleware), typeof(AfterContinueMiddleware));
-            
+
         // Act.
         await Client.DispatchJobAsync<JobThatWillFail>();
-            
+
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            NoContinueMiddleware.Ran.Should().BeTrue();
-            AfterContinueMiddleware.Ran.Should().BeFalse();
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                NoContinueMiddleware.Ran.Should().BeTrue();
+                AfterContinueMiddleware.Ran.Should().BeFalse();
+            }
+        );
     }
 
     public class NoContinueOnErrorMiddleware : JobMiddleware
     {
         public static bool Ran;
-        
+
         public override bool ContinueExecutingMiddlewaresOnFailure { get; } = false;
 
-        public override ValueTask<MiddlewareContinuation> JobFailedAsync(JobContext jobContext, Exception? exception, CancellationToken cancellationToken)
+        public override ValueTask<MiddlewareContinuation> JobFailedAsync(
+            JobContext jobContext,
+            Exception? exception,
+            CancellationToken cancellationToken
+        )
         {
             Ran = true;
             throw new ArgumentException("Failure here.");
@@ -163,24 +185,29 @@ public class AdditionalJobMiddlewareTests : ServerTest
     {
         // Arrange.
         RunWorker(typeof(NoContinueOnErrorMiddleware), typeof(AfterContinueMiddleware));
-            
+
         // Act.
         await Client.DispatchJobAsync<JobThatWillFail>();
-            
+
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            NoContinueOnErrorMiddleware.Ran.Should().BeTrue();
-            AfterContinueMiddleware.Ran.Should().BeFalse();
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                NoContinueOnErrorMiddleware.Ran.Should().BeTrue();
+                AfterContinueMiddleware.Ran.Should().BeFalse();
+            }
+        );
     }
 
     private void RunWorker(params Type[] jobMiddlewares)
     {
         Task.Run(
-            async () => await new LabourerServer(
-                GenerateServerConfiguration(s => s.DispatchedJobMiddlewares = jobMiddlewares.ToList())
-            ).RunServerAsync()
+            async () =>
+                await new LabourerServer(
+                    GenerateServerConfiguration(
+                        s => s.DispatchedJobMiddlewares = jobMiddlewares.ToList()
+                    )
+                ).RunServerAsync()
         );
     }
 }

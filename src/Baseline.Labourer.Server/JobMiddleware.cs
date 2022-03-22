@@ -14,15 +14,18 @@ public abstract class JobMiddleware : IJobMiddleware
     public virtual bool ContinueExecutingMiddlewaresOnFailure => true;
 
     /// <inheritdoc />
-    public virtual ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
+    public virtual ValueTask JobCompletedAsync(
+        JobContext jobContext,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
     public virtual ValueTask<MiddlewareContinuation> JobFailedAsync(
-        JobContext jobContext, 
-        Exception? exception, 
+        JobContext jobContext,
+        Exception? exception,
         CancellationToken cancellationToken
     )
     {
@@ -31,16 +34,19 @@ public abstract class JobMiddleware : IJobMiddleware
 
     /// <inheritdoc />
     public virtual ValueTask JobFailedAndExceededRetriesAsync(
-        JobContext jobContext, 
+        JobContext jobContext,
         Exception? exception,
         CancellationToken cancellationToken
     )
     {
         return new ValueTask();
     }
-        
+
     /// <inheritdoc />
-    public virtual ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
+    public virtual ValueTask JobStartedAsync(
+        JobContext jobContext,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }

@@ -13,7 +13,7 @@ public interface IJobMiddleware
     /// Gets whether or not further middlewares should be executed on failures of this one.
     /// </summary>
     bool ContinueExecutingMiddlewaresOnFailure { get; }
-        
+
     /// <summary>
     /// Called when a job is completed.
     /// </summary>
@@ -31,8 +31,8 @@ public interface IJobMiddleware
     /// A <see cref="MiddlewareContinuation"/> value indicating whether the rest of the middlewares in the chain should run.
     /// </returns>
     ValueTask<MiddlewareContinuation> JobFailedAsync(
-        JobContext jobContext, 
-        Exception? exception, 
+        JobContext jobContext,
+        Exception? exception,
         CancellationToken cancellationToken
     );
 
@@ -47,7 +47,7 @@ public interface IJobMiddleware
         Exception? exception,
         CancellationToken cancellationToken
     );
-        
+
     /// <summary>
     /// Called when a job is started.
     /// </summary>

@@ -4,7 +4,7 @@ namespace Baseline.Labourer.Server;
 
 /// <summary>
 /// IActivator is a contract that defines what any activator (i.e. those creating instances of jobs, middleware etc)
-/// must implement. 
+/// must implement.
 /// </summary>
 public interface IActivator
 {

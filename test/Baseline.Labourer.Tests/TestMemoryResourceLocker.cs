@@ -5,9 +5,7 @@ namespace Baseline.Labourer.Tests;
 public class TestMemoryResourceLocker : MemoryResourceLocker
 {
     public TestMemoryResourceLocker(
-        MemoryStoreDataContainer memoryStoreDataContainer, 
+        MemoryStoreDataContainer memoryStoreDataContainer,
         IDateTimeProvider dateTimeProvider
-    ) : base(memoryStoreDataContainer, dateTimeProvider)
-    {
-    }
+    ) : base(memoryStoreDataContainer, dateTimeProvider) { }
 }

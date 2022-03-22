@@ -10,10 +10,8 @@ namespace Baseline.Labourer;
 /// </summary>
 public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransactionalStoreWriter
 {
-    public SqliteTransactionalStoreWriter(string connectionString) : base(connectionString)
-    {
-    }
-    
+    public SqliteTransactionalStoreWriter(string connectionString) : base(connectionString) { }
+
     /// <inheritdoc />
     public ValueTask DisposeAsync()
     {
@@ -27,13 +25,19 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken)
+    public ValueTask CreateServerAsync(
+        ServerInstance serverInstance,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(string serverId, CancellationToken cancellationToken)
+    public ValueTask CreateServerHeartbeatAsync(
+        string serverId,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
@@ -45,14 +49,19 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateDispatchedJobAsync(DispatchedJobDefinition definition, CancellationToken cancellationToken)
+    public ValueTask CreateDispatchedJobAsync(
+        DispatchedJobDefinition definition,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateOrUpdateScheduledJobAsync(ScheduledJobDefinition scheduledJobDefinition,
-        CancellationToken cancellationToken)
+    public ValueTask CreateOrUpdateScheduledJobAsync(
+        ScheduledJobDefinition scheduledJobDefinition,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
@@ -64,26 +73,42 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken)
+    public ValueTask UpdateJobRetriesAsync(
+        string jobId,
+        uint retries,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobStateAsync(string jobId, JobStatus jobStatus, DateTime? finishedDate,
-        CancellationToken cancellationToken = default)
+    public ValueTask UpdateJobStateAsync(
+        string jobId,
+        JobStatus jobStatus,
+        DateTime? finishedDate,
+        CancellationToken cancellationToken = default
+    )
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobNextRunDateAsync(string jobId, DateTime nextRunDate, CancellationToken cancellationToken)
+    public ValueTask UpdateScheduledJobNextRunDateAsync(
+        string jobId,
+        DateTime nextRunDate,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobLastRunDateAsync(string jobId, DateTime? lastRunDate, CancellationToken cancellationToken)
+    public ValueTask UpdateScheduledJobLastRunDateAsync(
+        string jobId,
+        DateTime? lastRunDate,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }

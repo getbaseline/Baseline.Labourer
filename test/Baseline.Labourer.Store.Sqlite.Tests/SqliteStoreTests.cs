@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
@@ -16,14 +15,16 @@ public class SqliteStoreTests : BaseSqliteTest
 
         // Act.
         await store.BootstrapAsync();
-        
+
         // Assert.
-        var entriesInVersionTable = (long)new SqliteCommand("SELECT count(1) FROM bl_lb_version_history", Connection)
-            .ExecuteScalar()!;
-        
+        var entriesInVersionTable = (long)new SqliteCommand(
+            "SELECT count(1) FROM bl_lb_version_history",
+            Connection
+        ).ExecuteScalar()!;
+
         entriesInVersionTable.Should().Be(1);
     }
-        
+
     [Fact]
     public async Task It_Does_Not_Run_The_Same_Migrations_Twice()
     {
@@ -33,11 +34,13 @@ public class SqliteStoreTests : BaseSqliteTest
         // Act.
         await store.BootstrapAsync();
         await store.BootstrapAsync();
-        
+
         // Assert.
-        var entriesInVersionTable = (long)new SqliteCommand("SELECT count(1) FROM bl_lb_version_history", Connection)
-            .ExecuteScalar()!;
-        
+        var entriesInVersionTable = (long)new SqliteCommand(
+            "SELECT count(1) FROM bl_lb_version_history",
+            Connection
+        ).ExecuteScalar()!;
+
         entriesInVersionTable.Should().Be(1);
     }
 }

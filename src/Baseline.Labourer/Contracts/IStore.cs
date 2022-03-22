@@ -12,17 +12,17 @@ public interface IStore
     /// Gets the job log store.
     /// </summary>
     IJobLogStore JobLogStore { get; }
-        
+
     /// <summary>
     /// Gets the resource locker.
     /// </summary>
     IResourceLocker ResourceLocker { get; }
-        
+
     /// <summary>
     /// Gets the store reader.
     /// </summary>
     IStoreReader Reader { get; }
-        
+
     /// <summary>
     /// Gets the store writer transaction manager.
     /// </summary>

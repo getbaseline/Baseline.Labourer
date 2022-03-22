@@ -17,10 +17,12 @@ public class BaseDependencyInjectionTest
 
     protected BaseDependencyInjectionTest(ITestOutputHelper testOutputHelper)
     {
-        _loggerFactory = LoggerFactory.Create(logging =>
-        {
-            logging.AddXUnit(testOutputHelper);
-        });
+        _loggerFactory = LoggerFactory.Create(
+            logging =>
+            {
+                logging.AddXUnit(testOutputHelper);
+            }
+        );
     }
 
     protected void ConfigureServices(Action<IServiceProvider, LabourerBuilder> builder)

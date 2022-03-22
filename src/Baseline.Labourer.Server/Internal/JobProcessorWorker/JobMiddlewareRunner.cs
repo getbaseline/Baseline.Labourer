@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Baseline.Labourer.Server.Internal;
 
 /// <summary>
-/// Runs the relevant middlewares for dispatched jobs. 
+/// Runs the relevant middlewares for dispatched jobs.
 /// </summary>
 internal class JobMiddlewareRunner
 {
@@ -32,7 +32,10 @@ internal class JobMiddlewareRunner
     /// </summary>
     /// <param name="jobContext">The job that is being ran's context.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async ValueTask JobCompletedAsync(JobContext jobContext, CancellationToken cancellationToken)
+    public async ValueTask JobCompletedAsync(
+        JobContext jobContext,
+        CancellationToken cancellationToken
+    )
     {
         await ExecuteAllMiddlewaresAsync(
             async m =>
@@ -91,7 +94,10 @@ internal class JobMiddlewareRunner
     /// </summary>
     /// <param name="jobContext">The job that is being ran's context.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async ValueTask JobStartedAsync(JobContext jobContext, CancellationToken cancellationToken)
+    public async ValueTask JobStartedAsync(
+        JobContext jobContext,
+        CancellationToken cancellationToken
+    )
     {
         await ExecuteAllMiddlewaresAsync(
             async m =>
@@ -117,11 +123,12 @@ internal class JobMiddlewareRunner
             catch (Exception e)
             {
                 _logger.LogError(
-                    jobContext, 
-                    "Middleware {middlewareType} failed to execute.", 
+                    jobContext,
+                    "Middleware {middlewareType} failed to execute.",
                     e,
-                    middleware.GetType());
-                    
+                    middleware.GetType()
+                );
+
                 if (!middleware.ContinueExecutingMiddlewaresOnFailure)
                 {
                     _logger.LogDebug(
@@ -139,25 +146,27 @@ internal class JobMiddlewareRunner
         {
             foreach (var middlewareType in _serverContext.AdditionalDispatchedJobMiddlewares)
             {
-                var activatedMiddleware = (IJobMiddleware) _serverContext.Activator.ActivateType(middlewareType);
-                    
+                var activatedMiddleware = (IJobMiddleware)_serverContext.Activator.ActivateType(
+                    middlewareType
+                );
+
                 try
                 {
                     var cont = await toExecute(activatedMiddleware);
                     if (cont == MiddlewareContinuation.Abort)
                     {
                         break;
-                    }   
+                    }
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(
-                        jobContext, 
-                        "Consumer provided middleware {middlewareType} failed to execute.", 
+                        jobContext,
+                        "Consumer provided middleware {middlewareType} failed to execute.",
                         e,
                         middlewareType.Name
                     );
-                    
+
                     if (!activatedMiddleware.ContinueExecutingMiddlewaresOnFailure)
                     {
                         _logger.LogDebug(

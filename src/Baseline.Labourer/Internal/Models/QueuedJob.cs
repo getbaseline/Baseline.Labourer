@@ -34,9 +34,12 @@ public class QueuedJob
     /// <param name="obj">The object to compare.</param>
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
+        if (ReferenceEquals(null, obj))
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        if (obj.GetType() != GetType())
+            return false;
         return Equals((QueuedJob)obj);
     }
 
@@ -55,6 +58,9 @@ public class QueuedJob
     /// <param name="cancellationToken">A cancellation token.</param>
     public async Task<T> DeserializeAsync<T>(CancellationToken cancellationToken)
     {
-        return await SerializationUtils.DeserializeFromStringAsync<T>(SerializedDefinition, cancellationToken);
+        return await SerializationUtils.DeserializeFromStringAsync<T>(
+            SerializedDefinition,
+            cancellationToken
+        );
     }
 }

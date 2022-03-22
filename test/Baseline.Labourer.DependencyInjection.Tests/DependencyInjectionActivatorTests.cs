@@ -27,13 +27,13 @@ public class DependencyInjectionActivatorTests
         {
             _dependency = dependency;
         }
-            
+
         public void Run()
         {
             _dependency.DoSomething();
         }
     }
-        
+
     [Fact]
     public void It_Successfully_Resolves_Jobs_And_Things_With_Dependencies_From_The_Container()
     {
@@ -43,10 +43,10 @@ public class DependencyInjectionActivatorTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var activator = new DependencyInjectionActivator(serviceProvider);
-            
+
         // Act.
         (activator.ActivateType(typeof(HasDependencyInjected)) as HasDependencyInjected)!.Run();
-            
+
         // Assert.
         Dependency.Ran.Should().BeTrue();
     }
@@ -54,14 +54,12 @@ public class DependencyInjectionActivatorTests
     public class ProvidedLogger : ILogger<HasLoggerInjected>
     {
         public void Log<TState>(
-            LogLevel logLevel, 
-            EventId eventId, 
-            TState state, 
-            Exception exception, 
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
             Func<TState, Exception, string> formatter
-        )
-        {
-        }
+        ) { }
 
         public bool IsEnabled(LogLevel logLevel)
         {
@@ -74,17 +72,15 @@ public class DependencyInjectionActivatorTests
         }
     }
 
-    public class SecondaryDependency
-    {
-    }
-        
+    public class SecondaryDependency { }
+
     public class HasLoggerInjected
     {
         public static Type InjectedLoggerType;
-            
+
         public HasLoggerInjected(
-            Dependency dependency, 
-            ILogger<HasLoggerInjected> logger, 
+            Dependency dependency,
+            ILogger<HasLoggerInjected> logger,
             SecondaryDependency secondaryDependency
         )
         {
@@ -102,10 +98,12 @@ public class DependencyInjectionActivatorTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var activator = new DependencyInjectionActivator(serviceProvider);
-            
+
         // Act.
-        var _ = activator.ActivateType(typeof(HasLoggerInjected), new ProvidedLogger()) as HasLoggerInjected;
-            
+        var _ =
+            activator.ActivateType(typeof(HasLoggerInjected), new ProvidedLogger())
+            as HasLoggerInjected;
+
         // Assert.
         HasLoggerInjected.InjectedLoggerType.Should().Be(typeof(ProvidedLogger));
     }

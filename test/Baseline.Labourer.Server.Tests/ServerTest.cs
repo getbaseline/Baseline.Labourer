@@ -14,7 +14,8 @@ public class ServerTest : IDisposable
 
     protected readonly TestMemoryQueue TestMemoryQueue;
 
-    protected readonly TestMemoryStoreDataContainer TestStoreDataContainer = new TestMemoryStoreDataContainer();
+    protected readonly TestMemoryStoreDataContainer TestStoreDataContainer =
+        new TestMemoryStoreDataContainer();
 
     protected readonly TestDateTimeProvider TestDateTimeProvider = new TestDateTimeProvider();
 
@@ -26,17 +27,20 @@ public class ServerTest : IDisposable
 
     public ServerTest(ITestOutputHelper testOutputHelper)
     {
-        TestLoggerFactory = LoggerFactory.Create(logger =>
-        {
-            logger
-                .AddXUnit(testOutputHelper)
-                .SetMinimumLevel(LogLevel.Debug);
-        });
+        TestLoggerFactory = LoggerFactory.Create(
+            logger =>
+            {
+                logger.AddXUnit(testOutputHelper).SetMinimumLevel(LogLevel.Debug);
+            }
+        );
 
         TestMemoryQueue = new TestMemoryQueue(TestDateTimeProvider);
-        TestResourceLocker = new TestMemoryResourceLocker(TestStoreDataContainer, TestDateTimeProvider);
+        TestResourceLocker = new TestMemoryResourceLocker(
+            TestStoreDataContainer,
+            TestDateTimeProvider
+        );
         TestMemoryStore = new TestMemoryStore(TestStoreDataContainer, TestDateTimeProvider);
-            
+
         Client = new LabourerClient(
             new BaselineLabourerClientConfiguration
             {
@@ -47,7 +51,9 @@ public class ServerTest : IDisposable
         );
     }
 
-    public BaselineLabourerServerConfiguration GenerateServerConfiguration(Action<BaselineLabourerServerConfiguration>? configuror = null)
+    public BaselineLabourerServerConfiguration GenerateServerConfiguration(
+        Action<BaselineLabourerServerConfiguration>? configuror = null
+    )
     {
         var configuration = new BaselineLabourerServerConfiguration
         {
@@ -61,7 +67,7 @@ public class ServerTest : IDisposable
             JobProcessingWorkersToRun = 1,
             DateTimeProvider = TestDateTimeProvider
         };
-            
+
         configuror?.Invoke(configuration);
 
         return configuration;

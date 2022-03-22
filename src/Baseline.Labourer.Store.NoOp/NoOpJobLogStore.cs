@@ -9,7 +9,10 @@ namespace Baseline.Labourer;
 public class NoOpJobLogStore : IJobLogStore
 {
     /// <inheritdoc />
-    public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
-    {
-    }
+    public void LogEntryForJob(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception
+    ) { }
 }

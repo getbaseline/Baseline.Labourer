@@ -18,16 +18,24 @@ public static class SerializationUtils
     /// <param name="obj"></param>
     /// <param name="cancellationToken"></param>
     /// <typeparam name="T"></typeparam>
-    public static async Task<string> SerializeToStringAsync<T>(T obj, CancellationToken cancellationToken = default)
+    public static async Task<string> SerializeToStringAsync<T>(
+        T obj,
+        CancellationToken cancellationToken = default
+    )
     {
         await using var memoryStream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(memoryStream, obj, new JsonSerializerOptions(), cancellationToken);
+        await JsonSerializer.SerializeAsync(
+            memoryStream,
+            obj,
+            new JsonSerializerOptions(),
+            cancellationToken
+        );
         memoryStream.Seek(0, SeekOrigin.Begin);
         return await new StreamReader(memoryStream).ReadToEndAsync();
     }
 
     /// <summary>
-    /// Deserializes a string into an object defined by the type parameter. 
+    /// Deserializes a string into an object defined by the type parameter.
     /// </summary>
     /// <param name="serialized"></param>
     /// <param name="type"></param>
@@ -39,7 +47,14 @@ public static class SerializationUtils
     )
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-        return (await JsonSerializer.DeserializeAsync(stream, type, new JsonSerializerOptions(), cancellationToken))!;
+        return (
+            await JsonSerializer.DeserializeAsync(
+                stream,
+                type,
+                new JsonSerializerOptions(),
+                cancellationToken
+            )
+        )!;
     }
 
     /// <summary>
@@ -54,6 +69,12 @@ public static class SerializationUtils
     )
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-        return (await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions(), cancellationToken))!;
+        return (
+            await JsonSerializer.DeserializeAsync<T>(
+                stream,
+                new JsonSerializerOptions(),
+                cancellationToken
+            )
+        )!;
     }
 }

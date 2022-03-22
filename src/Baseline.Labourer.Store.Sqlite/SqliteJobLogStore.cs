@@ -8,12 +8,15 @@ namespace Baseline.Labourer;
 /// </summary>
 public class SqliteJobLogStore : BaseSqliteInteractor, IJobLogStore
 {
-    public SqliteJobLogStore(string connectionString) : base(connectionString)
-    {
-    }
-    
+    public SqliteJobLogStore(string connectionString) : base(connectionString) { }
+
     /// <inheritdoc />
-    public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
+    public void LogEntryForJob(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception
+    )
     {
         throw new NotImplementedException();
     }

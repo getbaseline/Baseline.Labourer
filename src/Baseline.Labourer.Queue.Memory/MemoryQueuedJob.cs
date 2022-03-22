@@ -12,16 +12,16 @@ public class MemoryQueuedJob : QueuedJob
     /// Gets or sets the visibility delay of the memory queued job.
     /// </summary>
     public TimeSpan? VisibilityDelay { get; set; }
-        
+
     /// <summary>
-    /// Gets or sets when the message was enqueued. 
+    /// Gets or sets when the message was enqueued.
     /// </summary>
     public DateTime EnqueuedAt { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the previous visibility delay (if there is one). This is used to monitor the visibility delay
     /// and perform assertions when the message was enqueued because, once the message is read, it's automatically
-    /// hidden for a period of time to prevent any additional workers from querying it. 
+    /// hidden for a period of time to prevent any additional workers from querying it.
     /// </summary>
     public TimeSpan? PreviousVisibilityDelay { get; set; }
 }

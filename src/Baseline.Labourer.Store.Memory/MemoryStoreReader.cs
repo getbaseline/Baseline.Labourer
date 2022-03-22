@@ -8,7 +8,7 @@ using Baseline.Labourer.Internal;
 namespace Baseline.Labourer;
 
 /// <summary>
-/// Store reader implementation for the memory store. 
+/// Store reader implementation for the memory store.
 /// </summary>
 public class MemoryStoreReader : IStoreReader
 {
@@ -21,14 +21,13 @@ public class MemoryStoreReader : IStoreReader
 
     /// <inheritdoc />
     public async ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-        DateTime before, 
+        DateTime before,
         CancellationToken cancellationToken
     )
     {
         using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
-        return _memoryStoreDataContainer.ScheduledJobs
-            .Values
+        return _memoryStoreDataContainer.ScheduledJobs.Values
             .Where(job => job.NextRunDate <= before)
             .ToList();
     }

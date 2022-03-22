@@ -12,7 +12,8 @@ public class LabourerServerBuilder
     /// <summary>
     /// Gets or sets the default amount of retries that apply to a job. Defaults to 3.
     /// </summary>
-    internal RetryConfiguration DefaultRetryConfiguration { get; set; } = RetryConfiguration.Default;
+    internal RetryConfiguration DefaultRetryConfiguration { get; set; } =
+        RetryConfiguration.Default;
 
     /// <summary>
     /// Gets or sets the middlewares used for dispatched jobs.
@@ -27,7 +28,8 @@ public class LabourerServerBuilder
     /// <summary>
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
-    internal Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } = new Dictionary<Type, RetryConfiguration>();
+    internal Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } =
+        new Dictionary<Type, RetryConfiguration>();
 
     /// <summary>
     /// Gets or sets the interval between each run of the scheduled job processor.

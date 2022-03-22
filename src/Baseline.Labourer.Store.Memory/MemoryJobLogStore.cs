@@ -17,21 +17,29 @@ public class MemoryJobLogStore : IJobLogStore
     }
 
     /// <inheritdoc />
-    public void LogEntryForJob(string jobId, LogLevel logLevel, string message, Exception? exception)
+    public void LogEntryForJob(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception
+    )
     {
-        Task
-            .Run(async () =>
-            {
-                using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
-
-                _memoryStoreDataContainer.LogEntries.Add(new MemoryLogEntry
+        Task.Run(
+                async () =>
                 {
-                    JobId = jobId,
-                    LogLevel = logLevel,
-                    Message = message,
-                    Exception = exception
-                });
-            })
+                    using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
+
+                    _memoryStoreDataContainer.LogEntries.Add(
+                        new MemoryLogEntry
+                        {
+                            JobId = jobId,
+                            LogLevel = logLevel,
+                            Message = message,
+                            Exception = exception
+                        }
+                    );
+                }
+            )
             .ConfigureAwait(false);
     }
 }

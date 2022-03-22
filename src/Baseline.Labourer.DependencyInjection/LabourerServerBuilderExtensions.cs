@@ -33,7 +33,7 @@ public static class LabourerServerBuilderExtensions
         serverBuilder.JobRetryConfigurations[typeof(T)] = retryConfiguration;
         return serverBuilder;
     }
-        
+
     /// <summary>
     /// Configures the global retry configuration for all jobs.
     /// Can be overriden by utilising the <see cref="AddRetryConfigurationForJobType{T}"/> method.
@@ -78,5 +78,5 @@ public static class LabourerServerBuilderExtensions
     {
         serverBuilder.ScheduledJobProcessorInterval = delayBetweenCheckingForScheduledJobs;
         return serverBuilder;
-    }   
+    }
 }

@@ -11,8 +11,8 @@ public class RetryConfigurationTests
     {
         // Act.
         // ReSharper disable once ObjectCreationAsStatement
-        Action act = () => new RetryConfiguration(3, new[] {TimeSpan.Zero, TimeSpan.Zero});
-            
+        Action act = () => new RetryConfiguration(3, new[] { TimeSpan.Zero, TimeSpan.Zero });
+
         // Assert.
         act.Should().ThrowExactly<ArgumentException>();
     }

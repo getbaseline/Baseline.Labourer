@@ -6,7 +6,7 @@ namespace Baseline.Labourer.Tests;
 public class TestDateTimeProvider : IDateTimeProvider
 {
     private Func<DateTime> _dateTimer = () => DateTime.UtcNow;
-        
+
     public DateTime UtcNow()
     {
         return _dateTimer();

@@ -40,7 +40,9 @@ public interface ILabourerClient
         string cronExpression,
         TParams jobParameters,
         CancellationToken cancellationToken = default
-    ) where TJob : IJob<TParams> where TParams : class;
+    )
+        where TJob : IJob<TParams>
+        where TParams : class;
 
     /// <summary>
     /// Deletes a scheduled job.
@@ -48,12 +50,13 @@ public interface ILabourerClient
     /// <param name="nameOrId">The name or id of the scheduled job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     Task DeleteScheduledJobAsync(string nameOrId, CancellationToken cancellationToken = default);
-        
+
     /// <summary>
     /// Dispatches a job without parameters to run immediately and returns the created id of the job.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task<string> DispatchJobAsync<TJob>(CancellationToken cancellationToken = default) where TJob : IJob;
+    Task<string> DispatchJobAsync<TJob>(CancellationToken cancellationToken = default)
+        where TJob : IJob;
 
     /// <summary>
     /// Dispatches a job with parameters to run immediately and returns the created id of the job.
@@ -66,5 +69,7 @@ public interface ILabourerClient
     Task<string> DispatchJobAsync<TParams, TJob>(
         TParams jobParameters,
         CancellationToken cancellationToken = default
-    ) where TJob : IJob<TParams> where TParams : class;
+    )
+        where TJob : IJob<TParams>
+        where TParams : class;
 }

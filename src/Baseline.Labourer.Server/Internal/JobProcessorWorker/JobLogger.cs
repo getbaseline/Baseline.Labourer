@@ -13,11 +13,7 @@ internal class JobLogger : ILogger
     private readonly ILogger _wrappedLogger;
     private readonly IJobLogStore _jobLogStore;
 
-    public JobLogger(
-        string jobId,
-        ILogger wrappedLogger,
-        IJobLogStore jobLogStore
-    )
+    public JobLogger(string jobId, ILogger wrappedLogger, IJobLogStore jobLogStore)
     {
         _jobId = jobId;
         _wrappedLogger = wrappedLogger;
@@ -40,12 +36,7 @@ internal class JobLogger : ILogger
                 _wrappedLogger.Log(logLevel, eventId, state, exception, formatter);
             }
 
-            _jobLogStore.LogEntryForJob(
-                _jobId,
-                logLevel,
-                formatter(state, exception),
-                exception
-            );
+            _jobLogStore.LogEntryForJob(_jobId, logLevel, formatter(state, exception), exception);
         }
         catch (Exception)
         {
@@ -67,8 +58,6 @@ internal class JobLogger : ILogger
 
     private class NoOpDisposable : IDisposable
     {
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
     }
 }

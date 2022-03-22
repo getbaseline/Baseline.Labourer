@@ -8,7 +8,7 @@ namespace Baseline.Labourer;
 public abstract class BaseSqliteInteractor
 {
     private readonly string _connectionString;
-    
+
     protected BaseSqliteInteractor(string connectionString)
     {
         _connectionString = connectionString;

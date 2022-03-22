@@ -11,7 +11,8 @@ public class DispatchedJobDefinition : JobDefinition
     /// <summary>
     /// Gets or sets the identifier of the dispatched job.
     /// </summary>
-    public string Id { get; set; } = $"{ResourceKeyPrefixes.DispatchedJob}{StringGenerationUtils.GenerateUniqueRandomString()}";
+    public string Id { get; set; } =
+        $"{ResourceKeyPrefixes.DispatchedJob}{StringGenerationUtils.GenerateUniqueRandomString()}";
 
     /// <summary>
     /// Gets or sets the amount of retries the job has had executed.
@@ -28,9 +29,7 @@ public class DispatchedJobDefinition : JobDefinition
     /// </summary>
     public DateTime? FinishedAt { get; set; }
 
-    public DispatchedJobDefinition()
-    {
-    }
+    public DispatchedJobDefinition() { }
 
     public DispatchedJobDefinition(JobDefinition jobDefinition)
     {

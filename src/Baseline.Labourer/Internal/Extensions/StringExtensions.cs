@@ -15,7 +15,7 @@ internal static class StringExtensions
             .ToLower()
             .Replace(ResourceKeyPrefixes.ScheduledJob, string.Empty)
             .Replace(" ", "-");
-            
+
         return $"{ResourceKeyPrefixes.ScheduledJob}{normalizedName}";
     }
 }

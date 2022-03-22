@@ -11,7 +11,7 @@ public class AsyncComposableDisposable : IAsyncDisposable
     {
         _action = action;
     }
-        
+
     public async ValueTask DisposeAsync()
     {
         await _action();

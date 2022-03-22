@@ -12,13 +12,13 @@ public class SqliteStore : BaseSqliteInteractor, IStore
 {
     /// <inheritdoc />
     public IJobLogStore JobLogStore { get; }
-    
+
     /// <inheritdoc />
     public IResourceLocker ResourceLocker { get; }
-    
+
     /// <inheritdoc />
     public IStoreReader Reader { get; }
-    
+
     /// <inheritdoc />
     public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
@@ -29,23 +29,26 @@ public class SqliteStore : BaseSqliteInteractor, IStore
         Reader = new SqliteReader(connectionString);
         WriterTransactionManager = new SqliteStoreWriterTransactionManager(connectionString);
     }
-    
+
     /// <inheritdoc />
     public async ValueTask BootstrapAsync()
     {
         await using var connection = NewConnection();
         var transaction = connection.BeginTransaction();
-        
+
         CreateMigrationsTableIfNotExists(connection, transaction);
         await MigrateAsync(connection, transaction);
-        
+
         transaction.Commit();
     }
 
-    private void CreateMigrationsTableIfNotExists(SqliteConnection connection, SqliteTransaction transaction)
+    private void CreateMigrationsTableIfNotExists(
+        SqliteConnection connection,
+        SqliteTransaction transaction
+    )
     {
         var createCommand = new SqliteCommand(
-            "CREATE TABLE IF NOT EXISTS bl_lb_version_history (migration TEXT NOT NULL);", 
+            "CREATE TABLE IF NOT EXISTS bl_lb_version_history (migration TEXT NOT NULL);",
             connection,
             transaction
         );
@@ -53,16 +56,15 @@ public class SqliteStore : BaseSqliteInteractor, IStore
         createCommand.ExecuteNonQuery();
     }
 
-    private static async ValueTask MigrateAsync(SqliteConnection connection, SqliteTransaction transaction)
+    private static async ValueTask MigrateAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction
+    )
     {
         var assembly = typeof(SqliteStore).Assembly;
         var availableMigrations = assembly
             .GetManifestResourceNames()
-            .Select(r => new
-            {
-                Name = r,
-                Contents = assembly.GetManifestResourceStream(r)
-            });
+            .Select(r => new { Name = r, Contents = assembly.GetManifestResourceStream(r) });
 
         foreach (var migration in availableMigrations)
         {
@@ -70,12 +72,16 @@ public class SqliteStore : BaseSqliteInteractor, IStore
             {
                 continue;
             }
-            
+
             await MigrateFileAsync(migration.Name, migration.Contents!, connection, transaction);
         }
     }
 
-    private static bool MigrationAlreadyRan(string name, SqliteConnection connection, SqliteTransaction transaction)
+    private static bool MigrationAlreadyRan(
+        string name,
+        SqliteConnection connection,
+        SqliteTransaction transaction
+    )
     {
         var alreadyRanCommand = new SqliteCommand(
             "SELECT COUNT(1) FROM bl_lb_version_history WHERE migration = @Migration",
@@ -85,18 +91,18 @@ public class SqliteStore : BaseSqliteInteractor, IStore
 
         alreadyRanCommand.Parameters.Add(new SqliteParameter("@Migration", name));
 
-        return (long) alreadyRanCommand.ExecuteScalar()! > 0;
+        return (long)alreadyRanCommand.ExecuteScalar()! > 0;
     }
 
     private static async Task MigrateFileAsync(
-        string name, 
-        Stream contents, 
-        SqliteConnection connection, 
+        string name,
+        Stream contents,
+        SqliteConnection connection,
         SqliteTransaction transaction
     )
     {
         var migrationFileContents = await new StreamReader(contents).ReadToEndAsync();
-        
+
         var migrationCommand = new SqliteCommand(migrationFileContents, connection, transaction);
         await migrationCommand.ExecuteNonQueryAsync();
 

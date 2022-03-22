@@ -55,7 +55,7 @@ public interface ITransactionalStoreWriter : IAsyncDisposable
     /// <param name="scheduledJobDefinition">The definition of the scheduled job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     ValueTask CreateOrUpdateScheduledJobAsync(
-        ScheduledJobDefinition scheduledJobDefinition, 
+        ScheduledJobDefinition scheduledJobDefinition,
         CancellationToken cancellationToken
     );
 
@@ -73,7 +73,11 @@ public interface ITransactionalStoreWriter : IAsyncDisposable
     /// <param name="jobId">The job id to update the retries for.</param>
     /// <param name="retries">The retries to save against the job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken);
+    ValueTask UpdateJobRetriesAsync(
+        string jobId,
+        uint retries,
+        CancellationToken cancellationToken
+    );
 
     /// <summary>
     /// Updates the state of a job in the context of the current transaction.
@@ -96,8 +100,8 @@ public interface ITransactionalStoreWriter : IAsyncDisposable
     /// <param name="nextRunDate">The next run date of the job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     ValueTask UpdateScheduledJobNextRunDateAsync(
-        string jobId, 
-        DateTime nextRunDate, 
+        string jobId,
+        DateTime nextRunDate,
         CancellationToken cancellationToken
     );
 
@@ -108,8 +112,8 @@ public interface ITransactionalStoreWriter : IAsyncDisposable
     /// <param name="lastRunDate">The last run date of the job.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     ValueTask UpdateScheduledJobLastRunDateAsync(
-        string jobId, 
-        DateTime? lastRunDate, 
+        string jobId,
+        DateTime? lastRunDate,
         CancellationToken cancellationToken
     );
 }

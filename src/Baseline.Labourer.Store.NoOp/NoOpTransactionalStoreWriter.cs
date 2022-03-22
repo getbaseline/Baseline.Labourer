@@ -23,13 +23,19 @@ public class NoOpTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(ServerInstance serverInstance, CancellationToken cancellationToken)
+    public ValueTask CreateServerAsync(
+        ServerInstance serverInstance,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(string serverId, CancellationToken cancellationToken)
+    public ValueTask CreateServerHeartbeatAsync(
+        string serverId,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }
@@ -65,7 +71,11 @@ public class NoOpTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries, CancellationToken cancellationToken)
+    public ValueTask UpdateJobRetriesAsync(
+        string jobId,
+        uint retries,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }

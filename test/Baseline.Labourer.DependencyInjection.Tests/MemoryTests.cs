@@ -13,42 +13,41 @@ public class MemoryTests : BaseDependencyInjectionTest
     {
         public static bool Ran;
 
-        public Job()
-        {
-                
-        }
-            
+        public Job() { }
+
         public ValueTask HandleAsync(CancellationToken cancellationToken)
         {
             Ran = true;
             return new ValueTask();
         }
     }
-        
-    public MemoryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-    {
-    }
-        
+
+    public MemoryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+
     [Fact]
     public async Task It_Can_Create_And_Run_Baseline_By_Using_The_NoOp_Queue_And_Store()
     {
         // Arrange.
-        ConfigureServices((sp, builder) =>
-        {
-            builder.UseLoggerFactoryResolvedFromContainer(sp);
-            builder.UseMemoryStore();
-            builder.UseMemoryQueue();
-        });
+        ConfigureServices(
+            (sp, builder) =>
+            {
+                builder.UseLoggerFactoryResolvedFromContainer(sp);
+                builder.UseMemoryStore();
+                builder.UseMemoryQueue();
+            }
+        );
 
         RunServer();
 
         // Act.
         await Client.DispatchJobAsync<Job>();
-            
+
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            Job.Ran.Should().BeTrue();
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                Job.Ran.Should().BeTrue();
+            }
+        );
     }
 }

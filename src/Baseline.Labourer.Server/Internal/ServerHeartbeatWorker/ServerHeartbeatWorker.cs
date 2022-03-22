@@ -35,18 +35,26 @@ internal class ServerHeartbeatWorker : IWorker
                     return;
                 }
 
-                await using (var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction())
+                await using (
+                    var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction()
+                )
                 {
                     await _serverContext.BeatAsync(writer, CancellationToken.None);
                     await writer.CommitAsync(CancellationToken.None);
                 }
 
-                await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(TimeSpan.FromSeconds(30));
+                await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(
+                    TimeSpan.FromSeconds(30)
+                );
             }
         }
-        catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
+        catch (TaskCanceledException e)
+            when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
         {
-            _logger.LogInformation(_serverContext, "Shut down request received. Shutting down gracefully (hopefully).");
+            _logger.LogInformation(
+                _serverContext,
+                "Shut down request received. Shutting down gracefully (hopefully)."
+            );
         }
         catch (Exception e)
         {

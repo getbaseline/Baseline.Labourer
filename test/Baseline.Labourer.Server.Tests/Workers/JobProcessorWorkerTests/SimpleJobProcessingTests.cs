@@ -49,7 +49,10 @@ public class SimpleJobProcessingTests : ServerTest
     {
         public static int Count;
 
-        public Task HandleAsync(SimpleQueuedJobWithParamsParams parameters, CancellationToken cancellationToken)
+        public Task HandleAsync(
+            SimpleQueuedJobWithParamsParams parameters,
+            CancellationToken cancellationToken
+        )
         {
             Count = parameters.Count;
             return Task.CompletedTask;
@@ -110,12 +113,21 @@ public class SimpleJobProcessingTests : ServerTest
         var jobId = await Client.DispatchJobAsync<MarkedAsInProgressJob>();
 
         // Assert.
-        await AssertionUtils.RetryAsync(() => TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.InProgress));
-        await AssertionUtils.RetryAsync(() =>
-        {
-            TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
-            TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
-        }, 25, 500);
+        await AssertionUtils.RetryAsync(
+            () => TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.InProgress)
+        );
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(
+                    jobId,
+                    DateTime.UtcNow
+                );
+            },
+            25,
+            500
+        );
     }
 
     public class MultipleJobsJob : IJob
@@ -131,18 +143,25 @@ public class SimpleJobProcessingTests : ServerTest
     {
         // Act.
         var jobIds = await Task.WhenAll(
-            Enumerable.Range(0, 100)
+            Enumerable
+                .Range(0, 100)
                 .Select(async _ => await Client.DispatchJobAsync<MultipleJobsJob>())
         );
 
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            foreach (var jobId in jobIds)
+        await AssertionUtils.RetryAsync(
+            () =>
             {
-                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
-                TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(jobId, DateTime.UtcNow);
-            }
-        }, 50);
+                foreach (var jobId in jobIds)
+                {
+                    TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
+                    TestStoreDataContainer.AssertJobHasFinishedAtValueWithin5SecondsOf(
+                        jobId,
+                        DateTime.UtcNow
+                    );
+                }
+            },
+            50
+        );
     }
 }

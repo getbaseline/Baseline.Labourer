@@ -21,12 +21,12 @@ public class ScheduledJobDefinition : JobDefinition
     /// Gets or sets the cron expression used to define when the job will be executed and/or reoccur.
     /// </summary>
     public string CronExpression { get; set; } = null!;
-        
+
     /// <summary>
     /// Gets or sets when the job last completed.
     /// </summary>
     public DateTime? LastCompletedDate { get; set; }
-        
+
     /// <summary>
     /// Gets or sets when the job last ran.
     /// </summary>
@@ -68,7 +68,7 @@ public class ScheduledJobDefinition : JobDefinition
     /// <param name="dateTimeProvider">A date time provider used to retrieve the current time.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public async Task UpdateLastRunDateAsync(
-        ITransactionalStoreWriter writer, 
+        ITransactionalStoreWriter writer,
         IDateTimeProvider dateTimeProvider,
         CancellationToken cancellationToken
     )

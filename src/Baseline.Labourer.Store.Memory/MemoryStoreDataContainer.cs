@@ -17,12 +17,14 @@ public class MemoryStoreDataContainer
     /// <summary>
     /// Gets the jobs that have been dispatched.
     /// </summary>
-    public List<DispatchedJobDefinition> DispatchedJobs { get; } = new List<DispatchedJobDefinition>();
+    public List<DispatchedJobDefinition> DispatchedJobs { get; } =
+        new List<DispatchedJobDefinition>();
 
     /// <summary>
     /// Gets or sets the locks that have been made against resources.
     /// </summary>
-    public Dictionary<string, List<MemoryLock>> Locks { get; } = new Dictionary<string, List<MemoryLock>>();
+    public Dictionary<string, List<MemoryLock>> Locks { get; } =
+        new Dictionary<string, List<MemoryLock>>();
 
     /// <summary>
     /// Gets the log entries that have been created.
@@ -32,7 +34,7 @@ public class MemoryStoreDataContainer
     /// <summary>
     /// Gets the scheduled jobs that have been created.
     /// </summary>
-    public Dictionary<string, ScheduledJobDefinition> ScheduledJobs { get; } = 
+    public Dictionary<string, ScheduledJobDefinition> ScheduledJobs { get; } =
         new Dictionary<string, ScheduledJobDefinition>();
 
     /// <summary>
@@ -43,12 +45,14 @@ public class MemoryStoreDataContainer
     /// <summary>
     /// Gets the server workers that have been created.
     /// </summary>
-    public Dictionary<string, List<Worker>> ServerWorkers { get; } = new Dictionary<string, List<Worker>>();
+    public Dictionary<string, List<Worker>> ServerWorkers { get; } =
+        new Dictionary<string, List<Worker>>();
 
     /// <summary>
     /// Gets the server heartbeats that have been created.
     /// </summary>
-    public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } = new Dictionary<string, List<DateTime>>();
+    public Dictionary<string, List<DateTime>> ServerHeartbeats { get; } =
+        new Dictionary<string, List<DateTime>>();
 
     /// <summary>
     /// Acquires a "lock" on the data source, preventing anyone else that calls this method from updating whilst the first callee has the lock.

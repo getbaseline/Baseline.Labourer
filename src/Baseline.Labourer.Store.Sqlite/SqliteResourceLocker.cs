@@ -9,12 +9,14 @@ namespace Baseline.Labourer;
 /// </summary>
 public class SqliteResourceLocker : BaseSqliteInteractor, IResourceLocker
 {
-    public SqliteResourceLocker(string connectionString) : base(connectionString)
-    {
-    }
-    
+    public SqliteResourceLocker(string connectionString) : base(connectionString) { }
+
     /// <inheritdoc />
-    public Task<IAsyncDisposable> LockResourceAsync(string resource, TimeSpan @for, CancellationToken cancellationToken)
+    public Task<IAsyncDisposable> LockResourceAsync(
+        string resource,
+        TimeSpan @for,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }

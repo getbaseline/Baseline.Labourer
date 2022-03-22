@@ -15,9 +15,7 @@ internal class JobProcessorWorker : IWorker
     private readonly ServerContext _serverContext;
     private readonly ILogger<JobProcessorWorker> _logger;
 
-    public JobProcessorWorker(
-        ServerContext serverContext
-    )
+    public JobProcessorWorker(ServerContext serverContext)
     {
         _serverContext = serverContext;
         _logger = serverContext.LoggerFactory.CreateLogger<JobProcessorWorker>();
@@ -50,10 +48,7 @@ internal class JobProcessorWorker : IWorker
 
         await using (var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction())
         {
-            await writer.CreateWorkerAsync(
-                worker,
-                CancellationToken.None
-            );
+            await writer.CreateWorkerAsync(worker, CancellationToken.None);
             await writer.CommitAsync(CancellationToken.None);
         }
 
@@ -83,13 +78,19 @@ internal class JobProcessorWorker : IWorker
                     continue;
                 }
 
-                await new JobMessageHandler(workerContext)
-                    .HandleMessageAsync(dequeuedMessage, CancellationToken.None);
+                await new JobMessageHandler(workerContext).HandleMessageAsync(
+                    dequeuedMessage,
+                    CancellationToken.None
+                );
             }
         }
-        catch (TaskCanceledException e) when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
+        catch (TaskCanceledException e)
+            when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
         {
-            _logger.LogInformation(workerContext, "Shut down request received. Shutting down gracefully (hopefully).");
+            _logger.LogInformation(
+                workerContext,
+                "Shut down request received. Shutting down gracefully (hopefully)."
+            );
         }
         catch (Exception e)
         {

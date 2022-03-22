@@ -13,7 +13,7 @@ public class NoOpReader : IStoreReader
 {
     /// <inheritdoc />
     public ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-        DateTime before, 
+        DateTime before,
         CancellationToken cancellationToken
     )
     {

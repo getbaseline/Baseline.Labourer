@@ -20,7 +20,9 @@ public class DispatchJobTests : ClientTest
             jobDefinition,
             CancellationToken.None
         );
-            
-        TestMemoryQueue.AssertMessageDispatched(j => j.SerializedDefinition == serialisedJobDefinition);
+
+        TestMemoryQueue.AssertMessageDispatched(
+            j => j.SerializedDefinition == serialisedJobDefinition
+        );
     }
 }

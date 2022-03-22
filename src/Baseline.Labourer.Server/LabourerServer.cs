@@ -28,24 +28,28 @@ public class LabourerServer
         var serverContext = new ServerContext(serverInstance, _labourerServerConfiguration);
 
         await RunServerBootTasksAsync(serverContext);
-            
+
         await Task.WhenAll(
             new ServerHeartbeatWorker(serverContext).RunAsync(),
-            new ScheduledJobDispatcherWorker(serverContext, _labourerServerConfiguration.DateTimeProvider).RunAsync(),
+            new ScheduledJobDispatcherWorker(
+                serverContext,
+                _labourerServerConfiguration.DateTimeProvider
+            ).RunAsync(),
             new JobProcessorWorker(serverContext).RunAsync()
         );
     }
 
     private async Task<ServerInstance> CreateServerInstanceAsync()
     {
-        await using var writer = _labourerServerConfiguration.Store!.WriterTransactionManager.BeginTransaction();
+        await using var writer =
+            _labourerServerConfiguration.Store!.WriterTransactionManager.BeginTransaction();
 
         var serverInstance = new ServerInstance
         {
             Hostname = Dns.GetHostName(),
             Key = StringGenerationUtils.GenerateUniqueRandomString()
         };
-            
+
         await writer.CreateServerAsync(serverInstance, CancellationToken.None);
         await writer.CommitAsync(CancellationToken.None);
 

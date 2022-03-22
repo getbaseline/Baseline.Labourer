@@ -14,12 +14,12 @@ public class LabourerBuilder
     /// Gets or sets the logger factory to use.
     /// </summary>
     internal Func<ILoggerFactory>? LoggerFactory { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the queue to use.
     /// </summary>
     public IQueue? Queue { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the store to use.
     /// </summary>
@@ -54,7 +54,9 @@ public class LabourerBuilder
     /// <see cref="BaselineLabourerServerConfiguration"/> class that can be used to instantiate the server.
     /// </summary>
     /// <param name="serviceProvider">A service provider instance.</param>
-    public BaselineLabourerServerConfiguration ToServerConfiguration(IServiceProvider serviceProvider)
+    public BaselineLabourerServerConfiguration ToServerConfiguration(
+        IServiceProvider serviceProvider
+    )
     {
         return new BaselineLabourerServerConfiguration
         {

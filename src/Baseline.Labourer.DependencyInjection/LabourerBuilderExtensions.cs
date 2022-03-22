@@ -44,7 +44,7 @@ public static class LabourerBuilderExtensions
     /// <param name="builder">The builder instance.</param>
     /// <param name="loggerFactory">The logger factory instance.</param>
     public static LabourerBuilder UseThisLoggerFactory(
-        this LabourerBuilder builder, 
+        this LabourerBuilder builder,
         ILoggerFactory loggerFactory
     )
     {

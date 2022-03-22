@@ -10,20 +10,30 @@ namespace Baseline.Labourer.Store.Memory.Tests;
 
 public class MemoryResourceLockerTests
 {
-    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer = new TestMemoryStoreDataContainer();
+    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer =
+        new TestMemoryStoreDataContainer();
     private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
     private readonly TestMemoryResourceLocker _memoryResourceLocker;
 
     public MemoryResourceLockerTests()
     {
-        _memoryResourceLocker = new TestMemoryResourceLocker(_memoryStoreDataContainer, _dateTimeProvider);
+        _memoryResourceLocker = new TestMemoryResourceLocker(
+            _memoryStoreDataContainer,
+            _dateTimeProvider
+        );
     }
 
     [Fact]
     public async Task It_Removes_The_Lock_When_The_Disposable_Goes_Out_Of_Scope()
     {
         // Act.
-        await using (var _ = await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(100), CancellationToken.None))
+        await using (
+            var _ = await _memoryResourceLocker.LockResourceAsync(
+                "abc",
+                TimeSpan.FromSeconds(100),
+                CancellationToken.None
+            )
+        )
         {
             _memoryStoreDataContainer.Locks["abc"].Should().ContainSingle(l => l.Released == null);
         }
@@ -36,11 +46,18 @@ public class MemoryResourceLockerTests
     public async Task It_Throws_An_Exception_If_The_Resource_Is_Already_Locked()
     {
         // Arrange.
-        _memoryStoreDataContainer.Locks["abc"] = new[] { new MemoryLock { Until = DateTime.UtcNow.AddDays(1) } }.ToList();
+        _memoryStoreDataContainer.Locks["abc"] = new[]
+        {
+            new MemoryLock { Until = DateTime.UtcNow.AddDays(1) }
+        }.ToList();
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1), CancellationToken.None);
+            await _memoryResourceLocker.LockResourceAsync(
+                "abc",
+                TimeSpan.FromSeconds(1),
+                CancellationToken.None
+            );
 
         // Assert.
         await sut.Should().ThrowExactlyAsync<ResourceLockedException>();
@@ -59,7 +76,11 @@ public class MemoryResourceLockerTests
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1), CancellationToken.None);
+            await _memoryResourceLocker.LockResourceAsync(
+                "abc",
+                TimeSpan.FromSeconds(1),
+                CancellationToken.None
+            );
 
         // Assert.
         await sut.Should().NotThrowAsync<ResourceLockedException>();
@@ -80,7 +101,11 @@ public class MemoryResourceLockerTests
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1), CancellationToken.None);
+            await _memoryResourceLocker.LockResourceAsync(
+                "abc",
+                TimeSpan.FromSeconds(1),
+                CancellationToken.None
+            );
 
         // Assert.
         await sut.Should().NotThrowAsync<ResourceLockedException>();

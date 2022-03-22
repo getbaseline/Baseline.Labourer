@@ -17,9 +17,9 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogDebug(
-        this ILogger logger, 
-        ServerContext serverContext, 
-        string message, 
+        this ILogger logger,
+        ServerContext serverContext,
+        string message,
         params object[] args
     )
     {
@@ -27,7 +27,7 @@ internal static class LoggingExtensions
         {
             return;
         }
-            
+
         logger.LogInternal(serverContext, LogLevel.Debug, message, null, args);
     }
 
@@ -39,8 +39,8 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogDebug(
-        this ILogger logger, 
-        WorkerContext workerContext, 
+        this ILogger logger,
+        WorkerContext workerContext,
         string message,
         params object[] args
     )
@@ -49,7 +49,7 @@ internal static class LoggingExtensions
         {
             return;
         }
-            
+
         logger.LogInternal(workerContext, LogLevel.Debug, message, null, args);
     }
 
@@ -61,7 +61,7 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogDebug(
-        this ILogger logger, 
+        this ILogger logger,
         JobContext jobContext,
         string message,
         params object[] args
@@ -71,7 +71,7 @@ internal static class LoggingExtensions
         {
             return;
         }
-            
+
         logger.LogInternal(jobContext, LogLevel.Debug, message, null, args);
     }
 
@@ -83,9 +83,9 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogInformation(
-        this ILogger logger, 
-        ServerContext serverContext, 
-        string message, 
+        this ILogger logger,
+        ServerContext serverContext,
+        string message,
         params object[] args
     )
     {
@@ -105,9 +105,9 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogInformation(
-        this ILogger logger, 
-        WorkerContext workerContext, 
-        string message, 
+        this ILogger logger,
+        WorkerContext workerContext,
+        string message,
         params object[] args
     )
     {
@@ -127,8 +127,8 @@ internal static class LoggingExtensions
     /// <param name="message">The message to log.</param>
     /// <param name="args">Any arguments to log and interpolate into the message string.</param>
     public static void LogInformation(
-        this ILogger logger, 
-        JobContext jobContext, 
+        this ILogger logger,
+        JobContext jobContext,
         string message,
         params object[] args
     )
@@ -186,13 +186,7 @@ internal static class LoggingExtensions
             return;
         }
 
-        logger.LogInternal(
-            workerContext,
-            LogLevel.Error,
-            message,
-            exception,
-            args
-        );
+        logger.LogInternal(workerContext, LogLevel.Error, message, exception, args);
     }
 
     /// <summary>
@@ -216,13 +210,7 @@ internal static class LoggingExtensions
             return;
         }
 
-        logger.LogInternal(
-            jobContext,
-            LogLevel.Error,
-            message,
-            exception,
-            args
-        );
+        logger.LogInternal(jobContext, LogLevel.Error, message, exception, args);
     }
 
     private static void LogInternal(
@@ -238,9 +226,7 @@ internal static class LoggingExtensions
             logLevel,
             exception,
             "s:{serverId} - " + message,
-            new object[] { serverContext.ServerInstance.Id }
-                .Concat(args)
-                .ToArray()
+            new object[] { serverContext.ServerInstance.Id }.Concat(args).ToArray()
         );
     }
 
@@ -278,7 +264,12 @@ internal static class LoggingExtensions
             exception,
             // ReSharper disable StructuredMessageTemplateProblem
             "s:{serverId} w:{workerId} j:{jobId} - " + message,
-            new object[] { jobContext.WorkerContext.ServerContext.ServerInstance.Id, jobContext.WorkerContext.Worker.Id, jobContext.JobDefinition.Id }
+            new object[]
+            {
+                jobContext.WorkerContext.ServerContext.ServerInstance.Id,
+                jobContext.WorkerContext.Worker.Id,
+                jobContext.JobDefinition.Id
+            }
                 .Concat(args)
                 .ToArray()
         );

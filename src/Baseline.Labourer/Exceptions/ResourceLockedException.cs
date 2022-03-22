@@ -12,7 +12,8 @@ public class ResourceLockedException : Exception
     /// </summary>
     public string ResourceId { get; }
 
-    public ResourceLockedException(string resourceId) : base($"The resource {resourceId} is locked.")
+    public ResourceLockedException(string resourceId)
+        : base($"The resource {resourceId} is locked.")
     {
         ResourceId = resourceId;
     }

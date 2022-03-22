@@ -53,7 +53,10 @@ internal class JobExecutor
         if (_jobContext.JobDefinition.HasParameters)
         {
             var deserializedParameters = await DeserializeParametersFromContextAsync();
-            await ActivateAndExecuteJobWithMethodParametersAsync(deserializedParameters, CancellationToken.None);
+            await ActivateAndExecuteJobWithMethodParametersAsync(
+                deserializedParameters,
+                CancellationToken.None
+            );
         }
         else
         {
@@ -61,15 +64,18 @@ internal class JobExecutor
         }
     }
 
-    private async Task ActivateAndExecuteJobWithMethodParametersAsync(params object[] methodParameters)
+    private async Task ActivateAndExecuteJobWithMethodParametersAsync(
+        params object[] methodParameters
+    )
     {
         var jobType = _jobContext.JobType;
         var jobInstance = ActivateJobWithDefaults(_jobContext, jobType);
 
         await (
-            (ValueTask)jobType
-                .GetMethod(nameof(IJob.HandleAsync))!
-                .Invoke(jobInstance, methodParameters)
+            (ValueTask)jobType.GetMethod(nameof(IJob.HandleAsync))!.Invoke(
+                jobInstance,
+                methodParameters
+            )
         );
     }
 
@@ -93,6 +99,9 @@ internal class JobExecutor
             new JobLoggerFactory(jobContext)
         );
 
-        return jobContext.WorkerContext.ServerContext.Activator.ActivateType(jobType, genericLogger);
+        return jobContext.WorkerContext.ServerContext.Activator.ActivateType(
+            jobType,
+            genericLogger
+        );
     }
 }

@@ -9,26 +9,26 @@ public class MemoryStore : IStore
 {
     /// <inheritdoc />
     public IJobLogStore JobLogStore { get; }
-        
+
     /// <inheritdoc />
     public IResourceLocker ResourceLocker { get; }
-        
+
     /// <inheritdoc />
     public IStoreReader Reader { get; }
-        
+
     /// <inheritdoc />
     public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
-    public MemoryStore() : this(new MemoryStoreDataContainer())
-    {
-    }
+    public MemoryStore() : this(new MemoryStoreDataContainer()) { }
 
     public MemoryStore(MemoryStoreDataContainer memoryStoreDataContainer)
     {
         JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
         ResourceLocker = new MemoryResourceLocker(memoryStoreDataContainer);
         Reader = new MemoryStoreReader(memoryStoreDataContainer);
-        WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryStoreDataContainer);
+        WriterTransactionManager = new MemoryStoreWriterTransactionManager(
+            memoryStoreDataContainer
+        );
     }
 
     /// <inheritdoc />

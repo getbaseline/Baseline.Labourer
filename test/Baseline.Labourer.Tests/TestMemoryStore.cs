@@ -10,15 +10,20 @@ public class TestMemoryStore : IStore
     public IResourceLocker ResourceLocker { get; }
     public IStoreReader Reader { get; }
     public IStoreWriterTransactionManager WriterTransactionManager { get; }
-        
-    public TestMemoryStore(TestMemoryStoreDataContainer memoryStoreDataContainer, IDateTimeProvider dateTimeProvider)
+
+    public TestMemoryStore(
+        TestMemoryStoreDataContainer memoryStoreDataContainer,
+        IDateTimeProvider dateTimeProvider
+    )
     {
         JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
         ResourceLocker = new TestMemoryResourceLocker(memoryStoreDataContainer, dateTimeProvider);
         Reader = new MemoryStoreReader(memoryStoreDataContainer);
-        WriterTransactionManager = new MemoryStoreWriterTransactionManager(memoryStoreDataContainer);
+        WriterTransactionManager = new MemoryStoreWriterTransactionManager(
+            memoryStoreDataContainer
+        );
     }
-        
+
     public ValueTask BootstrapAsync()
     {
         Bootstrapped = true;

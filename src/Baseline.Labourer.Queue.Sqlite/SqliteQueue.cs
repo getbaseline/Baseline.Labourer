@@ -17,7 +17,11 @@ public class SqliteQueue : IQueue
     }
 
     /// <inheritdoc />
-    public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken)
+    public Task EnqueueAsync<T>(
+        T messageToQueue,
+        TimeSpan? visibilityDelay,
+        CancellationToken cancellationToken
+    )
     {
         throw new NotImplementedException();
     }

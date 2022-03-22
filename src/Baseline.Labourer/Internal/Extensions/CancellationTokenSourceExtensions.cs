@@ -16,7 +16,10 @@ public static class CancellationTokenSourceExtensions
     /// </summary>
     /// <param name="source">The cancellation token source.</param>
     /// <param name="timeSpan">A timespan to wait for before returning.</param>
-    public static async Task WaitForTimeOrCancellationAsync(this CancellationTokenSource source, TimeSpan timeSpan)
+    public static async Task WaitForTimeOrCancellationAsync(
+        this CancellationTokenSource source,
+        TimeSpan timeSpan
+    )
     {
         await Task.Delay(timeSpan, source.Token);
     }

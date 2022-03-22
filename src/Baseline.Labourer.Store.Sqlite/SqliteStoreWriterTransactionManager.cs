@@ -11,7 +11,7 @@ public class SqliteStoreWriterTransactionManager : IStoreWriterTransactionManage
     {
         _connectionString = connectionString;
     }
-    
+
     /// <inheritdoc />
     public ITransactionalStoreWriter BeginTransaction()
     {

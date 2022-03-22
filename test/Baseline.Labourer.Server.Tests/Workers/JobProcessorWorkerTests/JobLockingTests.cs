@@ -10,17 +10,18 @@ namespace Baseline.Labourer.Server.Tests.Workers.JobProcessorWorkerTests;
 
 public class JobLockingTests : ServerTest
 {
-    public JobLockingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-    {
-    }
-        
+    public JobLockingTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+
     [Fact]
     public async Task It_Fails_To_Execute_A_Job_If_The_Job_Is_Locked()
     {
         // Arrange.
         var jobId = await Client.DispatchJobAsync<BasicJob>();
-        TestStoreDataContainer.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
-            
+        TestStoreDataContainer.Locks.Add(
+            jobId,
+            new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } }
+        );
+
         // Act.
 #pragma warning disable CS4014
         Task.Run(
@@ -28,7 +29,7 @@ public class JobLockingTests : ServerTest
             async () => await new LabourerServer(GenerateServerConfiguration()).RunServerAsync()
         );
         await Task.Delay(1000);
-            
+
         // Assert.
         TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Created);
     }
@@ -38,8 +39,11 @@ public class JobLockingTests : ServerTest
     {
         // Arrange.
         var jobId = await Client.DispatchJobAsync<BasicSuccessfulJob>();
-        TestStoreDataContainer.Locks.Add(jobId, new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } });
-            
+        TestStoreDataContainer.Locks.Add(
+            jobId,
+            new List<MemoryLock> { new MemoryLock { Until = DateTime.UtcNow.AddHours(1) } }
+        );
+
         // Act.
 #pragma warning disable CS4014
         Task.Run(
@@ -51,9 +55,11 @@ public class JobLockingTests : ServerTest
         TestMemoryQueue.MakeAllMessagesVisible();
 
         // Assert.
-        await AssertionUtils.RetryAsync(() =>
-        {
-            TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
-        });
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                TestStoreDataContainer.AssertStatusForJobIs(jobId, JobStatus.Complete);
+            }
+        );
     }
 }

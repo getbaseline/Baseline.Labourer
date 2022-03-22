@@ -18,7 +18,11 @@ public class NoOpQueue : IQueue
     }
 
     /// <inheritdoc />
-    public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken)
+    public Task EnqueueAsync<T>(
+        T messageToQueue,
+        TimeSpan? visibilityDelay,
+        CancellationToken cancellationToken
+    )
     {
         return Task.CompletedTask;
     }

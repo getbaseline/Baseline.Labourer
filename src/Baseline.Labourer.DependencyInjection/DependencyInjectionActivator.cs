@@ -28,7 +28,7 @@ public class DependencyInjectionActivator : IActivator
         {
             return ActivatorUtilities.CreateInstance(scope.ServiceProvider, type);
         }
-            
+
         if (amountOfConstructors > 1)
         {
             throw new InvalidOperationException(
@@ -37,12 +37,16 @@ public class DependencyInjectionActivator : IActivator
         }
 
         var applicableOverrideParameters = overrideParameters.Where(
-            o => type.GetConstructors().First().GetParameters().Any(p => p.ParameterType.IsInstanceOfType(o))
+            o =>
+                type.GetConstructors()
+                    .First()
+                    .GetParameters()
+                    .Any(p => p.ParameterType.IsInstanceOfType(o))
         );
-            
+
         return ActivatorUtilities.CreateInstance(
-            scope.ServiceProvider, 
-            type, 
+            scope.ServiceProvider,
+            type,
             applicableOverrideParameters.ToArray()
         );
     }

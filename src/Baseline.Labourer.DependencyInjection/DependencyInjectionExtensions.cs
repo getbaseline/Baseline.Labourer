@@ -20,26 +20,32 @@ public static class DependencyInjectionExtensions
         Action<IServiceProvider, LabourerBuilder> labourerBuilder
     )
     {
-        serviceCollection.AddSingleton(serviceProvider =>
-        {
-            var builderInstance = new LabourerBuilder();
-            builderInstance.UseLoggerFactoryResolvedFromContainer(serviceProvider);
-            labourerBuilder(serviceProvider, builderInstance);
+        serviceCollection.AddSingleton(
+            serviceProvider =>
+            {
+                var builderInstance = new LabourerBuilder();
+                builderInstance.UseLoggerFactoryResolvedFromContainer(serviceProvider);
+                labourerBuilder(serviceProvider, builderInstance);
 
-            return builderInstance;
-        });
+                return builderInstance;
+            }
+        );
 
-        serviceCollection.AddSingleton<ILabourerClient, LabourerClient>(serviceProvider =>
-        {
-            var b = serviceProvider.GetService<LabourerBuilder>()!;
-            return new LabourerClient(b.ToClientConfiguration());
-        });
+        serviceCollection.AddSingleton<ILabourerClient, LabourerClient>(
+            serviceProvider =>
+            {
+                var b = serviceProvider.GetService<LabourerBuilder>()!;
+                return new LabourerClient(b.ToClientConfiguration());
+            }
+        );
 
-        serviceCollection.AddSingleton(serviceProvider =>
-        {
-            var b = serviceProvider.GetService<LabourerBuilder>()!;
-            return new LabourerServer(b.ToServerConfiguration(serviceProvider));
-        });
+        serviceCollection.AddSingleton(
+            serviceProvider =>
+            {
+                var b = serviceProvider.GetService<LabourerBuilder>()!;
+                return new LabourerServer(b.ToServerConfiguration(serviceProvider));
+            }
+        );
 
         return serviceCollection;
     }

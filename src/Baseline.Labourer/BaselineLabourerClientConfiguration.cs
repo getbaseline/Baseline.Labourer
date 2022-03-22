@@ -10,12 +10,12 @@ public class BaselineLabourerClientConfiguration
     /// the client and related projects.
     /// </summary>
     public Func<ILoggerFactory>? LoggerFactory { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the queue provider to use.
     /// </summary>
     public IQueue Queue { get; set; }
-        
+
     /// <summary>
     /// Gets or sets the store provider to use.
     /// </summary>

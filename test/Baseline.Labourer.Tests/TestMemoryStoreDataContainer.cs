@@ -21,11 +21,18 @@ public class TestMemoryStoreDataContainer : MemoryStoreDataContainer
         job!.Status.Should().Be(status);
     }
 
-    public DispatchedJobDefinition AssertJobWithTypesStored(Type jobType, Type? parametersType = null)
+    public DispatchedJobDefinition AssertJobWithTypesStored(
+        Type jobType,
+        Type? parametersType = null
+    )
     {
         var jobDefinition = DispatchedJobs.FirstOrDefault(
-            j => j.Type == jobType.AssemblyQualifiedName &&
-                 (parametersType == null || j.ParametersType == parametersType.AssemblyQualifiedName)
+            j =>
+                j.Type == jobType.AssemblyQualifiedName
+                && (
+                    parametersType == null
+                    || j.ParametersType == parametersType.AssemblyQualifiedName
+                )
         );
 
         if (jobDefinition == null)
@@ -80,7 +87,7 @@ public class TestMemoryStoreDataContainer : MemoryStoreDataContainer
     }
 
     public void AssertScheduledJobExists(
-        string id, 
+        string id,
         string? cronExpression = null,
         string? type = null,
         string? parametersType = null,

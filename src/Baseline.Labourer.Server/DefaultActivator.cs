@@ -16,7 +16,10 @@ public class DefaultActivator : IActivator
 
         // If there is only one constructor and that constructor is empty, we can just activate straight away
         // without any dependencies.
-        if (type.GetConstructors().Length == 1 && type.GetConstructors().First().GetParameters().Length == 0)
+        if (
+            type.GetConstructors().Length == 1
+            && type.GetConstructors().First().GetParameters().Length == 0
+        )
         {
             return Activator.CreateInstance(type);
         }
@@ -25,7 +28,9 @@ public class DefaultActivator : IActivator
         foreach (var constructor in type.GetConstructors())
         {
             var constructorParameters = constructor.GetParameters();
-            var constructorParameterTypes = constructorParameters.Select(c => c.ParameterType).ToList();
+            var constructorParameterTypes = constructorParameters
+                .Select(c => c.ParameterType)
+                .ToList();
 
             // If all constructor parameters are contained in our override parameters
             if (constructorParameterTypes.All(cpt => overrideParameters.Any(cpt.IsInstanceOfType)))
@@ -38,7 +43,7 @@ public class DefaultActivator : IActivator
         }
 
         return parametersToUse.Any()
-            ? Activator.CreateInstance(type, parametersToUse)
-            : Activator.CreateInstance(type);
+          ? Activator.CreateInstance(type, parametersToUse)
+          : Activator.CreateInstance(type);
     }
 }

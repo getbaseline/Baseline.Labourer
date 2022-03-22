@@ -24,7 +24,7 @@ public class JobDispatcher
     /// <param name="jobDefinition">The job definition to dispatch.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     public async Task<string> DispatchJobAsync(
-        DispatchedJobDefinition jobDefinition, 
+        DispatchedJobDefinition jobDefinition,
         CancellationToken cancellationToken
     )
     {

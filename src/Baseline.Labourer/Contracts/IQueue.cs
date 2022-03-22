@@ -14,7 +14,7 @@ public interface IQueue
     /// Bootstraps the queue implementation (for example running database migrations if the queue is database based).
     /// </summary>
     ValueTask BootstrapAsync();
-        
+
     /// <summary>
     /// Enqueues a message to the queue.
     /// </summary>
@@ -23,7 +23,11 @@ public interface IQueue
     /// An optional delay used to stop a message being visible in a queue for a defined timespan.
     /// </param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay, CancellationToken cancellationToken);
+    Task EnqueueAsync<T>(
+        T messageToQueue,
+        TimeSpan? visibilityDelay,
+        CancellationToken cancellationToken
+    );
 
     /// <summary>
     /// Dequeues and returns a single message from the queue. This method long polls (i.e. waits a specified amount

@@ -14,13 +14,11 @@ public class MemoryQueue : IQueue
 {
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
     private readonly IDateTimeProvider _dateTimeProvider;
-        
+
     protected List<MemoryQueuedJob> Queue { get; } = new List<MemoryQueuedJob>();
     protected List<MemoryQueuedJob> RemovedQueue { get; } = new List<MemoryQueuedJob>();
 
-    public MemoryQueue() : this(new DateTimeProvider())
-    {
-    }
+    public MemoryQueue() : this(new DateTimeProvider()) { }
 
     public MemoryQueue(IDateTimeProvider dateTimeProvider)
     {
@@ -44,16 +42,18 @@ public class MemoryQueue : IQueue
         {
             await _semaphore.WaitAsync(cancellationToken);
 
-            Queue.Add(new MemoryQueuedJob
-            {
-                MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
-                SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                    messageToQueue,
-                    cancellationToken
-                ),
-                VisibilityDelay = visibilityDelay,
-                EnqueuedAt = _dateTimeProvider.UtcNow()
-            });
+            Queue.Add(
+                new MemoryQueuedJob
+                {
+                    MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
+                    SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
+                        messageToQueue,
+                        cancellationToken
+                    ),
+                    VisibilityDelay = visibilityDelay,
+                    EnqueuedAt = _dateTimeProvider.UtcNow()
+                }
+            );
         }
         finally
         {
@@ -74,7 +74,9 @@ public class MemoryQueue : IQueue
                 await _semaphore.WaitAsync(cancellationToken);
 
                 var firstMessage = Queue.FirstOrDefault(
-                    q => q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero) <= _dateTimeProvider.UtcNow()
+                    q =>
+                        q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero)
+                        <= _dateTimeProvider.UtcNow()
                 );
 
                 if (firstMessage == null)
@@ -86,7 +88,9 @@ public class MemoryQueue : IQueue
                 }
 
                 firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
-                firstMessage.VisibilityDelay = (_dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt).Add(TimeSpan.FromSeconds(30));
+                firstMessage.VisibilityDelay = (
+                    _dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt
+                ).Add(TimeSpan.FromSeconds(30));
 
                 return firstMessage;
             }
@@ -110,7 +114,7 @@ public class MemoryQueue : IQueue
             await _semaphore.WaitAsync(cancellationToken);
 
             var messagesToRemove = Queue.Where(qm => qm.MessageId == messageId).ToList();
-                
+
             RemovedQueue.AddRange(messagesToRemove);
             Queue.RemoveAll(qm => messagesToRemove.Any(m => m.MessageId == qm.MessageId));
         }

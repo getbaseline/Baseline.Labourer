@@ -13,7 +13,7 @@ namespace Baseline.Labourer.Server;
 public class JobContext
 {
     /// <summary>
-    /// Gets or sets the id of the message that this 
+    /// Gets or sets the id of the message that this
     /// </summary>
     public string OriginalMessageId { get; set; }
 
@@ -27,13 +27,17 @@ public class JobContext
     /// </summary>
     public DispatchedJobDefinition JobDefinition { get; set; }
 
-    public JobContext(string originalMessageId, WorkerContext workerContext, DispatchedJobDefinition jobDefinition)
+    public JobContext(
+        string originalMessageId,
+        WorkerContext workerContext,
+        DispatchedJobDefinition jobDefinition
+    )
     {
         OriginalMessageId = originalMessageId;
         WorkerContext = workerContext;
         JobDefinition = jobDefinition;
     }
-        
+
     /// <summary>
     /// Alias to the server context's <see cref="IStoreWriterTransactionManager.BeginTransaction"/> method.
     /// </summary>
@@ -71,7 +75,9 @@ public class JobContext
         await writer.UpdateJobStateAsync(
             JobDefinition.Id,
             status,
-            status == JobStatus.Complete || status == JobStatus.FailedExceededMaximumRetries ? (DateTime?) DateTime.UtcNow : null,
+            status == JobStatus.Complete || status == JobStatus.FailedExceededMaximumRetries
+              ? (DateTime?)DateTime.UtcNow
+              : null,
             cancellationToken
         );
     }
@@ -81,7 +87,10 @@ public class JobContext
     /// </summary>
     /// <param name="writer">A transactionized store writer to use.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task IncrementJobRetriesAsync(ITransactionalStoreWriter writer, CancellationToken cancellationToken)
+    public async Task IncrementJobRetriesAsync(
+        ITransactionalStoreWriter writer,
+        CancellationToken cancellationToken
+    )
     {
         JobDefinition.Retries += 1;
 
@@ -98,7 +107,10 @@ public class JobContext
     /// <param name="cancellationToken">A cancellation token.</param>
     public async Task RemoveMessageFromQueueAsync(CancellationToken cancellationToken)
     {
-        await WorkerContext.ServerContext.Queue.DeleteMessageAsync(OriginalMessageId, cancellationToken);
+        await WorkerContext.ServerContext.Queue.DeleteMessageAsync(
+            OriginalMessageId,
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -108,8 +120,8 @@ public class JobContext
     public async Task RequeueJobAsync(CancellationToken cancellationToken)
     {
         await WorkerContext.ServerContext.Queue.EnqueueAsync(
-            JobDefinition, 
-            RetryDelayForJob(), 
+            JobDefinition,
+            RetryDelayForJob(),
             cancellationToken
         );
     }
