@@ -8,8 +8,12 @@ namespace Baseline.Labourer;
 /// <summary>
 /// An <see cref="ITransactionalStoreWriter"/> implementation that persists its information in a SQLite database.
 /// </summary>
-public class SqliteTransactionalStoreWriter : ITransactionalStoreWriter
+public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransactionalStoreWriter
 {
+    public SqliteTransactionalStoreWriter(string connectionString) : base(connectionString)
+    {
+    }
+    
     /// <inheritdoc />
     public ValueTask DisposeAsync()
     {

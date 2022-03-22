@@ -5,9 +5,16 @@
 /// </summary>
 public class SqliteStoreWriterTransactionManager : IStoreWriterTransactionManager
 {
+    private readonly string _connectionString;
+
+    public SqliteStoreWriterTransactionManager(string connectionString)
+    {
+        _connectionString = connectionString;
+    }
+    
     /// <inheritdoc />
     public ITransactionalStoreWriter BeginTransaction()
     {
-        throw new System.NotImplementedException();
+        return new SqliteTransactionalStoreWriter(_connectionString);
     }
 }

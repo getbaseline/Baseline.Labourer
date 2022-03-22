@@ -10,4 +10,13 @@
       <ProjectReference Include="..\Baseline.Labourer\Baseline.Labourer.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Migrations\0001_Create_Initial_Tables.sql" />
+      <EmbeddedResource Include="Migrations\0001_Create_Initial_Tables.sql" />
+    </ItemGroup>
+
 </Project>
