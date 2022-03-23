@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Xunit;
@@ -11,7 +12,7 @@ public class SqliteStoreTests : BaseSqliteTest
     public async Task It_Creates_The_Relevant_Tables_And_Migrates_The_Migrations()
     {
         // Arrange.
-        var store = new SqliteStore(ConnectionString);
+        var store = new SqliteStore(new DateTimeProvider(), ConnectionString);
 
         // Act.
         await store.BootstrapAsync();
@@ -29,7 +30,7 @@ public class SqliteStoreTests : BaseSqliteTest
     public async Task It_Does_Not_Run_The_Same_Migrations_Twice()
     {
         // Arrange.
-        var store = new SqliteStore(ConnectionString);
+        var store = new SqliteStore(new DateTimeProvider(), ConnectionString);
 
         // Act.
         await store.BootstrapAsync();

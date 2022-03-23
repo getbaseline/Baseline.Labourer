@@ -58,9 +58,9 @@ public class SqliteReaderTests : BaseSqliteTest
                 INSERT INTO bl_lb_scheduled_jobs (
                     name, 
                     cron_expression, 
-                    last_completed, 
-                    last_run, 
-                    next_run, 
+                    last_completed_at, 
+                    last_run_at, 
+                    next_run_at, 
                     type, 
                     parameters_type, 
                     parameters, 

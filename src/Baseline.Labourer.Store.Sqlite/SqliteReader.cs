@@ -28,16 +28,16 @@ public class SqliteReader : BaseSqliteInteractor, IStoreReader
                 SELECT 
                     name,
                     cron_expression,
-                    last_completed,
-                    last_run,
-                    next_run,
+                    last_completed_at,
+                    last_run_at,
+                    next_run_at,
                     type,
                     parameters_type,
                     parameters,
                     created_at,
                     updated_at
                 FROM bl_lb_scheduled_jobs
-                WHERE next_run <= @Cutoff
+                WHERE next_run_at <= @Cutoff
             ",
             connection
         );

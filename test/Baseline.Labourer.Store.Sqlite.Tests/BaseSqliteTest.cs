@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
 using Xunit;
 
@@ -26,6 +27,6 @@ public abstract class BaseSqliteTest : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await new SqliteStore(ConnectionString).BootstrapAsync();
+        await new SqliteStore(new DateTimeProvider(), ConnectionString).BootstrapAsync();
     }
 }

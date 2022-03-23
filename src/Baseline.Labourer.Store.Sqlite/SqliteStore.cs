@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
 
 namespace Baseline.Labourer;
@@ -22,10 +23,11 @@ public class SqliteStore : BaseSqliteInteractor, IStore
     /// <inheritdoc />
     public IStoreWriterTransactionManager WriterTransactionManager { get; }
 
-    public SqliteStore(string connectionString) : base(connectionString)
+    public SqliteStore(IDateTimeProvider dateTimeProvider, string connectionString)
+        : base(connectionString)
     {
         JobLogStore = new SqliteJobLogStore(connectionString);
-        ResourceLocker = new SqliteResourceLocker(connectionString);
+        ResourceLocker = new SqliteResourceLocker(dateTimeProvider, connectionString);
         Reader = new SqliteReader(connectionString);
         WriterTransactionManager = new SqliteStoreWriterTransactionManager(connectionString);
     }
