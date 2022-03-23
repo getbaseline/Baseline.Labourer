@@ -91,6 +91,7 @@ internal class ScheduledJobDispatcherWorker : IWorker
                             _dateTimeProvider,
                             CancellationToken.None
                         );
+                        await writer.CommitAsync(CancellationToken.None);
                     }
                     catch (ResourceLockedException)
                     {
