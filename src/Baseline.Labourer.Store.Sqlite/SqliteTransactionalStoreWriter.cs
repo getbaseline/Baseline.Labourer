@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Microsoft.Data.Sqlite;
 
 namespace Baseline.Labourer;
 
@@ -10,18 +11,33 @@ namespace Baseline.Labourer;
 /// </summary>
 public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransactionalStoreWriter
 {
-    public SqliteTransactionalStoreWriter(string connectionString) : base(connectionString) { }
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly SqliteConnection _connection;
+    private readonly SqliteTransaction _transaction;
+
+    public SqliteTransactionalStoreWriter(
+        IDateTimeProvider dateTimeProvider,
+        string connectionString
+    ) : base(connectionString)
+    {
+        _dateTimeProvider = dateTimeProvider;
+        _connection = NewConnection();
+        _transaction = _connection.BeginTransaction();
+    }
 
     /// <inheritdoc />
     public ValueTask DisposeAsync()
     {
-        throw new NotImplementedException();
+        _transaction.Dispose();
+        _connection.Dispose();
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
     public ValueTask CommitAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _transaction.Commit();
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -30,7 +46,24 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var createServerCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_servers (id, hostname, key, created_at)
+                VALUES (@Id, @Hostname, @Key, @Now)
+            ",
+            _connection,
+            _transaction
+        );
+        createServerCommand.Parameters.Add(new SqliteParameter("@Id", serverInstance.Id));
+        createServerCommand.Parameters.Add(
+            new SqliteParameter("@Hostname", serverInstance.Hostname)
+        );
+        createServerCommand.Parameters.Add(new SqliteParameter("@Key", serverInstance.Key));
+        createServerCommand.Parameters.Add(new SqliteParameter("@Now", _dateTimeProvider.UtcNow()));
+
+        createServerCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />

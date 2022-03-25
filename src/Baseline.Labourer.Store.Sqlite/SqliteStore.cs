@@ -29,7 +29,10 @@ public class SqliteStore : BaseSqliteInteractor, IStore
         JobLogStore = new SqliteJobLogStore(connectionString);
         ResourceLocker = new SqliteResourceLocker(dateTimeProvider, connectionString);
         Reader = new SqliteReader(connectionString);
-        WriterTransactionManager = new SqliteStoreWriterTransactionManager(connectionString);
+        WriterTransactionManager = new SqliteStoreWriterTransactionManager(
+            dateTimeProvider,
+            connectionString
+        );
     }
 
     /// <inheritdoc />

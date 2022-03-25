@@ -31,3 +31,10 @@ CREATE TABLE bl_lb_job_logs (
     created_at TEXT NOT NULL
 );
 CREATE INDEX bl_lb_job_logs_job_id ON bl_lb_job_logs (job_id);
+
+CREATE TABLE bl_lb_servers (
+    id         TEXT PRIMARY KEY,
+    hostname   TEXT NOT NULL,
+    key        TEXT NOT NULL,
+    created_at TEXT NOT NULL
+)
