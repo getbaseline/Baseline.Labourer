@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
+using SQLitePCL;
 
 namespace Baseline.Labourer;
 
@@ -93,7 +94,22 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     /// <inheritdoc />
     public ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var createWorkerCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_workers (id, server_id, created_at)
+                VALUES (@Id, @ServerId, @Now)
+            ",
+            _connection,
+            _transaction
+        );
+        createWorkerCommand.Parameters.Add(new SqliteParameter("@Id", worker.Id));
+        createWorkerCommand.Parameters.Add(
+            new SqliteParameter("@ServerId", worker.ServerInstanceId)
+        );
+        createWorkerCommand.Parameters.Add(new SqliteParameter("@Now", _dateTimeProvider.UtcNow()));
+        createWorkerCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -102,7 +118,32 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var createDispatchedJobCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_dispatched_jobs (id, status, type, parameters_type, parameters, created_at, updated_at)
+                VALUES (@Id, @Status, @Type, @ParametersType, @Parameters, @Now, @Now)
+            ",
+            _connection,
+            _transaction
+        );
+        createDispatchedJobCommand.Parameters.Add(new SqliteParameter("@Id", definition.Id));
+        createDispatchedJobCommand.Parameters.Add(
+            new SqliteParameter("@Status", (int)JobStatus.Created)
+        );
+        createDispatchedJobCommand.Parameters.Add(new SqliteParameter("@Type", definition.Type));
+        createDispatchedJobCommand.Parameters.Add(
+            new SqliteParameter("@ParametersType", definition.ParametersType)
+        );
+        createDispatchedJobCommand.Parameters.Add(
+            new SqliteParameter("@Parameters", definition.SerializedParameters)
+        );
+        createDispatchedJobCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+
+        createDispatchedJobCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />

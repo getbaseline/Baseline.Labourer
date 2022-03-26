@@ -57,6 +57,41 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         ((long)serverHeartbeatRetrievalCommand.ExecuteScalar()!).Should().Be(1);
     }
 
+    [Fact]
+    public async Task It_Creates_A_Worker()
+    {
+        // Arrange.
+        var serverId = CreateServer();
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.CreateWorkerAsync(
+            new Worker { ServerInstanceId = serverId, Id = Guid.NewGuid().ToString() },
+            CancellationToken.None
+        );
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var workerRetrievalCommand = new SqliteCommand(
+            $"SELECT COUNT(1) FROM bl_lb_workers WHERE server_id = '{serverId}'",
+            Connection
+        );
+        ((long)workerRetrievalCommand.ExecuteScalar()!).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task It_Creates_A_Dispatched_Job()
+    {
+        // Arrange.
+
+        // Act.
+
+        // Assert.
+    }
+
     private string CreateServer()
     {
         var id = Guid.NewGuid();

@@ -1,12 +1,12 @@
 CREATE TABLE bl_lb_scheduled_jobs (
     name              TEXT PRIMARY KEY NOT NULL,
     cron_expression   TEXT NOT NULL,
-    last_completed_at TEXT,
-    last_run_at       TEXT,
-    next_run_at       TEXT NOT NULL,
     type              TEXT NOT NULL,
     parameters_type   TEXT NOT NULL,
     parameters        TEXT NOT NULL,
+    next_run_at       TEXT NOT NULL,
+    last_run_at       TEXT,
+    last_completed_at TEXT,
     created_at        TEXT NOT NULL,
     updated_at        TEXT NOT NULL
 );
@@ -45,3 +45,22 @@ CREATE TABLE bl_lb_server_heartbeats (
     created_at TEXT NOT NULL
 );
 CREATE INDEX bl_lb_server_heartbeats_server_id ON bl_lb_server_heartbeats (server_id);
+
+CREATE TABLE bl_lb_workers (
+    id         TEXT PRIMARY KEY,
+    server_id  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX bl_lb_workers_server_id ON bl_lb_workers (server_id);
+
+CREATE TABLE bl_lb_dispatched_jobs (
+    id                TEXT PRIMARY KEY NOT NULL,
+    retries           INT NOT NULL DEFAULT(0),
+    status            INT NOT NULL,
+    type              TEXT NOT NULL,
+    parameters_type   TEXT NOT NULL,
+    parameters        TEXT NOT NULL,
+    finished_at       TEXT,
+    created_at        TEXT NOT NULL,
+    updated_at        TEXT NOT NULL
+);
