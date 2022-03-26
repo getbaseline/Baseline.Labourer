@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
@@ -32,5 +33,47 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         reader.Read();
 
         reader.GetString(0).Should().Be("foo-bar");
+    }
+
+    [Fact]
+    public async Task It_Creates_A_Server_Heartbeat()
+    {
+        // Arrange.
+        var serverId = CreateServer();
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.CreateServerHeartbeatAsync(serverId, CancellationToken.None);
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var serverHeartbeatRetrievalCommand = new SqliteCommand(
+            $"SELECT COUNT(1) FROM bl_lb_server_heartbeats WHERE server_id = '{serverId}'",
+            Connection
+        );
+        ((long)serverHeartbeatRetrievalCommand.ExecuteScalar()!).Should().Be(1);
+    }
+
+    private string CreateServer()
+    {
+        var id = Guid.NewGuid();
+
+        var createServerCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_servers (id, hostname, key, created_at)
+                VALUES (@Id, @Hostname, @Key, @Now)
+            ",
+            Connection
+        );
+        createServerCommand.Parameters.Add(new SqliteParameter("@Id", $"hostname-{id}"));
+        createServerCommand.Parameters.Add(new SqliteParameter("@Hostname", "hostname"));
+        createServerCommand.Parameters.Add(new SqliteParameter("@Key", id));
+        createServerCommand.Parameters.Add(new SqliteParameter("@Now", DateTime.UtcNow));
+        createServerCommand.ExecuteNonQuery();
+
+        return $"hostname-{id}";
     }
 }

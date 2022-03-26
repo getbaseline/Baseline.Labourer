@@ -33,10 +33,10 @@ public class RetryConfiguration
         if (delaysAsList.Count != retries)
         {
             throw new ArgumentException(
-                nameof(delays),
                 "A delay must be provided for each retry when using this constructor. For example, if your retries "
                     + "were set to 3, then you should provide 3 delays. You can set one delay for all retries by using "
-                    + "the RetryConfiguration(uint retries, TimeSpan delay) constructor."
+                    + "the RetryConfiguration(uint retries, TimeSpan delay) constructor.",
+                nameof(delays)
             );
         }
 

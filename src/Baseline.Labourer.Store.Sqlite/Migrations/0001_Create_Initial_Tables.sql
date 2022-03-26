@@ -37,4 +37,11 @@ CREATE TABLE bl_lb_servers (
     hostname   TEXT NOT NULL,
     key        TEXT NOT NULL,
     created_at TEXT NOT NULL
-)
+);
+
+CREATE TABLE bl_lb_server_heartbeats (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX bl_lb_server_heartbeats_server_id ON bl_lb_server_heartbeats (server_id);

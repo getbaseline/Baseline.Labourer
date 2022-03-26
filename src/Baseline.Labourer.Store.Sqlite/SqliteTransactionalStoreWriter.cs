@@ -72,7 +72,22 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var createHeartbeatCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_server_heartbeats (server_id, created_at)
+                VALUES (@ServerId, @Now)
+            ",
+            _connection,
+            _transaction
+        );
+        createHeartbeatCommand.Parameters.Add(new SqliteParameter("@ServerId", serverId));
+        createHeartbeatCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+
+        createHeartbeatCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
