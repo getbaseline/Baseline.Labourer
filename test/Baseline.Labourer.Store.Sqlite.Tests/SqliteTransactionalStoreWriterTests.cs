@@ -12,6 +12,12 @@ namespace Baseline.Labourer.Store.Sqlite.Tests;
 public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
 {
     [Fact]
+    public async Task It_Rolls_Back_Any_Changes_If_Commit_Not_Called()
+    {
+        
+    }
+    
+    [Fact]
     public async Task It_Creates_A_Server()
     {
         // Arrange.
@@ -90,6 +96,12 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         // Act.
 
         // Assert.
+    }
+
+    [Fact]
+    public async Task It_Can_Create_And_Update_Dispatched_Jobs()
+    {
+        
     }
 
     private string CreateServer()
