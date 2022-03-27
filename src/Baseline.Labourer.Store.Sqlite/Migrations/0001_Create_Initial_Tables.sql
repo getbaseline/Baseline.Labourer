@@ -1,5 +1,6 @@
 CREATE TABLE bl_lb_scheduled_jobs (
-    name              TEXT PRIMARY KEY NOT NULL,
+    id                TEXT PRIMARY KEY NOT NULL,
+    name              TEXT NOT NULL,
     cron_expression   TEXT NOT NULL,
     type              TEXT NOT NULL,
     parameters_type   TEXT NOT NULL,
@@ -58,8 +59,8 @@ CREATE TABLE bl_lb_dispatched_jobs (
     retries           INT NOT NULL DEFAULT(0),
     status            INT NOT NULL,
     type              TEXT NOT NULL,
-    parameters_type   TEXT NOT NULL,
-    parameters        TEXT NOT NULL,
+    parameters_type   TEXT,
+    parameters        TEXT,
     finished_at       TEXT,
     created_at        TEXT NOT NULL,
     updated_at        TEXT NOT NULL

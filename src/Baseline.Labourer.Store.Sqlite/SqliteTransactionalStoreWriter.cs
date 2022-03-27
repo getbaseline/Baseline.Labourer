@@ -31,6 +31,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     {
         _transaction.Dispose();
         _connection.Dispose();
+
         return ValueTask.CompletedTask;
     }
 
@@ -158,7 +159,18 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     /// <inheritdoc />
     public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var deleteScheduledJobCommand = new SqliteCommand(
+            @"
+                DELETE FROM bl_lb_scheduled_jobs
+                WHERE id = @Id
+            ",
+            _connection,
+            _transaction
+        );
+        deleteScheduledJobCommand.Parameters.Add(new SqliteParameter("@Id", id));
+        deleteScheduledJobCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -168,7 +180,23 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var updateJobRetriesCommand = new SqliteCommand(
+            @"
+                UPDATE bl_lb_dispatched_jobs
+                SET retries = @Retries, updated_at = @Now
+                WHERE id = @Id
+            ",
+            _connection,
+            _transaction
+        );
+        updateJobRetriesCommand.Parameters.Add(new SqliteParameter("@Retries", retries));
+        updateJobRetriesCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+        updateJobRetriesCommand.Parameters.Add(new SqliteParameter("@Id", jobId));
+        updateJobRetriesCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -179,7 +207,29 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken = default
     )
     {
-        throw new NotImplementedException();
+        var updateJobStateCommand = new SqliteCommand(
+            @"
+                UPDATE bl_lb_dispatched_jobs
+                SET status = @Status, updated_at = @Now, finished_at = @FinishedAt
+                WHERE id = @Id
+            ",
+            _connection,
+            _transaction
+        );
+        updateJobStateCommand.Parameters.Add(new SqliteParameter("@Status", jobStatus.ToString()));
+        updateJobStateCommand.Parameters.Add(
+            new SqliteParameter(
+                "@FinishedAt",
+                finishedDate == null ? DBNull.Value : finishedDate.Value
+            )
+        );
+        updateJobStateCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+        updateJobStateCommand.Parameters.Add(new SqliteParameter("@Id", jobId));
+        updateJobStateCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
