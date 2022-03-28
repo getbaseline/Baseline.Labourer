@@ -24,10 +24,15 @@ public class LabourerServer
     /// </summary>
     public async Task RunServerAsync()
     {
-        var serverInstance = await CreateServerInstanceAsync();
+        var serverInstance = new ServerInstance
+        {
+            Hostname = Dns.GetHostName(),
+            Key = StringGenerationUtils.GenerateUniqueRandomString()
+        };
         var serverContext = new ServerContext(serverInstance, _labourerServerConfiguration);
 
         await RunServerBootTasksAsync(serverContext);
+        await StoreServerInstanceAsync(serverInstance);
 
         await Task.WhenAll(
             new ServerHeartbeatWorker(serverContext).RunAsync(),
@@ -39,21 +44,13 @@ public class LabourerServer
         );
     }
 
-    private async Task<ServerInstance> CreateServerInstanceAsync()
+    private async Task StoreServerInstanceAsync(ServerInstance serverInstance)
     {
         await using var writer =
             _labourerServerConfiguration.Store!.WriterTransactionManager.BeginTransaction();
 
-        var serverInstance = new ServerInstance
-        {
-            Hostname = Dns.GetHostName(),
-            Key = StringGenerationUtils.GenerateUniqueRandomString()
-        };
-
         await writer.CreateServerAsync(serverInstance, CancellationToken.None);
         await writer.CommitAsync(CancellationToken.None);
-
-        return serverInstance;
     }
 
     private async Task RunServerBootTasksAsync(ServerContext serverContext)

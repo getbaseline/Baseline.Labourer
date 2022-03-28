@@ -28,6 +28,7 @@ public abstract class BaseSqliteTest : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await new SqliteStore(new DateTimeProvider(), ConnectionString).BootstrapAsync();
+        await new SqliteQueue(new DateTimeProvider(), ConnectionString).BootstrapAsync();
     }
 
     protected void CreateScheduledJob(
@@ -82,6 +83,7 @@ public abstract class BaseSqliteTest : IAsyncLifetime
               ? new SqliteParameter("@LastCompleted", lastCompleted)
               : new SqliteParameter("@LastCompleted", DBNull.Value)
         );
+        
         command.Parameters.Add(
             lastRun != null
               ? new SqliteParameter("@LastRun", lastRun)

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
-using SQLitePCL;
 
 namespace Baseline.Labourer;
 
@@ -133,10 +132,18 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         );
         createDispatchedJobCommand.Parameters.Add(new SqliteParameter("@Type", definition.Type));
         createDispatchedJobCommand.Parameters.Add(
-            new SqliteParameter("@ParametersType", definition.ParametersType)
+            new SqliteParameter(
+                "@ParametersType",
+                definition.ParametersType == null ? DBNull.Value : definition.ParametersType
+            )
         );
         createDispatchedJobCommand.Parameters.Add(
-            new SqliteParameter("@Parameters", definition.SerializedParameters)
+            new SqliteParameter(
+                "@Parameters",
+                definition.SerializedParameters == null
+                  ? DBNull.Value
+                  : definition.SerializedParameters
+            )
         );
         createDispatchedJobCommand.Parameters.Add(
             new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
@@ -153,7 +160,101 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var existsCommand = new SqliteCommand(
+            "SELECT COUNT(1) FROM bl_lb_scheduled_jobs WHERE id = @Id",
+            _connection,
+            _transaction
+        );
+        existsCommand.Parameters.Add(new SqliteParameter("@Id", scheduledJobDefinition.Id));
+        var exists = ((long)existsCommand.ExecuteScalar()!) > 0;
+
+        SqliteCommand updateOrCreateCommand;
+
+        if (exists)
+        {
+            updateOrCreateCommand = new SqliteCommand(
+                @"
+                    UPDATE 
+                        bl_lb_scheduled_jobs
+                    SET 
+                        name = @Name,
+                        cron_expression = @CronExpression,
+                        type = @Type,
+                        parameters_type = @ParametersType,
+                        parameters = @Parameters,
+                        updated_at = @Now
+                    WHERE
+                        id = @Id
+                ",
+                _connection,
+                _transaction
+            );
+        }
+        else
+        {
+            updateOrCreateCommand = new SqliteCommand(
+                @"
+                    INSERT INTO bl_lb_scheduled_jobs 
+                        (
+                            id,
+                            name,
+                            cron_expression,
+                            type,
+                            parameters_type,
+                            parameters,
+                            created_at,
+                            updated_at
+                        )
+                    VALUES 
+                        (
+                            @Id,
+                            @Name,
+                            @CronExpression,
+                            @Type,
+                            @ParametersType,
+                            @Parameters,
+                            @Now,
+                            @Now
+                        )
+                ",
+                _connection,
+                _transaction
+            );
+        }
+
+        updateOrCreateCommand.Parameters.Add(new SqliteParameter("@Id", scheduledJobDefinition.Id));
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter("@Name", scheduledJobDefinition.Name)
+        );
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter("@Type", scheduledJobDefinition.Type)
+        );
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter("@CronExpression", scheduledJobDefinition.CronExpression)
+        );
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter(
+                "@ParametersType",
+                scheduledJobDefinition.ParametersType == null
+                  ? DBNull.Value
+                  : scheduledJobDefinition.ParametersType
+            )
+        );
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter(
+                "@Parameters",
+                scheduledJobDefinition.SerializedParameters == null
+                  ? DBNull.Value
+                  : scheduledJobDefinition.SerializedParameters
+            )
+        );
+        updateOrCreateCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+
+        updateOrCreateCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -239,7 +340,23 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var updateNextRunDateCommand = new SqliteCommand(
+            @"
+                UPDATE bl_lb_scheduled_jobs
+                SET next_run_at = @NextRun, updated_at = @Now
+                WHERE id = @Id
+            ",
+            _connection,
+            _transaction
+        );
+        updateNextRunDateCommand.Parameters.Add(new SqliteParameter("@Id", jobId));
+        updateNextRunDateCommand.Parameters.Add(new SqliteParameter("@NextRun", nextRunDate));
+        updateNextRunDateCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+        updateNextRunDateCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -249,6 +366,22 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         CancellationToken cancellationToken
     )
     {
-        throw new NotImplementedException();
+        var updateLastRunDateCommand = new SqliteCommand(
+            @"
+                UPDATE bl_lb_scheduled_jobs
+                SET last_run_at = @LastRun, updated_at = @Now
+                WHERE id = @Id
+            ",
+            _connection,
+            _transaction
+        );
+        updateLastRunDateCommand.Parameters.Add(new SqliteParameter("@Id", jobId));
+        updateLastRunDateCommand.Parameters.Add(new SqliteParameter("@LastRun", lastRunDate));
+        updateLastRunDateCommand.Parameters.Add(
+            new SqliteParameter("@Now", _dateTimeProvider.UtcNow())
+        );
+        updateLastRunDateCommand.ExecuteNonQuery();
+
+        return ValueTask.CompletedTask;
     }
 }

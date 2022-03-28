@@ -30,12 +30,12 @@ public class BootTasksTests : ServerTest
             throw new NotImplementedException();
         }
 
-        public Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+        public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+        public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

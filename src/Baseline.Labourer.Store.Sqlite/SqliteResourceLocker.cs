@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
-using SQLitePCL;
 
 namespace Baseline.Labourer;
 

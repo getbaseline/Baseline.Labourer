@@ -35,12 +35,12 @@ public interface IQueue
     /// consuming side.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token used to safely shut down the server.</param>
-    Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken);
+    ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a message from the queue provider.
     /// </summary>
     /// <param name="messageId">The message to remove from the queue.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken);
+    ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken);
 }

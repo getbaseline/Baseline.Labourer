@@ -49,12 +49,11 @@ internal class JobFailureRetryMiddleware : JobMiddleware
         );
 
         await using var writer = jobContext.BeginTransaction();
-
         await jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
         await jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
-        await jobContext.RequeueJobAsync(cancellationToken);
-
         await writer.CommitAsync(cancellationToken);
+
+        await jobContext.RequeueJobAsync(cancellationToken);
 
         return MiddlewareContinuation.Continue;
     }

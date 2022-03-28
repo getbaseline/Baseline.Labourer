@@ -62,7 +62,7 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+    public async ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
     {
         for (var i = 0; i < 30; i++)
         {
@@ -107,7 +107,7 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public async ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
     {
         try
         {

@@ -28,11 +28,10 @@ public class JobDispatcher
         CancellationToken cancellationToken
     )
     {
-        await using var writer = _transactionManager.BeginTransaction();
-
-        await writer.CreateDispatchedJobAsync(jobDefinition, cancellationToken);
         await _queue.EnqueueAsync(jobDefinition, TimeSpan.Zero, cancellationToken);
 
+        await using var writer = _transactionManager.BeginTransaction();
+        await writer.CreateDispatchedJobAsync(jobDefinition, cancellationToken);
         await writer.CommitAsync(cancellationToken);
 
         return jobDefinition.Id;

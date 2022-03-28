@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Baseline.Labourer.DependencyInjection\Baseline.Labourer.DependencyInjection.csproj" />
+      <ProjectReference Include="..\Baseline.Labourer.Shared.Sqlite\Baseline.Labourer.Shared.Sqlite.csproj" />
       <ProjectReference Include="..\Baseline.Labourer\Baseline.Labourer.csproj" />
     </ItemGroup>
 
@@ -16,7 +17,11 @@
 
     <ItemGroup>
       <None Remove="Migrations\0001_Create_Initial_Tables.sql" />
-      <EmbeddedResource Include="Migrations\0001_Create_Initial_Tables.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Migrations\0001_Create_Initial_Store_Tables.sql" />
+      <EmbeddedResource Include="Migrations\0001_Create_Initial_Store_Tables.sql" />
     </ItemGroup>
 
 </Project>

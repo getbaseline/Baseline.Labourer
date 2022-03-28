@@ -20,8 +20,10 @@
       <ProjectReference Include="..\..\src\Baseline.Labourer.DependencyInjection\Baseline.Labourer.DependencyInjection.csproj" />
       <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.Memory\Baseline.Labourer.Queue.Memory.csproj" />
       <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.NoOp\Baseline.Labourer.Queue.NoOp.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.Sqlite\Baseline.Labourer.Queue.Sqlite.csproj" />
       <ProjectReference Include="..\..\src\Baseline.Labourer.Store.Memory\Baseline.Labourer.Store.Memory.csproj" />
       <ProjectReference Include="..\..\src\Baseline.Labourer.Store.NoOp\Baseline.Labourer.Store.NoOp.csproj" />
+      <ProjectReference Include="..\..\src\Baseline.Labourer.Store.Sqlite\Baseline.Labourer.Store.Sqlite.csproj" />
       <ProjectReference Include="..\Baseline.Labourer.Tests\Baseline.Labourer.Tests.csproj" />
     </ItemGroup>
 

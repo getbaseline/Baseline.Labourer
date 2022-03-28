@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
@@ -13,7 +12,26 @@ namespace Baseline.Labourer.Store.Sqlite.Tests;
 public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
 {
     [Fact]
-    public async Task It_Rolls_Back_Any_Changes_If_Commit_Not_Called() { }
+    public async Task It_Rolls_Back_Any_Changes_If_Commit_Not_Called()
+    {
+        // Arrange.
+        CreateScheduledJob();
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.DeleteScheduledJobAsync("scheduled-job", CancellationToken.None);
+        await writer.DisposeAsync();
+
+        // Assert.
+        var scheduledJobsCount = new SqliteCommand(
+            "SELECT COUNT(1) FROM bl_lb_scheduled_jobs WHERE id = 'scheduled-job'",
+            Connection
+        ).ExecuteScalar();
+        ((long)scheduledJobsCount!).Should().Be(1);
+    }
 
     [Fact]
     public async Task It_Creates_A_Server()
@@ -158,10 +176,79 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
     }
 
     [Fact]
-    public async Task It_Creates_A_Scheduled_Job() { }
+    public async Task It_Creates_A_Scheduled_Job()
+    {
+        // Arrange.
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+        var scheduledJob = new ScheduledJobDefinition
+        {
+            Name = "foo",
+            Type = "bar",
+            ParametersType = "baz",
+            SerializedParameters = "abc",
+            CronExpression = "* * * * 4"
+        };
+
+        // Act.
+        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var scheduledJobReader = new SqliteCommand(
+            $"SELECT id, name, type, parameters_type, parameters, cron_expression FROM bl_lb_scheduled_jobs WHERE id = '{scheduledJob.Id}'",
+            Connection
+        ).ExecuteReader();
+        scheduledJobReader.Read();
+        scheduledJobReader.GetString(0).Should().Be(scheduledJob.Id);
+        scheduledJobReader.GetString(1).Should().Be(scheduledJob.Name);
+        scheduledJobReader.GetString(2).Should().Be("bar");
+        scheduledJobReader.GetString(3).Should().Be("baz");
+        scheduledJobReader.GetString(4).Should().Be("abc");
+        scheduledJobReader.GetString(5).Should().Be("* * * * 4");
+    }
 
     [Fact]
-    public async Task It_Updates_An_Existing_Scheduled_Job() { }
+    public async Task It_Updates_An_Existing_Scheduled_Job()
+    {
+        // Arrange.
+        var createdAt = DateTime.Today;
+
+        CreateScheduledJob(name: "a-scheduled-jobbo", createdAt: createdAt, updatedAt: createdAt);
+
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        var scheduledJob = new ScheduledJobDefinition
+        {
+            Name = "foo",
+            Type = "bar",
+            ParametersType = "baz",
+            SerializedParameters = "abc",
+            CronExpression = "* * * * 4"
+        };
+        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var scheduledJobReader = new SqliteCommand(
+            $"SELECT id, name, type, parameters_type, parameters, cron_expression, created_at, updated_at FROM bl_lb_scheduled_jobs WHERE id = '{scheduledJob.Id}'",
+            Connection
+        ).ExecuteReader();
+        scheduledJobReader.Read();
+        scheduledJobReader.GetString(0).Should().Be(scheduledJob.Id);
+        scheduledJobReader.GetString(1).Should().Be(scheduledJob.Name);
+        scheduledJobReader.GetString(2).Should().Be("bar");
+        scheduledJobReader.GetString(3).Should().Be("baz");
+        scheduledJobReader.GetString(4).Should().Be("abc");
+        scheduledJobReader.GetString(5).Should().Be("* * * * 4");
+        scheduledJobReader.GetDateTime(6).Should().Be(scheduledJobReader.GetDateTime(7));
+    }
 
     [Fact]
     public async Task It_Deletes_A_Scheduled_Job()
@@ -186,10 +273,60 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
     }
 
     [Fact]
-    public async Task It_Updates_A_Scheduled_Jobs_Next_Run_Date() { }
+    public async Task It_Updates_A_Scheduled_Jobs_Next_Run_Date()
+    {
+        // Arrange.
+        var nextRunDate = DateTime.Today.AddYears(1);
+        CreateScheduledJob();
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.UpdateScheduledJobNextRunDateAsync(
+            "scheduled-job",
+            nextRunDate,
+            CancellationToken.None
+        );
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var scheduledJobReader = new SqliteCommand(
+            $"SELECT next_run_at FROM bl_lb_scheduled_jobs WHERE name = 'scheduled-job'",
+            Connection
+        ).ExecuteReader();
+        scheduledJobReader.Read();
+        scheduledJobReader.GetDateTime(0).Should().Be(nextRunDate);
+    }
 
     [Fact]
-    public async Task It_Updates_A_Scheduled_Jobs_Last_Run_Date() { }
+    public async Task It_Updates_A_Scheduled_Jobs_Last_Run_Date()
+    {
+        // Arrange.
+        var lastRunDate = DateTime.Today.AddYears(1);
+        CreateScheduledJob();
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.UpdateScheduledJobLastRunDateAsync(
+            "scheduled-job",
+            lastRunDate,
+            CancellationToken.None
+        );
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var scheduledJobReader = new SqliteCommand(
+            $"SELECT last_run_at FROM bl_lb_scheduled_jobs WHERE name = 'scheduled-job'",
+            Connection
+        ).ExecuteReader();
+        scheduledJobReader.Read();
+        scheduledJobReader.GetDateTime(0).Should().Be(lastRunDate);
+    }
 
     private string CreateServer()
     {

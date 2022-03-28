@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
-using SQLitePCL;
 using Xunit;
 
 namespace Baseline.Labourer.Store.Sqlite.Tests;

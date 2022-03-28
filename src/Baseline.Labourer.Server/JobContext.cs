@@ -63,6 +63,7 @@ public class JobContext
         CancellationToken cancellationToken
     )
     {
+        // TODO: this will cause a lock. Move this functionality into the transaction manager.
         WorkerContext.ServerContext.Store.JobLogStore.LogEntryForJob(
             JobDefinition.Id,
             LogLevel.Information,

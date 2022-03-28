@@ -9,9 +9,14 @@ public static class LabourerBuilderExtensions
     /// Configures the <see cref="LabourerBuilder"/> instance to use the SQLite queue provider.
     /// </summary>
     /// <param name="builder">The builder to configure to use the SQLite queue provider.</param>
+    /// <param name="connectionString">The SQLite connection string to use.</param>
     /// <returns></returns>
-    public static LabourerBuilder UseSqliteQueue(this LabourerBuilder builder)
+    public static LabourerBuilder UseSqliteQueue(
+        this LabourerBuilder builder,
+        string connectionString
+    )
     {
+        builder.Queue = new SqliteQueue(connectionString);
         return builder;
     }
 }

@@ -28,14 +28,14 @@ public class NoOpQueue : IQueue
     }
 
     /// <inheritdoc />
-    public Task<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+    public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
     {
-        return Task.FromResult(null as QueuedJob);
+        return ValueTask.FromResult(null as QueuedJob);
     }
 
     /// <inheritdoc />
-    public Task DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }
