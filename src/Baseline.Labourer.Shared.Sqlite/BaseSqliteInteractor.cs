@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Internal;
 
 /// <summary>
 /// Defines common functionality (such as opening a database connection) that all SQLite store classes could use.
