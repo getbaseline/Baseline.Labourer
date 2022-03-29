@@ -3,41 +3,31 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     # services:
-      # localstack:
-      #   image: localstack/localstack:latest
-      #   env:
-      #     SERVICES: s3
-      #     DEFAULT_REGION: eu-west-1
-      #   ports:
-      #     - 4566:4566
-      #     - 4571:4571
+    # localstack:
+    #   image: localstack/localstack:latest
+    #   env:
+    #     SERVICES: s3
+    #     DEFAULT_REGION: eu-west-1
+    #   ports:
+    #     - 4566:4566
+    #     - 4571:4571
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install .NET Core 3.1.x
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.x
+      - name: Install .NET Core 6.0.x
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
 
-    - name: Install .NET Core 5.0.x
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    
-    - name: Install .NET Core 6.0.x
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
+      - name: Build
+        run: dotnet build
 
-    - name: Build
-      run: dotnet build 
-      
-    - name: Test
-      run: dotnet test --no-build
+      - name: Test
+        run: dotnet test --no-build

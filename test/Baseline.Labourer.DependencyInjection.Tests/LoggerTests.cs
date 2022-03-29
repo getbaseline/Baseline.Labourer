@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -7,75 +6,72 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.DependencyInjection.Tests
+namespace Baseline.Labourer.DependencyInjection.Tests;
+
+public class LoggerTests : BaseDependencyInjectionTest
 {
-    public class LoggerTests : BaseDependencyInjectionTest
+    public LoggerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+
+    public class TrackableLoggerFactory : ILoggerFactory
     {
-        public LoggerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public void Dispose() { }
+
+        public ILogger CreateLogger(string categoryName)
         {
+            return new TrackableLogger();
         }
 
-        public class TrackableLoggerFactory : ILoggerFactory
+        public void AddProvider(ILoggerProvider provider) { }
+    }
+
+    public class TrackableLogger : ILogger
+    {
+        public static bool MessageLogged;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
+            Func<TState, Exception, string> formatter
+        )
         {
-            public void Dispose()
-            {
-            }
-
-            public ILogger CreateLogger(string categoryName)
-            {
-                return new TrackableLogger();
-            }
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-            }
+            MessageLogged = true;
         }
 
-        public class TrackableLogger : ILogger
+        public bool IsEnabled(LogLevel logLevel)
         {
-            public static bool MessageLogged;
-            
-            public void Log<TState>(
-                LogLevel logLevel, 
-                EventId eventId, 
-                TState state, 
-                Exception exception, 
-                Func<TState, Exception, string> formatter
-            )
-            {
-                MessageLogged = true;
-            }
-
-            public bool IsEnabled(LogLevel logLevel)
-            {
-                return true;
-            }
-
-            public IDisposable BeginScope<TState>(TState state)
-            {
-                return null;
-            }
+            return true;
         }
 
-        [Fact]
-        public async Task It_Uses_A_Logger_Factory_Provided_By_The_Consumer()
+        public IDisposable BeginScope<TState>(TState state)
         {
-            // Arrange.
-            ConfigureServices((sp, builder) =>
+            return null;
+        }
+    }
+
+    [Fact]
+    public async Task It_Uses_A_Logger_Factory_Provided_By_The_Consumer()
+    {
+        // Arrange.
+        ConfigureServices(
+            (sp, builder) =>
             {
                 builder.UseThisLoggerFactory(() => new TrackableLoggerFactory());
                 builder.UseNoOpQueue();
                 builder.UseNoOpStore();
-            });
-            
-            // Act.
-            RunServer();
-            
-            // Assert.
-            await AssertionUtils.RetryAsync(() =>
+            }
+        );
+
+        // Act.
+        RunServer();
+
+        // Assert.
+        await AssertionUtils.RetryAsync(
+            () =>
             {
                 TrackableLogger.MessageLogged.Should().BeTrue();
-            });
-        }
+            }
+        );
     }
 }

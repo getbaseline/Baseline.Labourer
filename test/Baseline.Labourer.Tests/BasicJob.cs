@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Tests
+namespace Baseline.Labourer.Tests;
+
+public class BasicJob : IJob
 {
-    public class BasicJob : IJob
+    public ValueTask HandleAsync(CancellationToken cancellationToken)
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
-        {
-            throw new System.NotImplementedException();
-        }
+        throw new System.NotImplementedException();
     }
 }

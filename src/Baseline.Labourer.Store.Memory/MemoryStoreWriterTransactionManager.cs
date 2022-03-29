@@ -1,21 +1,20 @@
-﻿namespace Baseline.Labourer
+﻿namespace Baseline.Labourer;
+
+/// <summary>
+/// Memory store based transaction manager that handles the creation of a transaction.
+/// </summary>
+public class MemoryStoreWriterTransactionManager : IStoreWriterTransactionManager
 {
-    /// <summary>
-    /// Memory store based transaction manager that handles the creation of a transaction.
-    /// </summary>
-    public class MemoryStoreWriterTransactionManager : IStoreWriterTransactionManager
+    private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
+
+    public MemoryStoreWriterTransactionManager(MemoryStoreDataContainer memoryStoreDataContainer)
     {
-        private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
+        _memoryStoreDataContainer = memoryStoreDataContainer;
+    }
 
-        public MemoryStoreWriterTransactionManager(MemoryStoreDataContainer memoryStoreDataContainer)
-        {
-            _memoryStoreDataContainer = memoryStoreDataContainer;
-        }
-
-        /// <inheritdoc />
-        public ITransactionalStoreWriter BeginTransaction()
-        {
-            return new MemoryTransactionalStoreWriter(_memoryStoreDataContainer);
-        }
+    /// <inheritdoc />
+    public ITransactionalStoreWriter BeginTransaction()
+    {
+        return new MemoryTransactionalStoreWriter(_memoryStoreDataContainer);
     }
 }
