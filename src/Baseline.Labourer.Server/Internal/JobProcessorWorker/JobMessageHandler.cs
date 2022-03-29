@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -23,8 +22,7 @@ public class JobMessageHandler
     /// Handles a job message, executing the job if it is applicable.
     /// </summary>
     /// <param name="job">A queued job that needs to be processed.</param>
-    /// <param name="cancellationToken"></param>
-    public async Task HandleMessageAsync(QueuedJob job, CancellationToken cancellationToken)
+    public async Task HandleMessageAsync(QueuedJob job)
     {
         _logger.LogDebug(
             _workerContext,
@@ -35,13 +33,13 @@ public class JobMessageHandler
         var jobContext = new JobContext(
             job.MessageId,
             _workerContext,
-            await job.DeserializeAsync<DispatchedJobDefinition>(cancellationToken)
+            await job.DeserializeAsync<DispatchedJobDefinition>()
         );
 
         try
         {
-            await using var _ = await jobContext.AcquireJobLockAsync(cancellationToken);
-            await new JobExecutor(jobContext).ExecuteJobAsync(cancellationToken);
+            await using var _ = await jobContext.AcquireJobLockAsync();
+            await new JobExecutor(jobContext).ExecuteJobAsync();
         }
         catch (ResourceLockedException e)
         {

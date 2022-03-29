@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -18,55 +17,43 @@ public class NoOpTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CommitAsync(CancellationToken cancellationToken)
+    public ValueTask CommitAsync()
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(
-        ServerInstance serverInstance,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerAsync(ServerInstance serverInstance)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(
-        string serverId,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerHeartbeatAsync(string serverId)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
+    public ValueTask CreateWorkerAsync(Worker worker)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateDispatchedJobAsync(
-        DispatchedJobDefinition definition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateDispatchedJobAsync(DispatchedJobDefinition definition)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateOrUpdateScheduledJobAsync(
-        ScheduledJobDefinition scheduledJobDefinition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateOrUpdateScheduledJobAsync(ScheduledJobDefinition scheduledJobDefinition)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+    public ValueTask DeleteScheduledJobAsync(string id)
     {
         return new ValueTask();
     }
@@ -75,50 +62,32 @@ public class NoOpTransactionalStoreWriter : ITransactionalStoreWriter
         string jobId,
         LogLevel logLevel,
         string message,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(
-        string jobId,
-        uint retries,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobStateAsync(
-        string jobId,
-        JobStatus jobStatus,
-        DateTime? finishedDate,
-        CancellationToken cancellationToken = default
-    )
+    public ValueTask UpdateJobStateAsync(string jobId, JobStatus jobStatus, DateTime? finishedDate)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobNextRunDateAsync(
-        string jobId,
-        DateTime nextRunDate,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateScheduledJobNextRunDateAsync(string jobId, DateTime nextRunDate)
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobLastRunDateAsync(
-        string jobId,
-        DateTime? lastRunDate,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateScheduledJobLastRunDateAsync(string jobId, DateTime? lastRunDate)
     {
         return new ValueTask();
     }

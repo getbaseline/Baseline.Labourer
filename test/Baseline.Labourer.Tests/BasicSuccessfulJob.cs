@@ -5,7 +5,7 @@ namespace Baseline.Labourer.Tests;
 
 public class BasicSuccessfulJob : IJob
 {
-    public ValueTask HandleAsync(CancellationToken cancellationToken)
+    public ValueTask HandleAsync()
     {
         return new ValueTask();
     }

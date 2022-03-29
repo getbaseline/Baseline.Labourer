@@ -16,7 +16,7 @@ public abstract class BaseSqliteBootstrapper<T> : BaseSqliteInteractor
     public async ValueTask BootstrapAsync()
     {
         using var connection = NewConnection();
-        var transaction = connection.BeginTransaction();
+        using var transaction = connection.BeginTransaction();
 
         CreateMigrationsTableIfNotExists(connection, transaction);
         await MigrateAsync(connection, transaction);

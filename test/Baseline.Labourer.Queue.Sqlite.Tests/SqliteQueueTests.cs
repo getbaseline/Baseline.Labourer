@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Store.Sqlite.Tests;
 using Baseline.Labourer.Tests;
@@ -23,7 +22,7 @@ public class SqliteQueueTests : BaseSqliteTest
     public async Task It_Enqueues_A_Simple_Message_Correctly()
     {
         // Act.
-        await _queue.EnqueueAsync(new { Name = "foo" }, null, CancellationToken.None);
+        await _queue.EnqueueAsync(new { Name = "foo" }, null);
 
         // Assert.
         var messagesThatMatch = (long)new SqliteCommand(
@@ -37,49 +36,45 @@ public class SqliteQueueTests : BaseSqliteTest
     public async Task It_Enqueues_A_Message_With_A_Visibility_Timeout_Correctly_And_Does_Not_Retrieve_It_Until_The_Timeout_Is_Ellapsed()
     {
         // Arrange.
-        await _queue.EnqueueAsync(
-            new { Name = "foo" },
-            TimeSpan.FromMinutes(1),
-            CancellationToken.None
-        );
+        await _queue.EnqueueAsync(new { Name = "foo" }, TimeSpan.FromMinutes(1));
 
         // Act/Assert.
-        (await _queue.DequeueAsync(CancellationToken.None))
+        (await _queue.DequeueAsync())
             .Should()
             .BeNull();
 
         _testDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddMinutes(3));
 
-        (await _queue.DequeueAsync(CancellationToken.None)).Should().NotBeNull();
+        (await _queue.DequeueAsync()).Should().NotBeNull();
     }
 
     [Fact]
     public async Task It_Hides_A_Message_After_Retrieving_It_And_The_Message_Is_Not_Retrieved_Until_The_Timeout_Is_Ellapsed()
     {
         // Arrange.
-        await _queue.EnqueueAsync(new { Name = "foo" }, null, CancellationToken.None);
+        await _queue.EnqueueAsync(new { Name = "foo" }, null);
 
         // Act/Assert.
-        (await _queue.DequeueAsync(CancellationToken.None))
+        (await _queue.DequeueAsync())
             .Should()
             .NotBeNull();
 
-        (await _queue.DequeueAsync(CancellationToken.None)).Should().BeNull();
+        (await _queue.DequeueAsync()).Should().BeNull();
 
         _testDateTimeProvider.SetUtcNow(DateTime.UtcNow.AddMinutes(1));
 
-        (await _queue.DequeueAsync(CancellationToken.None)).Should().NotBeNull();
+        (await _queue.DequeueAsync()).Should().NotBeNull();
     }
 
     [Fact]
     public async Task It_Deletes_A_Message()
     {
         // Arrange.
-        await _queue.EnqueueAsync(new { Name = "foo" }, null, CancellationToken.None);
-        var message = await _queue.DequeueAsync(CancellationToken.None);
+        await _queue.EnqueueAsync(new { Name = "foo" }, null);
+        var message = await _queue.DequeueAsync();
 
         // Act.
-        await _queue.DeleteMessageAsync(message.MessageId, CancellationToken.None);
+        await _queue.DeleteMessageAsync(message!.MessageId);
 
         // Assert.
         var messagesThatMatch = (long)new SqliteCommand(

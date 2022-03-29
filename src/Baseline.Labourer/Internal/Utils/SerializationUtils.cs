@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer.Internal;
@@ -17,19 +16,14 @@ public static class SerializationUtils
     /// Serializes an object to a string.
     /// </summary>
     /// <param name="obj"></param>
-    /// <param name="cancellationToken"></param>
     /// <typeparam name="T"></typeparam>
-    public static async Task<string> SerializeToStringAsync<T>(
-        T obj,
-        CancellationToken cancellationToken = default
-    )
+    public static async Task<string> SerializeToStringAsync<T>(T obj)
     {
         await using var memoryStream = new MemoryStream();
         await JsonSerializer.SerializeAsync(
             memoryStream,
             obj,
-            new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles },
-            cancellationToken
+            new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }
         );
         memoryStream.Seek(0, SeekOrigin.Begin);
         return await new StreamReader(memoryStream).ReadToEndAsync();
@@ -40,42 +34,20 @@ public static class SerializationUtils
     /// </summary>
     /// <param name="serialized"></param>
     /// <param name="type"></param>
-    /// <param name="cancellationToken"></param>
-    public static async Task<object> DeserializeFromStringAsync(
-        string serialized,
-        Type type,
-        CancellationToken cancellationToken
-    )
+    public static async Task<object> DeserializeFromStringAsync(string serialized, Type type)
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-        return (
-            await JsonSerializer.DeserializeAsync(
-                stream,
-                type,
-                new JsonSerializerOptions(),
-                cancellationToken
-            )
-        )!;
+        return (await JsonSerializer.DeserializeAsync(stream, type, new JsonSerializerOptions()))!;
     }
 
     /// <summary>
     /// Deserializes a string into an object defined by the generic type of the method.
     /// </summary>
     /// <param name="serialized"></param>
-    /// <param name="cancellationToken"></param>
     /// <typeparam name="T"></typeparam>
-    public static async Task<T> DeserializeFromStringAsync<T>(
-        string serialized,
-        CancellationToken cancellationToken = default
-    )
+    public static async Task<T> DeserializeFromStringAsync<T>(string serialized)
     {
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(serialized));
-        return (
-            await JsonSerializer.DeserializeAsync<T>(
-                stream,
-                new JsonSerializerOptions(),
-                cancellationToken
-            )
-        )!;
+        return (await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions()))!;
     }
 }

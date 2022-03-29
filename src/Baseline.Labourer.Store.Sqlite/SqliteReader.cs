@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
@@ -16,8 +15,7 @@ public class SqliteReader : BaseSqliteInteractor, IStoreReader
 
     /// <inheritdoc />
     public ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-        DateTime before,
-        CancellationToken cancellationToken
+        DateTime before
     )
     {
         using var connection = NewConnection();

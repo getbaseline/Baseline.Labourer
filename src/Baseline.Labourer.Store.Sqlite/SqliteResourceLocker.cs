@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
@@ -20,11 +19,7 @@ public class SqliteResourceLocker : BaseSqliteInteractor, IResourceLocker
     }
 
     /// <inheritdoc />
-    public Task<IAsyncDisposable> LockResourceAsync(
-        string resource,
-        TimeSpan @for,
-        CancellationToken cancellationToken
-    )
+    public Task<IAsyncDisposable> LockResourceAsync(string resource, TimeSpan @for)
     {
         using var connection = NewConnection();
         using var transaction = connection.BeginTransaction();

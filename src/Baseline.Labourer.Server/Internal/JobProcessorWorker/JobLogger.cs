@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -50,10 +49,9 @@ internal class JobLogger : ILogger
                         _jobId,
                         logLevel,
                         formatter(state, exception),
-                        exception,
-                        CancellationToken.None
+                        exception
                     );
-                    await transaction.CommitAsync(CancellationToken.None);
+                    await transaction.CommitAsync();
                 }
                 catch (Exception)
                 {

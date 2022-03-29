@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer.Internal;
@@ -22,17 +21,13 @@ public class JobDispatcher
     /// Immediately dispatches a job.
     /// </summary>
     /// <param name="jobDefinition">The job definition to dispatch.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task<string> DispatchJobAsync(
-        DispatchedJobDefinition jobDefinition,
-        CancellationToken cancellationToken
-    )
+    public async Task<string> DispatchJobAsync(DispatchedJobDefinition jobDefinition)
     {
-        await _queue.EnqueueAsync(jobDefinition, TimeSpan.Zero, cancellationToken);
+        await _queue.EnqueueAsync(jobDefinition, TimeSpan.Zero);
 
         await using var writer = _transactionManager.BeginTransaction();
-        await writer.CreateDispatchedJobAsync(jobDefinition, cancellationToken);
-        await writer.CommitAsync(cancellationToken);
+        await writer.CreateDispatchedJobAsync(jobDefinition);
+        await writer.CommitAsync();
 
         return jobDefinition.Id;
     }

@@ -15,7 +15,7 @@ public class MemoryTests : BaseDependencyInjectionTest
 
         public Job() { }
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             Ran = true;
             return new ValueTask();

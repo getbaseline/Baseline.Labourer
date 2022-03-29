@@ -14,10 +14,10 @@ public class BaselineLabourerClientConfiguration
     /// <summary>
     /// Gets or sets the queue provider to use.
     /// </summary>
-    public IQueue Queue { get; set; }
+    public IQueue Queue { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the store provider to use.
     /// </summary>
-    public IStore Store { get; set; }
+    public IStore Store { get; set; } = null!;
 }

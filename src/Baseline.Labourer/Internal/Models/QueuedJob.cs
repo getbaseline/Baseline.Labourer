@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer.Internal;
@@ -55,12 +54,8 @@ public class QueuedJob
     /// <summary>
     /// Deserializes the definition of the queued job into an object and then returns it.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task<T> DeserializeAsync<T>(CancellationToken cancellationToken)
+    public async Task<T> DeserializeAsync<T>()
     {
-        return await SerializationUtils.DeserializeFromStringAsync<T>(
-            SerializedDefinition,
-            cancellationToken
-        );
+        return await SerializationUtils.DeserializeFromStringAsync<T>(SerializedDefinition);
     }
 }

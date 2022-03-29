@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -48,8 +47,8 @@ internal class JobProcessorWorker : IWorker
 
         await using (var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction())
         {
-            await writer.CreateWorkerAsync(worker, CancellationToken.None);
-            await writer.CommitAsync(CancellationToken.None);
+            await writer.CreateWorkerAsync(worker);
+            await writer.CommitAsync();
         }
 
         var workerContext = new WorkerContext(_serverContext, worker);
@@ -67,34 +66,25 @@ internal class JobProcessorWorker : IWorker
             {
                 if (_serverContext.ShutdownTokenSource.IsCancellationRequested)
                 {
+                    _logger.LogInformation(
+                        _serverContext,
+                        "Shut down request received. Shutting down gracefully (hopefully)."
+                    );
                     return;
                 }
 
-                var dequeuedMessage = await _serverContext.Queue.DequeueAsync(
-                    _serverContext.ShutdownTokenSource.Token
-                );
+                var dequeuedMessage = await _serverContext.Queue.DequeueAsync();
                 if (dequeuedMessage == null)
                 {
                     continue;
                 }
 
-                await new JobMessageHandler(workerContext).HandleMessageAsync(
-                    dequeuedMessage,
-                    CancellationToken.None
-                );
+                await new JobMessageHandler(workerContext).HandleMessageAsync(dequeuedMessage);
             }
-        }
-        catch (TaskCanceledException e)
-            when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
-        {
-            _logger.LogInformation(
-                workerContext,
-                "Shut down request received. Shutting down gracefully (hopefully)."
-            );
         }
         catch (Exception e)
         {
-            _logger.LogError(workerContext, "Unexpected error received. Handling.", e);
+            _logger.LogError(workerContext, $"Unexpected error received. Handling. {e.Message}", e);
         }
     }
 }

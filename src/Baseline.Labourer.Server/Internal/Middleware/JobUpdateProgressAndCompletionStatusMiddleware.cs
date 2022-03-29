@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -14,30 +13,22 @@ internal class JobUpdateProgressAndCompletionStatusMiddleware : JobMiddleware
     /// Updates the job's status to mark it as completed.
     /// </summary>
     /// <param name="jobContext">The job's context.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public override async ValueTask JobCompletedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public override async ValueTask JobCompletedAsync(JobContext jobContext)
     {
         await using var writer = jobContext.BeginTransaction();
-        await jobContext.UpdateJobStateAsync(writer, JobStatus.Complete, cancellationToken);
-        await writer.CommitAsync(cancellationToken);
+        await jobContext.UpdateJobStateAsync(writer, JobStatus.Complete);
+        await writer.CommitAsync();
     }
 
     /// <summary>
     /// Updates the job's status to mark it as in progress.
     /// </summary>
     /// <param name="jobContext">The job's context.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public override async ValueTask JobStartedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public override async ValueTask JobStartedAsync(JobContext jobContext)
     {
         await using var writer = jobContext.BeginTransaction();
-        await jobContext.UpdateJobStateAsync(writer, JobStatus.InProgress, cancellationToken);
-        await writer.CommitAsync(cancellationToken);
+        await jobContext.UpdateJobStateAsync(writer, JobStatus.InProgress);
+        await writer.CommitAsync();
     }
 
     /// <summary>
@@ -45,19 +36,13 @@ internal class JobUpdateProgressAndCompletionStatusMiddleware : JobMiddleware
     /// </summary>
     /// <param name="jobContext">The jobs context.</param>
     /// <param name="exception">The exception (if there was one).</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     public override async ValueTask JobFailedAndExceededRetriesAsync(
         JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         await using var writer = jobContext.BeginTransaction();
-        await jobContext.UpdateJobStateAsync(
-            writer,
-            JobStatus.FailedExceededMaximumRetries,
-            cancellationToken
-        );
-        await writer.CommitAsync(cancellationToken);
+        await jobContext.UpdateJobStateAsync(writer, JobStatus.FailedExceededMaximumRetries);
+        await writer.CommitAsync();
     }
 }

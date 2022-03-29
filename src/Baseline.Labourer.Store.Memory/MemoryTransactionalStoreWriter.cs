@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -43,7 +42,7 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public async ValueTask CommitAsync(CancellationToken cancellationToken)
+    public async ValueTask CommitAsync()
     {
         using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();
 
@@ -120,20 +119,14 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(
-        ServerInstance serverInstance,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerAsync(ServerInstance serverInstance)
     {
         _serverInstancesToCreate.Add(serverInstance);
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(
-        string serverId,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerHeartbeatAsync(string serverId)
     {
         if (!_heartbeatsToCreate.ContainsKey(serverId))
         {
@@ -146,7 +139,7 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
+    public ValueTask CreateWorkerAsync(Worker worker)
     {
         _workersToCreate.Add(worker);
         return new ValueTask();
@@ -161,20 +154,14 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask CreateDispatchedJobAsync(
-        DispatchedJobDefinition definition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateDispatchedJobAsync(DispatchedJobDefinition definition)
     {
         _jobDefinitionsToCreate.Add(definition);
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask CreateOrUpdateScheduledJobAsync(
-        ScheduledJobDefinition scheduledJobDefinition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateOrUpdateScheduledJobAsync(ScheduledJobDefinition scheduledJobDefinition)
     {
         if (!_memoryStoreDataContainer.ScheduledJobs.ContainsKey(scheduledJobDefinition.Id))
         {
@@ -199,7 +186,7 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+    public ValueTask DeleteScheduledJobAsync(string id)
     {
         _scheduledJobDeletions.Add(id);
         return new ValueTask();
@@ -210,8 +197,7 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
         string jobId,
         LogLevel logLevel,
         string message,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         _jobLogEntriesToAdd.Add(
@@ -228,23 +214,14 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(
-        string jobId,
-        uint retries,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries)
     {
         UpdateJob(jobId, job => job.Retries = retries);
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobStateAsync(
-        string jobId,
-        JobStatus jobStatus,
-        DateTime? finishedDate,
-        CancellationToken cancellationToken = default
-    )
+    public ValueTask UpdateJobStateAsync(string jobId, JobStatus jobStatus, DateTime? finishedDate)
     {
         UpdateJob(
             jobId,
@@ -259,20 +236,16 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobNextRunDateAsync(
-        string jobId,
-        DateTime nextRunDate,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateScheduledJobNextRunDateAsync(string jobId, DateTime nextRunDate)
     {
         UpdateScheduledJob(jobId, job => job.NextRunDate = nextRunDate);
         return new ValueTask();
     }
 
+    /// <inheritdoc />
     public ValueTask UpdateScheduledJobLastRunDateAsync(
         string jobId,
-        DateTime? lastRunDate,
-        CancellationToken cancellationToken
+        DateTime? lastRunDate
     )
     {
         UpdateScheduledJob(jobId, job => job.LastRunDate = lastRunDate);

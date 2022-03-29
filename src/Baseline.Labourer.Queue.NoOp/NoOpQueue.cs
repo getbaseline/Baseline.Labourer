@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -18,23 +17,19 @@ public class NoOpQueue : IQueue
     }
 
     /// <inheritdoc />
-    public Task EnqueueAsync<T>(
-        T messageToQueue,
-        TimeSpan? visibilityDelay,
-        CancellationToken cancellationToken
-    )
+    public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
     {
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+    public ValueTask<QueuedJob?> DequeueAsync()
     {
         return ValueTask.FromResult(null as QueuedJob);
     }
 
     /// <inheritdoc />
-    public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public ValueTask DeleteMessageAsync(string messageId)
     {
         return ValueTask.CompletedTask;
     }

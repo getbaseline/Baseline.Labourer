@@ -15,7 +15,7 @@ public class SimpleScheduledJobWorkerTests : ServerTest
     {
         public static bool Ran;
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             Ran = true;
             return new ValueTask();

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -30,8 +29,7 @@ public class MemoryResourceLockerTests
         await using (
             var _ = await _memoryResourceLocker.LockResourceAsync(
                 "abc",
-                TimeSpan.FromSeconds(100),
-                CancellationToken.None
+                TimeSpan.FromSeconds(100)
             )
         )
         {
@@ -55,8 +53,7 @@ public class MemoryResourceLockerTests
         Func<Task> sut = async () =>
             await _memoryResourceLocker.LockResourceAsync(
                 "abc",
-                TimeSpan.FromSeconds(1),
-                CancellationToken.None
+                TimeSpan.FromSeconds(1)
             );
 
         // Assert.
@@ -78,8 +75,7 @@ public class MemoryResourceLockerTests
         Func<Task> sut = async () =>
             await _memoryResourceLocker.LockResourceAsync(
                 "abc",
-                TimeSpan.FromSeconds(1),
-                CancellationToken.None
+                TimeSpan.FromSeconds(1)
             );
 
         // Assert.
@@ -103,8 +99,7 @@ public class MemoryResourceLockerTests
         Func<Task> sut = async () =>
             await _memoryResourceLocker.LockResourceAsync(
                 "abc",
-                TimeSpan.FromSeconds(1),
-                CancellationToken.None
+                TimeSpan.FromSeconds(1)
             );
 
         // Assert.

@@ -21,21 +21,17 @@ public class BootTasksTests : ServerTest
             return new ValueTask();
         }
 
-        public Task EnqueueAsync<T>(
-            T messageToQueue,
-            TimeSpan? visibilityDelay,
-            CancellationToken cancellationToken
-        )
+        public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+        public ValueTask<QueuedJob?> DequeueAsync()
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+        public ValueTask DeleteMessageAsync(string messageId)
         {
             throw new NotImplementedException();
         }

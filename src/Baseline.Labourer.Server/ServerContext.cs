@@ -75,19 +75,20 @@ public class ServerContext
         BaselineLabourerServerConfiguration labourerServerConfiguration
     )
     {
-        // validate configuration
+        ArgumentNullException.ThrowIfNull(labourerServerConfiguration?.Queue);
+        ArgumentNullException.ThrowIfNull(labourerServerConfiguration?.Store);
 
         Activator = labourerServerConfiguration.Activator;
-        AdditionalDispatchedJobMiddlewares = labourerServerConfiguration.DispatchedJobMiddlewares!;
+        AdditionalDispatchedJobMiddlewares = labourerServerConfiguration.DispatchedJobMiddlewares;
         DefaultRetryConfiguration = labourerServerConfiguration.DefaultRetryConfiguration;
         JobRetryConfigurations = labourerServerConfiguration.JobRetryConfigurations;
         LoggerFactory =
             labourerServerConfiguration.LoggerFactory?.Invoke() ?? new NullLoggerFactory();
-        Queue = labourerServerConfiguration.Queue!;
+        Queue = labourerServerConfiguration.Queue;
         ScheduledJobProcessorInterval = labourerServerConfiguration.ScheduledJobProcessorInterval;
         ServerInstance = serverInstance;
         ShutdownTokenSource = labourerServerConfiguration.ShutdownTokenSource;
-        Store = labourerServerConfiguration.Store!;
+        Store = labourerServerConfiguration.Store;
         JobProcessingWorkersToRun = labourerServerConfiguration.JobProcessingWorkersToRun;
     }
 
@@ -95,13 +96,9 @@ public class ServerContext
     /// Creates and stores a heartbeat indicating that this server is still alive.
     /// </summary>
     /// <param name="writer">A transactionized writer to use.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task BeatAsync(
-        ITransactionalStoreWriter writer,
-        CancellationToken cancellationToken
-    )
+    public async Task BeatAsync(ITransactionalStoreWriter writer)
     {
-        await writer.CreateServerHeartbeatAsync(ServerInstance.Id, cancellationToken);
+        await writer.CreateServerHeartbeatAsync(ServerInstance.Id);
     }
 
     /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -31,16 +30,12 @@ internal class JobMiddlewareRunner
     /// user provided ones.
     /// </summary>
     /// <param name="jobContext">The job that is being ran's context.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async ValueTask JobCompletedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public async ValueTask JobCompletedAsync(JobContext jobContext)
     {
         await ExecuteAllMiddlewaresAsync(
             async m =>
             {
-                await m.JobCompletedAsync(jobContext, cancellationToken);
+                await m.JobCompletedAsync(jobContext);
                 return MiddlewareContinuation.Continue;
             },
             jobContext
@@ -53,17 +48,9 @@ internal class JobMiddlewareRunner
     /// </summary>
     /// <param name="jobContext">The job that is being ran's context.</param>
     /// <param name="exception">An exception that may have been thrown as part of the job failure.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async ValueTask JobFailedAsync(
-        JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
-    )
+    public async ValueTask JobFailedAsync(JobContext jobContext, Exception? exception)
     {
-        await ExecuteAllMiddlewaresAsync(
-            m => m.JobFailedAsync(jobContext, exception, cancellationToken),
-            jobContext
-        );
+        await ExecuteAllMiddlewaresAsync(m => m.JobFailedAsync(jobContext, exception), jobContext);
     }
 
     /// <summary>
@@ -71,17 +58,15 @@ internal class JobMiddlewareRunner
     /// </summary>
     /// <param name="jobContext">The job that failed's context.</param>
     /// <param name="exception">The exception that occurred as a result of the job failing, if there is one.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     public async ValueTask JobFailedAndExceededRetriesAsync(
         JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         await ExecuteAllMiddlewaresAsync(
             async m =>
             {
-                await m.JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken);
+                await m.JobFailedAndExceededRetriesAsync(jobContext, exception);
                 return MiddlewareContinuation.Continue;
             },
             jobContext
@@ -93,16 +78,12 @@ internal class JobMiddlewareRunner
     /// user provided ones.
     /// </summary>
     /// <param name="jobContext">The job that is being ran's context.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async ValueTask JobStartedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public async ValueTask JobStartedAsync(JobContext jobContext)
     {
         await ExecuteAllMiddlewaresAsync(
             async m =>
             {
-                await m.JobStartedAsync(jobContext, cancellationToken);
+                await m.JobStartedAsync(jobContext);
                 return MiddlewareContinuation.Continue;
             },
             jobContext

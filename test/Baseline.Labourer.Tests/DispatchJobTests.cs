@@ -17,8 +17,7 @@ public class DispatchJobTests : ClientTest
         var jobDefinition = TestStoreDataContainer.AssertJobWithTypesStored(typeof(BasicJob));
 
         var serialisedJobDefinition = await SerializationUtils.SerializeToStringAsync(
-            jobDefinition,
-            CancellationToken.None
+            jobDefinition
         );
 
         TestMemoryQueue.AssertMessageDispatched(

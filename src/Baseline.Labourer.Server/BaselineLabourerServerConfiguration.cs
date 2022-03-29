@@ -30,7 +30,7 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets or sets the middlewares used for dispatched jobs.
     /// </summary>
-    public IReadOnlyCollection<Type>? DispatchedJobMiddlewares { get; set; } = new List<Type>();
+    public IReadOnlyCollection<Type> DispatchedJobMiddlewares { get; set; } = new List<Type>();
 
     /// <summary>
     /// Gets or sets the delegate used to receive an <see cref="ILoggerFactory"/> instance which is used throughout
@@ -46,8 +46,7 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
-    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } =
-        new Dictionary<Type, RetryConfiguration>();
+    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the queue provider to use.

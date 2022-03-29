@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -15,8 +14,7 @@ internal class JobFailureRetryMiddleware : JobMiddleware
     /// <inheritdoc />
     public override async ValueTask<MiddlewareContinuation> JobFailedAsync(
         JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         var jobStoredLogger = new JobLoggerFactory(
@@ -36,7 +34,7 @@ internal class JobFailureRetryMiddleware : JobMiddleware
 
             await new JobMiddlewareRunner(
                 jobContext.WorkerContext.ServerContext
-            ).JobFailedAndExceededRetriesAsync(jobContext, exception, cancellationToken);
+            ).JobFailedAndExceededRetriesAsync(jobContext, exception);
 
             return MiddlewareContinuation.Abort;
         }
@@ -49,11 +47,11 @@ internal class JobFailureRetryMiddleware : JobMiddleware
         );
 
         await using var writer = jobContext.BeginTransaction();
-        await jobContext.UpdateJobStateAsync(writer, JobStatus.Failed, cancellationToken);
-        await jobContext.IncrementJobRetriesAsync(writer, cancellationToken);
-        await writer.CommitAsync(cancellationToken);
+        await jobContext.UpdateJobStateAsync(writer, JobStatus.Failed);
+        await jobContext.IncrementJobRetriesAsync(writer);
+        await writer.CommitAsync();
 
-        await jobContext.RequeueJobAsync(cancellationToken);
+        await jobContext.RequeueJobAsync();
 
         return MiddlewareContinuation.Continue;
     }

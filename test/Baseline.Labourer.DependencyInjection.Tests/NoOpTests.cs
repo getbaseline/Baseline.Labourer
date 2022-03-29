@@ -11,7 +11,7 @@ public class NoOpTests : BaseDependencyInjectionTest
 {
     public class NoOpJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             return new ValueTask();
         }

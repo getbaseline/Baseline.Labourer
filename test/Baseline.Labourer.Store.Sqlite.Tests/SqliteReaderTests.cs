@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -27,8 +26,7 @@ public class SqliteReaderTests : BaseSqliteTest
 
         // Act.
         var result = await _sqliteReader.GetScheduledJobsDueToRunBeforeDateAsync(
-            beforeDate,
-            CancellationToken.None
+            beforeDate
         );
 
         // Assert.

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -32,6 +31,10 @@ internal class ServerHeartbeatWorker : IWorker
 
                 if (_serverContext.ShutdownTokenSource.IsCancellationRequested)
                 {
+                    _logger.LogInformation(
+                        _serverContext,
+                        "Shut down request received. Shutting down gracefully (hopefully)."
+                    );
                     return;
                 }
 
@@ -39,22 +42,14 @@ internal class ServerHeartbeatWorker : IWorker
                     var writer = _serverContext.Store.WriterTransactionManager.BeginTransaction()
                 )
                 {
-                    await _serverContext.BeatAsync(writer, CancellationToken.None);
-                    await writer.CommitAsync(CancellationToken.None);
+                    await _serverContext.BeatAsync(writer);
+                    await writer.CommitAsync();
                 }
 
                 await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(
                     TimeSpan.FromSeconds(30)
                 );
             }
-        }
-        catch (TaskCanceledException e)
-            when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
-        {
-            _logger.LogInformation(
-                _serverContext,
-                "Shut down request received. Shutting down gracefully (hopefully)."
-            );
         }
         catch (Exception e)
         {

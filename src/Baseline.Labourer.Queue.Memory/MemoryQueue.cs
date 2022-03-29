@@ -32,23 +32,18 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async Task EnqueueAsync<T>(
-        T messageToQueue,
-        TimeSpan? visibilityDelay,
-        CancellationToken cancellationToken
-    )
+    public async Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
     {
         try
         {
-            await _semaphore.WaitAsync(cancellationToken);
+            await _semaphore.WaitAsync();
 
             Queue.Add(
                 new MemoryQueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                        messageToQueue,
-                        cancellationToken
+                        messageToQueue
                     ),
                     VisibilityDelay = visibilityDelay,
                     EnqueuedAt = _dateTimeProvider.UtcNow()
@@ -62,7 +57,7 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+    public async ValueTask<QueuedJob?> DequeueAsync()
     {
         for (var i = 0; i < 30; i++)
         {
@@ -71,7 +66,7 @@ public class MemoryQueue : IQueue
             try
             {
                 // This semaphore will prevent other queues from snatching up our messages!
-                await _semaphore.WaitAsync(cancellationToken);
+                await _semaphore.WaitAsync();
 
                 var firstMessage = Queue.FirstOrDefault(
                     q =>
@@ -83,7 +78,7 @@ public class MemoryQueue : IQueue
                 {
                     released = true;
                     _semaphore.Release();
-                    await Task.Delay(1000, cancellationToken);
+                    await Task.Delay(1000);
                     continue;
                 }
 
@@ -107,11 +102,11 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public async ValueTask DeleteMessageAsync(string messageId)
     {
         try
         {
-            await _semaphore.WaitAsync(cancellationToken);
+            await _semaphore.WaitAsync();
 
             var messagesToRemove = Queue.Where(qm => qm.MessageId == messageId).ToList();
 

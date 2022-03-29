@@ -21,7 +21,7 @@ public class DefaultActivator : IActivator
             && type.GetConstructors().First().GetParameters().Length == 0
         )
         {
-            return Activator.CreateInstance(type);
+            return Activator.CreateInstance(type)!;
         }
 
         // Find the constructor that matches required override parameters.
@@ -43,7 +43,7 @@ public class DefaultActivator : IActivator
         }
 
         return parametersToUse.Any()
-          ? Activator.CreateInstance(type, parametersToUse)
-          : Activator.CreateInstance(type);
+          ? Activator.CreateInstance(type, parametersToUse)!
+          : Activator.CreateInstance(type)!;
     }
 }
