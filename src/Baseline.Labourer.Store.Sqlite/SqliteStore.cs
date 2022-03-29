@@ -8,9 +8,6 @@ namespace Baseline.Labourer;
 public class SqliteStore : BaseSqliteBootstrapper<SqliteStore>, IStore
 {
     /// <inheritdoc />
-    public IJobLogStore JobLogStore { get; }
-
-    /// <inheritdoc />
     public IResourceLocker ResourceLocker { get; }
 
     /// <inheritdoc />
@@ -24,7 +21,6 @@ public class SqliteStore : BaseSqliteBootstrapper<SqliteStore>, IStore
     public SqliteStore(IDateTimeProvider dateTimeProvider, string connectionString)
         : base(connectionString)
     {
-        JobLogStore = new SqliteJobLogStore(connectionString);
         ResourceLocker = new SqliteResourceLocker(dateTimeProvider, connectionString);
         Reader = new SqliteReader(connectionString);
         WriterTransactionManager = new SqliteStoreWriterTransactionManager(

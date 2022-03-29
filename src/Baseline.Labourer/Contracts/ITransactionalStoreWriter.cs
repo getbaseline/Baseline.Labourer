@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer;
 
@@ -66,6 +67,22 @@ public interface ITransactionalStoreWriter : IAsyncDisposable
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Creates and saves a log entry against a job specified by the job id parameter.
+    /// </summary>
+    /// <param name="jobId">The id of the job that should have a log entry created against it.</param>
+    /// <param name="logLevel">The logging level, i.e. the severity of the log.</param>
+    /// <param name="message">The message to log.</param>
+    /// <param name="exception">An optional exception, if there was one present.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    ValueTask LogEntryForJobAsync(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception,
+        CancellationToken cancellationToken
+    );
 
     /// <summary>
     /// Updates the persisted retries for a job in the context of the current transaction.

@@ -118,7 +118,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         );
         countCommand.Parameters.Add(new SqliteParameter("@Resource", _resourceId));
 
-        countCommand.ExecuteScalar()!.Should().BeOfType<DBNull>();
+        countCommand.ExecuteScalar()!.Should().NotBeOfType<DBNull>();
     }
 
     private void CreateLock(DateTime until, bool released = false)

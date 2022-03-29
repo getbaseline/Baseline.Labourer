@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer;
 
@@ -272,6 +275,38 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         deleteScheduledJobCommand.ExecuteNonQuery();
 
         return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public async ValueTask LogEntryForJobAsync(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception,
+        CancellationToken cancellationToken
+    )
+    {
+        var logEntryCommand = new SqliteCommand(
+            @"
+                INSERT INTO bl_lb_job_logs (job_id, log_level, message, exception, created_at)
+                VALUES (@JobId, @LogLevel, @Message, @Exception, @At)
+            ",
+            _connection,
+            _transaction
+        );
+        logEntryCommand.Parameters.Add(new SqliteParameter("@JobId", jobId));
+        logEntryCommand.Parameters.Add(new SqliteParameter("@LogLevel", logLevel.ToString()));
+        logEntryCommand.Parameters.Add(new SqliteParameter("@Message", message));
+        logEntryCommand.Parameters.Add(
+            new SqliteParameter(
+                "@Exception",
+                exception == null
+                  ? DBNull.Value
+                  : await SerializationUtils.SerializeToStringAsync(exception, cancellationToken)
+            )
+        );
+        logEntryCommand.Parameters.Add(new SqliteParameter("@At", DateTime.UtcNow));
+        logEntryCommand.ExecuteNonQuery();
     }
 
     /// <inheritdoc />

@@ -6,7 +6,6 @@ namespace Baseline.Labourer.Tests;
 public class TestMemoryStore : IStore
 {
     public bool Bootstrapped { get; private set; }
-    public IJobLogStore JobLogStore { get; }
     public IResourceLocker ResourceLocker { get; }
     public IStoreReader Reader { get; }
     public IStoreWriterTransactionManager WriterTransactionManager { get; }
@@ -16,7 +15,6 @@ public class TestMemoryStore : IStore
         IDateTimeProvider dateTimeProvider
     )
     {
-        JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
         ResourceLocker = new TestMemoryResourceLocker(memoryStoreDataContainer, dateTimeProvider);
         Reader = new MemoryStoreReader(memoryStoreDataContainer);
         WriterTransactionManager = new MemoryStoreWriterTransactionManager(

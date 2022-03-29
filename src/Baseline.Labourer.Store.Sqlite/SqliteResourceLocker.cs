@@ -34,12 +34,12 @@ public class SqliteResourceLocker : BaseSqliteInteractor, IResourceLocker
             throw new ResourceLockedException(resource);
         }
 
-        CreateLock(connection, transaction, resource, @for);
+        var lockId = CreateLock(connection, transaction, resource, @for);
 
         transaction.Commit();
 
         return Task.FromResult(
-            (IAsyncDisposable)new AsyncComposableDisposable(() => ReleaseLock(resource))
+            (IAsyncDisposable)new AsyncComposableDisposable(() => ReleaseLock(lockId))
         );
     }
 
@@ -107,12 +107,16 @@ public class SqliteResourceLocker : BaseSqliteInteractor, IResourceLocker
         return (long)lastIdCommand.ExecuteScalar()!;
     }
 
-    private ValueTask ReleaseLock(string lockId)
+    private ValueTask ReleaseLock(long lockId)
     {
         using var connection = NewConnection();
 
-        var releaseLockCommand = new SqliteCommand("", connection);
+        var releaseLockCommand = new SqliteCommand(
+            @"UPDATE bl_lb_locks SET released_at = @Now WHERE id = @LockId",
+            connection
+        );
         releaseLockCommand.Parameters.Add(new SqliteParameter("@LockId", lockId));
+        releaseLockCommand.Parameters.Add(new SqliteParameter("@Now", _dateTimeProvider.UtcNow()));
         releaseLockCommand.ExecuteNonQuery();
 
         return ValueTask.CompletedTask;

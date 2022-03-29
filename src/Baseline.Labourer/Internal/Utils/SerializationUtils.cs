@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,7 +28,7 @@ public static class SerializationUtils
         await JsonSerializer.SerializeAsync(
             memoryStream,
             obj,
-            new JsonSerializerOptions(),
+            new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles },
             cancellationToken
         );
         memoryStream.Seek(0, SeekOrigin.Begin);

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server.Internal;
@@ -11,13 +13,17 @@ internal class JobLogger : ILogger
 {
     private readonly string _jobId;
     private readonly ILogger _wrappedLogger;
-    private readonly IJobLogStore _jobLogStore;
+    private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
 
-    public JobLogger(string jobId, ILogger wrappedLogger, IJobLogStore jobLogStore)
+    public JobLogger(
+        string jobId,
+        ILogger wrappedLogger,
+        IStoreWriterTransactionManager storeWriterTransactionManager
+    )
     {
         _jobId = jobId;
         _wrappedLogger = wrappedLogger;
-        _jobLogStore = jobLogStore;
+        _storeWriterTransactionManager = storeWriterTransactionManager;
     }
 
     /// <inheritdoc />
@@ -29,19 +35,32 @@ internal class JobLogger : ILogger
         Func<TState, Exception?, string> formatter
     )
     {
-        try
-        {
-            if (_wrappedLogger.IsEnabled(logLevel))
+        Task.Run(
+            async () =>
             {
-                _wrappedLogger.Log(logLevel, eventId, state, exception, formatter);
-            }
+                try
+                {
+                    if (_wrappedLogger.IsEnabled(logLevel))
+                    {
+                        _wrappedLogger.Log(logLevel, eventId, state, exception, formatter);
+                    }
 
-            _jobLogStore.LogEntryForJob(_jobId, logLevel, formatter(state, exception), exception);
-        }
-        catch (Exception)
-        {
-            // Wrap all exceptions cos' the last thing you want to happen is your logger breaks your application!
-        }
+                    await using var transaction = _storeWriterTransactionManager.BeginTransaction();
+                    await transaction.LogEntryForJobAsync(
+                        _jobId,
+                        logLevel,
+                        formatter(state, exception),
+                        exception,
+                        CancellationToken.None
+                    );
+                    await transaction.CommitAsync(CancellationToken.None);
+                }
+                catch (Exception)
+                {
+                    // Wrap all exceptions cos' the last thing you want to happen is your logger breaks your application!
+                }
+            }
+        );
     }
 
     /// <inheritdoc />

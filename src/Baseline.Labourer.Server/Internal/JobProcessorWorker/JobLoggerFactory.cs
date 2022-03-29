@@ -10,13 +10,14 @@ internal class JobLoggerFactory : ILoggerFactory
 {
     private readonly string _jobId;
     private readonly ILoggerFactory _wrappedLoggerFactory;
-    private readonly IJobLogStore _jobLogStore;
+    private readonly IStoreWriterTransactionManager _storeWriterTransactionManager;
 
     public JobLoggerFactory(JobContext jobContext)
     {
         _jobId = jobContext.JobDefinition.Id;
         _wrappedLoggerFactory = jobContext.WorkerContext.ServerContext.LoggerFactory;
-        _jobLogStore = jobContext.WorkerContext.ServerContext.Store.JobLogStore;
+        _storeWriterTransactionManager =
+            jobContext.WorkerContext.ServerContext.Store.WriterTransactionManager;
     }
 
     /// <inheritdoc />
@@ -31,7 +32,7 @@ internal class JobLoggerFactory : ILoggerFactory
         return new JobLogger(
             _jobId,
             _wrappedLoggerFactory.CreateLogger(categoryName),
-            _jobLogStore
+            _storeWriterTransactionManager
         );
     }
 

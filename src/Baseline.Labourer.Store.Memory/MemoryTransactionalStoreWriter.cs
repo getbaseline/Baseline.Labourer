@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer;
 
@@ -14,28 +15,27 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
 {
     private readonly MemoryStoreDataContainer _memoryStoreDataContainer;
 
-    private readonly List<ServerInstance> _serverInstancesToCreate = new List<ServerInstance>();
+    private readonly List<ServerInstance> _serverInstancesToCreate = new();
 
-    private readonly Dictionary<string, List<DateTime>> _heartbeatsToCreate =
-        new Dictionary<string, List<DateTime>>();
+    private readonly Dictionary<string, List<DateTime>> _heartbeatsToCreate = new();
 
-    private readonly List<Worker> _workersToCreate = new List<Worker>();
+    private readonly List<Worker> _workersToCreate = new();
 
-    private readonly List<ScheduledJobDefinition> _scheduledJobsToCreate =
-        new List<ScheduledJobDefinition>();
+    private readonly List<ScheduledJobDefinition> _scheduledJobsToCreate = new();
 
     private readonly Dictionary<string, List<Action<ScheduledJobDefinition>>> _scheduledJobUpdates =
-        new Dictionary<string, List<Action<ScheduledJobDefinition>>>();
+        new();
 
-    private readonly List<string> _scheduledJobDeletions = new List<string>();
+    private readonly List<string> _scheduledJobDeletions = new();
 
-    private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate =
-        new List<DispatchedJobDefinition>();
+    private readonly List<DispatchedJobDefinition> _jobDefinitionsToCreate = new();
 
     private readonly Dictionary<
         string,
         List<Action<DispatchedJobDefinition>>
-    > _jobDefinitionUpdates = new Dictionary<string, List<Action<DispatchedJobDefinition>>>();
+    > _jobDefinitionUpdates = new();
+
+    private readonly List<MemoryLogEntry> _jobLogEntriesToAdd = new();
 
     public MemoryTransactionalStoreWriter(MemoryStoreDataContainer memoryStoreDataContainer)
     {
@@ -115,6 +115,8 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
                 update(jobToUpdate);
             }
         }
+
+        _memoryStoreDataContainer.LogEntries.AddRange(_jobLogEntriesToAdd);
     }
 
     /// <inheritdoc />
@@ -201,6 +203,28 @@ public class MemoryTransactionalStoreWriter : ITransactionalStoreWriter
     {
         _scheduledJobDeletions.Add(id);
         return new ValueTask();
+    }
+
+    /// <inheritdoc />
+    public ValueTask LogEntryForJobAsync(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception,
+        CancellationToken cancellationToken
+    )
+    {
+        _jobLogEntriesToAdd.Add(
+            new MemoryLogEntry
+            {
+                JobId = jobId,
+                LogLevel = logLevel,
+                Message = message,
+                Exception = exception
+            }
+        );
+
+        return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />

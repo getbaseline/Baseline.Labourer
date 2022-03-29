@@ -9,9 +9,6 @@ namespace Baseline.Labourer;
 public class NoOpStore : IStore
 {
     /// <inheritdoc />
-    public IJobLogStore JobLogStore { get; } = new NoOpJobLogStore();
-
-    /// <inheritdoc />
     public IResourceLocker ResourceLocker { get; } = new NoOpResourceLocker();
 
     /// <inheritdoc />

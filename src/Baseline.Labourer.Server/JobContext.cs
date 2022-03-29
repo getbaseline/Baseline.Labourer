@@ -64,11 +64,12 @@ public class JobContext
     )
     {
         // TODO: this will cause a lock. Move this functionality into the transaction manager.
-        WorkerContext.ServerContext.Store.JobLogStore.LogEntryForJob(
+        await writer.LogEntryForJobAsync(
             JobDefinition.Id,
             LogLevel.Information,
             $"Job status changed from {JobDefinition.Status} to {status}.",
-            null
+            null,
+            cancellationToken
         );
 
         JobDefinition.Status = status;
@@ -76,7 +77,7 @@ public class JobContext
         await writer.UpdateJobStateAsync(
             JobDefinition.Id,
             status,
-            status == JobStatus.Complete || status == JobStatus.FailedExceededMaximumRetries
+            status is JobStatus.Complete or JobStatus.FailedExceededMaximumRetries
               ? (DateTime?)DateTime.UtcNow
               : null,
             cancellationToken

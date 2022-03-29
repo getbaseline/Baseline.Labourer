@@ -9,11 +9,6 @@ namespace Baseline.Labourer;
 public interface IStore
 {
     /// <summary>
-    /// Gets the job log store.
-    /// </summary>
-    IJobLogStore JobLogStore { get; }
-
-    /// <summary>
     /// Gets the resource locker.
     /// </summary>
     IResourceLocker ResourceLocker { get; }

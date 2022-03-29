@@ -5,6 +5,7 @@ using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Baseline.Labourer.Store.Sqlite.Tests;
@@ -326,6 +327,40 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         ).ExecuteReader();
         scheduledJobReader.Read();
         scheduledJobReader.GetDateTime(0).Should().Be(lastRunDate);
+    }
+
+    [Fact]
+    public async Task It_Successfully_Logs_The_Job_Log_Message()
+    {
+        // Arrange.
+        var exception = new ArgumentException("foo", "bar");
+        var writer = new SqliteTransactionalStoreWriter(
+            new TestDateTimeProvider(),
+            ConnectionString
+        );
+
+        // Act.
+        await writer.LogEntryForJobAsync(
+            "1",
+            LogLevel.Critical,
+            "Foo bar.",
+            exception,
+            CancellationToken.None
+        );
+        await writer.CommitAsync(CancellationToken.None);
+
+        // Assert.
+        var logEntryRetrievalCommand = new SqliteCommand(
+            $"SELECT id, job_id, log_level, message, exception FROM bl_lb_job_logs WHERE job_id = '1'",
+            Connection
+        ).ExecuteReader();
+
+        logEntryRetrievalCommand.Read();
+
+        logEntryRetrievalCommand.GetString(1).Should().Be("1");
+        logEntryRetrievalCommand.GetString(2).Should().Be(LogLevel.Critical.ToString());
+        logEntryRetrievalCommand.GetString(3).Should().Be("Foo bar.");
+        logEntryRetrievalCommand.GetString(4).Should().Contain("foo");
     }
 
     private string CreateServer()

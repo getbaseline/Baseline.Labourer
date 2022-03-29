@@ -8,9 +8,6 @@ namespace Baseline.Labourer;
 public class MemoryStore : IStore
 {
     /// <inheritdoc />
-    public IJobLogStore JobLogStore { get; }
-
-    /// <inheritdoc />
     public IResourceLocker ResourceLocker { get; }
 
     /// <inheritdoc />
@@ -23,7 +20,6 @@ public class MemoryStore : IStore
 
     public MemoryStore(MemoryStoreDataContainer memoryStoreDataContainer)
     {
-        JobLogStore = new MemoryJobLogStore(memoryStoreDataContainer);
         ResourceLocker = new MemoryResourceLocker(memoryStoreDataContainer);
         Reader = new MemoryStoreReader(memoryStoreDataContainer);
         WriterTransactionManager = new MemoryStoreWriterTransactionManager(

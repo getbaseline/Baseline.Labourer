@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer;
 
@@ -66,6 +67,17 @@ public class NoOpTransactionalStoreWriter : ITransactionalStoreWriter
 
     /// <inheritdoc />
     public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+    {
+        return new ValueTask();
+    }
+
+    public ValueTask LogEntryForJobAsync(
+        string jobId,
+        LogLevel logLevel,
+        string message,
+        Exception? exception,
+        CancellationToken cancellationToken
+    )
     {
         return new ValueTask();
     }

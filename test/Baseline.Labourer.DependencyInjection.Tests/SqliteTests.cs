@@ -38,15 +38,13 @@ public class SqliteTests : BaseDependencyInjectionTest
             {
                 builder.UseSqliteStore(connectionString);
                 builder.UseSqliteQueue(connectionString);
-
-                builder.ConfigureServer(s => s.RunThisManyJobProcessingWorkers(1));
             }
         );
 
         RunServer();
 
         // Act.
-        await Task.Delay(3000);
+        await Task.Delay(1000); // This sucks but need to wait for it to bootstrap the relevant tables.
         var jobId = await Client.DispatchJobAsync<SqliteJob>();
 
         // Assert.
@@ -55,8 +53,7 @@ public class SqliteTests : BaseDependencyInjectionTest
             () =>
             {
                 SqliteJob.Ran.Should().BeTrue();
-            },
-            100000
+            }
         );
     }
 }
