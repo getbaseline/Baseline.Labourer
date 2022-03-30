@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
@@ -23,7 +22,7 @@ public class SimpleJobProcessingTests : ServerTest
     {
         internal static bool Handled;
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             Handled = true;
             return new ValueTask();
@@ -49,10 +48,7 @@ public class SimpleJobProcessingTests : ServerTest
     {
         public static int Count;
 
-        public Task HandleAsync(
-            SimpleQueuedJobWithParamsParams parameters,
-            CancellationToken cancellationToken
-        )
+        public Task HandleAsync(SimpleQueuedJobWithParamsParams parameters)
         {
             Count = parameters.Count;
             return Task.CompletedTask;
@@ -78,7 +74,7 @@ public class SimpleJobProcessingTests : ServerTest
     {
         public static bool Handled;
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             Handled = true;
             return new ValueTask();
@@ -100,9 +96,9 @@ public class SimpleJobProcessingTests : ServerTest
 
     public class MarkedAsInProgressJob : IJob
     {
-        public async ValueTask HandleAsync(CancellationToken cancellationToken)
+        public async ValueTask HandleAsync()
         {
-            await Task.Delay(2500, cancellationToken);
+            await Task.Delay(2500);
         }
     }
 
@@ -132,7 +128,7 @@ public class SimpleJobProcessingTests : ServerTest
 
     public class MultipleJobsJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             return new ValueTask();
         }

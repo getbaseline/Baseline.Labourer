@@ -7,21 +7,15 @@ namespace Baseline.Labourer.Server;
 /// included in the worker context includes worker-scoped dependencies such as the dispatched job store and the
 /// id of the worker that is processing the request.
 /// </summary>
-public class WorkerContext
+public record WorkerContext(ServerContext ServerContext, Worker Worker)
 {
     /// <summary>
     /// Gets or sets the server context that the worker is running in.
     /// </summary>
-    public ServerContext ServerContext { get; set; }
+    public ServerContext ServerContext { get; set; } = ServerContext;
 
     /// <summary>
     /// Gets or sets the worker being ran.
     /// </summary>
-    public Worker Worker { get; set; }
-
-    public WorkerContext(ServerContext serverContext, Worker worker)
-    {
-        ServerContext = serverContext;
-        Worker = worker;
-    }
+    public Worker Worker { get; set; } = Worker;
 }

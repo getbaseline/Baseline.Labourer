@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer;
@@ -18,10 +17,5 @@ public interface IResourceLocker
     /// </summary>
     /// <param name="resource">The resource identifier to lock.</param>
     /// <param name="for">The duration of time to lock the record for if it is not released manually.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    Task<IAsyncDisposable> LockResourceAsync(
-        string resource,
-        TimeSpan @for,
-        CancellationToken cancellationToken
-    );
+    Task<IAsyncDisposable> LockResourceAsync(string resource, TimeSpan @for);
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -21,8 +20,7 @@ public class MemoryStoreReader : IStoreReader
 
     /// <inheritdoc />
     public async ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-        DateTime before,
-        CancellationToken cancellationToken
+        DateTime before
     )
     {
         using var _ = await _memoryStoreDataContainer.AcquireStoreLockAsync();

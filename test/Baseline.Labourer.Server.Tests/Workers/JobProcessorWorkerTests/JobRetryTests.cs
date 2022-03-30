@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
@@ -15,7 +14,7 @@ public class JobRetryTests : ServerTest
 
     public class CatastrophicErrorJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             throw new NotImplementedException();
         }
@@ -47,7 +46,7 @@ public class JobRetryTests : ServerTest
     {
         private static int _executions;
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             _executions++;
 
@@ -103,7 +102,7 @@ public class JobRetryTests : ServerTest
 
     public class JobWithChangedRetryAmountThatCatastrophicallyErrors : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             throw new NotImplementedException();
         }

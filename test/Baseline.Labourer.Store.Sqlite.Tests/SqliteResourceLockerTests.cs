@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -29,8 +28,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         var func = async () =>
             await _resourceLocker.LockResourceAsync(
                 _resourceId,
-                TimeSpan.FromHours(1),
-                CancellationToken.None
+                TimeSpan.FromHours(1)
             );
 
         // Assert.
@@ -47,8 +45,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         var func = async () =>
             await _resourceLocker.LockResourceAsync(
                 _resourceId,
-                TimeSpan.FromHours(1),
-                CancellationToken.None
+                TimeSpan.FromHours(1)
             );
 
         // Assert.
@@ -65,8 +62,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         var func = async () =>
             await _resourceLocker.LockResourceAsync(
                 _resourceId,
-                TimeSpan.FromHours(1),
-                CancellationToken.None
+                TimeSpan.FromHours(1)
             );
 
         // Assert.
@@ -82,8 +78,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         // Act.
         await _resourceLocker.LockResourceAsync(
             _resourceId,
-            TimeSpan.FromMinutes(1),
-            CancellationToken.None
+            TimeSpan.FromMinutes(1)
         );
 
         // Assert.
@@ -106,8 +101,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         // Act.
         var result = await _resourceLocker.LockResourceAsync(
             _resourceId,
-            TimeSpan.FromMinutes(1),
-            CancellationToken.None
+            TimeSpan.FromMinutes(1)
         );
         await result.DisposeAsync();
 

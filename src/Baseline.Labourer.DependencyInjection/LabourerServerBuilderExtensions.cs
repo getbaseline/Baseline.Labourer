@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Baseline.Labourer.Server;
 
 namespace Baseline.Labourer;
@@ -77,6 +78,22 @@ public static class LabourerServerBuilderExtensions
     )
     {
         serverBuilder.ScheduledJobProcessorInterval = delayBetweenCheckingForScheduledJobs;
+        return serverBuilder;
+    }
+
+    /// <summary>
+    /// Configures a cancellation token source that is checked within each long running worker and used to provide
+    /// a graceful shutdown.
+    /// </summary>
+    /// <param name="serverBuilder">A server builder instance to modify.</param>
+    /// <param name="shutdownTokenSource">The cancellation token source to use.</param>
+    /// <returns></returns>
+    public static LabourerServerBuilder UseThisShutdownTokenSource(
+        this LabourerServerBuilder serverBuilder,
+        CancellationTokenSource shutdownTokenSource
+    )
+    {
+        serverBuilder.ShutdownTokenSource = shutdownTokenSource;
         return serverBuilder;
     }
 }

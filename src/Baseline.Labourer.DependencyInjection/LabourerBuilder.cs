@@ -28,12 +28,12 @@ public class LabourerBuilder
     /// <summary>
     /// Gets or sets the client builder to use.
     /// </summary>
-    internal LabourerClientBuilder ClientBuilder { get; set; } = new LabourerClientBuilder();
+    internal LabourerClientBuilder ClientBuilder { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the server builder instance to use.
     /// </summary>
-    internal LabourerServerBuilder ServerBuilder { get; set; } = new LabourerServerBuilder();
+    internal LabourerServerBuilder ServerBuilder { get; set; } = new();
 
     /// <summary>
     /// Converts the <see cref="LabourerBuilder"/> instance into an instance of the
@@ -41,11 +41,14 @@ public class LabourerBuilder
     /// </summary>
     public BaselineLabourerClientConfiguration ToClientConfiguration()
     {
+        ArgumentNullException.ThrowIfNull(Queue);
+        ArgumentNullException.ThrowIfNull(Store);
+
         return new BaselineLabourerClientConfiguration
         {
             LoggerFactory = LoggerFactory,
-            Store = Store!,
-            Queue = Queue!
+            Store = Store,
+            Queue = Queue
         };
     }
 
@@ -58,9 +61,13 @@ public class LabourerBuilder
         IServiceProvider serviceProvider
     )
     {
+        ArgumentNullException.ThrowIfNull(Queue);
+        ArgumentNullException.ThrowIfNull(Store);
+
         return new BaselineLabourerServerConfiguration
         {
             Activator = new DependencyInjectionActivator(serviceProvider),
+            ShutdownTokenSource = ServerBuilder.ShutdownTokenSource,
             Queue = Queue,
             Store = Store,
             LoggerFactory = LoggerFactory,

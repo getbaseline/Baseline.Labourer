@@ -1,5 +1,4 @@
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Server.Internal;
@@ -49,8 +48,8 @@ public class LabourerServer
         await using var writer =
             _labourerServerConfiguration.Store!.WriterTransactionManager.BeginTransaction();
 
-        await writer.CreateServerAsync(serverInstance, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateServerAsync(serverInstance);
+        await writer.CommitAsync();
     }
 
     private async Task RunServerBootTasksAsync(ServerContext serverContext)

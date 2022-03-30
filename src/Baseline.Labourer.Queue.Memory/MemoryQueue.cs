@@ -26,29 +26,27 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
+    public bool SupportsLongPolling => false;
+
+    /// <inheritdoc />
     public ValueTask BootstrapAsync()
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public async Task EnqueueAsync<T>(
-        T messageToQueue,
-        TimeSpan? visibilityDelay,
-        CancellationToken cancellationToken
-    )
+    public async Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
     {
         try
         {
-            await _semaphore.WaitAsync(cancellationToken);
+            await _semaphore.WaitAsync();
 
             Queue.Add(
                 new MemoryQueuedJob
                 {
                     MessageId = StringGenerationUtils.GenerateUniqueRandomString(),
                     SerializedDefinition = await SerializationUtils.SerializeToStringAsync(
-                        messageToQueue,
-                        cancellationToken
+                        messageToQueue
                     ),
                     VisibilityDelay = visibilityDelay,
                     EnqueuedAt = _dateTimeProvider.UtcNow()
@@ -62,56 +60,43 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
-    public async ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
-    {
-        for (var i = 0; i < 30; i++)
-        {
-            var released = false;
-
-            try
-            {
-                // This semaphore will prevent other queues from snatching up our messages!
-                await _semaphore.WaitAsync(cancellationToken);
-
-                var firstMessage = Queue.FirstOrDefault(
-                    q =>
-                        q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero)
-                        <= _dateTimeProvider.UtcNow()
-                );
-
-                if (firstMessage == null)
-                {
-                    released = true;
-                    _semaphore.Release();
-                    await Task.Delay(1000, cancellationToken);
-                    continue;
-                }
-
-                firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
-                firstMessage.VisibilityDelay = (
-                    _dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt
-                ).Add(TimeSpan.FromSeconds(30));
-
-                return firstMessage;
-            }
-            finally
-            {
-                if (!released)
-                {
-                    _semaphore.Release();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /// <inheritdoc />
-    public async ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public async ValueTask<QueuedJob?> DequeueAsync()
     {
         try
         {
-            await _semaphore.WaitAsync(cancellationToken);
+            // This semaphore will prevent other queues from snatching up our messages!
+            await _semaphore.WaitAsync();
+
+            var firstMessage = Queue.FirstOrDefault(
+                q =>
+                    q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero)
+                    <= _dateTimeProvider.UtcNow()
+            );
+
+            if (firstMessage == null)
+            {
+                return null;
+            }
+
+            firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
+            firstMessage.VisibilityDelay = (
+                _dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt
+            ).Add(TimeSpan.FromSeconds(30));
+
+            return firstMessage;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    /// <inheritdoc />
+    public async ValueTask DeleteMessageAsync(string messageId)
+    {
+        try
+        {
+            await _semaphore.WaitAsync();
 
             var messagesToRemove = Queue.Where(qm => qm.MessageId == messageId).ToList();
 

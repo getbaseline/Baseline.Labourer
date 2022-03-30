@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer.Server;
@@ -14,10 +13,7 @@ public abstract class JobMiddleware : IJobMiddleware
     public virtual bool ContinueExecutingMiddlewaresOnFailure => true;
 
     /// <inheritdoc />
-    public virtual ValueTask JobCompletedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public virtual ValueTask JobCompletedAsync(JobContext jobContext)
     {
         return new ValueTask();
     }
@@ -25,8 +21,7 @@ public abstract class JobMiddleware : IJobMiddleware
     /// <inheritdoc />
     public virtual ValueTask<MiddlewareContinuation> JobFailedAsync(
         JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         return new ValueTask<MiddlewareContinuation>(MiddlewareContinuation.Continue);
@@ -35,18 +30,14 @@ public abstract class JobMiddleware : IJobMiddleware
     /// <inheritdoc />
     public virtual ValueTask JobFailedAndExceededRetriesAsync(
         JobContext jobContext,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         return new ValueTask();
     }
 
     /// <inheritdoc />
-    public virtual ValueTask JobStartedAsync(
-        JobContext jobContext,
-        CancellationToken cancellationToken
-    )
+    public virtual ValueTask JobStartedAsync(JobContext jobContext)
     {
         return new ValueTask();
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -18,10 +17,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
         public static bool JobStarted;
         public static bool JobFailedAndExceededRetries;
 
-        public override ValueTask JobCompletedAsync(
-            JobContext jobContext,
-            CancellationToken cancellationToken
-        )
+        public override ValueTask JobCompletedAsync(JobContext jobContext)
         {
             JobCompleted = true;
             return new ValueTask();
@@ -29,8 +25,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext,
-            Exception? exception,
-            CancellationToken cancellationToken
+            Exception? exception
         )
         {
             JobFailed = true;
@@ -39,18 +34,14 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
         public override ValueTask JobFailedAndExceededRetriesAsync(
             JobContext jobContext,
-            Exception? exception,
-            CancellationToken cancellationToken
+            Exception? exception
         )
         {
             JobFailedAndExceededRetries = true;
             return new ValueTask();
         }
 
-        public override ValueTask JobStartedAsync(
-            JobContext jobContext,
-            CancellationToken cancellationToken
-        )
+        public override ValueTask JobStartedAsync(JobContext jobContext)
         {
             JobStarted = true;
             return new ValueTask();
@@ -59,7 +50,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
     public class SimpleQueuedJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             return new ValueTask();
         }
@@ -67,7 +58,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
     public class JobThatWillFail : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             throw new NotImplementedException();
         }
@@ -120,8 +111,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext,
-            Exception? exception,
-            CancellationToken cancellationToken
+            Exception? exception
         )
         {
             Ran = true;
@@ -135,8 +125,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext,
-            Exception? exception,
-            CancellationToken cancellationToken
+            Exception? exception
         )
         {
             Ran = true;
@@ -171,8 +160,7 @@ public class AdditionalJobMiddlewareTests : ServerTest
 
         public override ValueTask<MiddlewareContinuation> JobFailedAsync(
             JobContext jobContext,
-            Exception? exception,
-            CancellationToken cancellationToken
+            Exception? exception
         )
         {
             Ran = true;

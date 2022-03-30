@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -13,8 +12,7 @@ public class NoOpReader : IStoreReader
 {
     /// <inheritdoc />
     public ValueTask<List<ScheduledJobDefinition>> GetScheduledJobsDueToRunBeforeDateAsync(
-        DateTime before,
-        CancellationToken cancellationToken
+        DateTime before
     )
     {
         return new ValueTask<List<ScheduledJobDefinition>>(new List<ScheduledJobDefinition>());

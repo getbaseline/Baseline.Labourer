@@ -30,7 +30,7 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets or sets the middlewares used for dispatched jobs.
     /// </summary>
-    public IReadOnlyCollection<Type>? DispatchedJobMiddlewares { get; set; } = new List<Type>();
+    public IReadOnlyCollection<Type> DispatchedJobMiddlewares { get; set; } = new List<Type>();
 
     /// <summary>
     /// Gets or sets the delegate used to receive an <see cref="ILoggerFactory"/> instance which is used throughout
@@ -46,13 +46,12 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
-    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } =
-        new Dictionary<Type, RetryConfiguration>();
+    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the queue provider to use.
     /// </summary>
-    public IQueue? Queue { get; set; }
+    public IQueue Queue { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the interval between each run of the scheduled job processor.
@@ -62,7 +61,7 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets or sets the store to use.
     /// </summary>
-    public IStore? Store { get; set; }
+    public IStore Store { get; set; } = null!;
 
     /// <summary>
     /// Gets a cancellation token source used to gracefully shutdown workers.

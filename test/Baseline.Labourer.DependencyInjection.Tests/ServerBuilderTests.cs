@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server;
 using Baseline.Labourer.Tests;
@@ -16,7 +15,7 @@ public class ServerBuilderTests : BaseDependencyInjectionTest
 
     public class ServerBuilderJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             return new ValueTask();
         }
@@ -26,10 +25,7 @@ public class ServerBuilderTests : BaseDependencyInjectionTest
     {
         public static bool Success;
 
-        public override ValueTask JobStartedAsync(
-            JobContext jobContext,
-            CancellationToken cancellationToken
-        )
+        public override ValueTask JobStartedAsync(JobContext jobContext)
         {
             var sc = jobContext.WorkerContext.ServerContext;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using FluentAssertions;
@@ -29,7 +28,7 @@ public class ScheduleJobTests : ClientTest
 
     public class TestScheduledJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             throw new NotImplementedException();
         }
@@ -42,10 +41,7 @@ public class ScheduleJobTests : ClientTest
 
     public class TestScheduledJobWithParameters : IJob<TestScheduledParameters>
     {
-        public Task HandleAsync(
-            TestScheduledParameters parameters,
-            CancellationToken cancellationToken
-        )
+        public Task HandleAsync(TestScheduledParameters parameters)
         {
             throw new NotImplementedException();
         }
@@ -82,8 +78,7 @@ public class ScheduleJobTests : ClientTest
         // Arrange.
         var scheduledJobId = await Client.CreateOrUpdateScheduledJobAsync<BasicJob>(
             "update-with-lock",
-            "* * * * *",
-            CancellationToken.None
+            "* * * * *"
         );
 
         TestStoreDataContainer.Locks[scheduledJobId].Add(
@@ -96,11 +91,7 @@ public class ScheduleJobTests : ClientTest
 
         // Act.
         Func<Task> func = async () =>
-            await Client.CreateOrUpdateScheduledJobAsync<BasicJob>(
-                scheduledJobId,
-                "* * * * *",
-                CancellationToken.None
-            );
+            await Client.CreateOrUpdateScheduledJobAsync<BasicJob>(scheduledJobId, "* * * * *");
 
         // Assert.
         await func.Should().ThrowExactlyAsync<ResourceLockedException>();
@@ -141,8 +132,7 @@ public class ScheduleJobTests : ClientTest
         );
 
         // Act.
-        Func<Task> func = async () =>
-            await Client.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+        Func<Task> func = async () => await Client.DeleteScheduledJobAsync(scheduledJob.Id);
 
         // Assert.
         await func.Should().ThrowExactlyAsync<ResourceLockedException>();
@@ -167,8 +157,7 @@ public class ScheduleJobTests : ClientTest
         );
 
         // Act.
-        Func<Task> func = async () =>
-            await Client.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
+        Func<Task> func = async () => await Client.DeleteScheduledJobAsync(scheduledJob.Id);
 
         // Assert.
         await func.Should().NotThrowAsync();

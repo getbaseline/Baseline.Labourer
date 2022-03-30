@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
@@ -23,7 +22,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.DeleteScheduledJobAsync("scheduled-job", CancellationToken.None);
+        await writer.DeleteScheduledJobAsync("scheduled-job");
         await writer.DisposeAsync();
 
         // Assert.
@@ -45,10 +44,9 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
 
         // Act.
         await writer.CreateServerAsync(
-            new ServerInstance { Hostname = "foo", Key = "bar" },
-            CancellationToken.None
+            new ServerInstance { Hostname = "foo", Key = "bar" }
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var serverRetrievalCommand = new SqliteCommand("SELECT * FROM bl_lb_servers", Connection);
@@ -69,8 +67,8 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.CreateServerHeartbeatAsync(serverId, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateServerHeartbeatAsync(serverId);
+        await writer.CommitAsync();
 
         // Assert.
         var serverHeartbeatRetrievalCommand = new SqliteCommand(
@@ -92,10 +90,9 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
 
         // Act.
         await writer.CreateWorkerAsync(
-            new Worker { ServerInstanceId = serverId, Id = Guid.NewGuid().ToString() },
-            CancellationToken.None
+            new Worker { ServerInstanceId = serverId, Id = Guid.NewGuid().ToString() }
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var workerRetrievalCommand = new SqliteCommand(
@@ -122,8 +119,8 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         };
 
         // Act.
-        await writer.CreateDispatchedJobAsync(dispatchedJob, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateDispatchedJobAsync(dispatchedJob);
+        await writer.CommitAsync();
 
         // Assert.
         var dispatchedJobReader = new SqliteCommand(
@@ -155,15 +152,14 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         };
 
         // Act.
-        await writer.CreateDispatchedJobAsync(dispatchedJob, CancellationToken.None);
-        await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 10, CancellationToken.None);
+        await writer.CreateDispatchedJobAsync(dispatchedJob);
+        await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 10);
         await writer.UpdateJobStateAsync(
             dispatchedJob.Id,
             JobStatus.Complete,
-            now,
-            CancellationToken.None
+            now
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var dispatchedJobReader = new SqliteCommand(
@@ -194,8 +190,8 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         };
 
         // Act.
-        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob);
+        await writer.CommitAsync();
 
         // Assert.
         var scheduledJobReader = new SqliteCommand(
@@ -233,8 +229,8 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
             SerializedParameters = "abc",
             CronExpression = "* * * * 4"
         };
-        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob);
+        await writer.CommitAsync();
 
         // Assert.
         var scheduledJobReader = new SqliteCommand(
@@ -262,8 +258,8 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.DeleteScheduledJobAsync("scheduled-job", CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.DeleteScheduledJobAsync("scheduled-job");
+        await writer.CommitAsync();
 
         // Assert.
         var scheduledJobsCount = new SqliteCommand(
@@ -287,10 +283,9 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         // Act.
         await writer.UpdateScheduledJobNextRunDateAsync(
             "scheduled-job",
-            nextRunDate,
-            CancellationToken.None
+            nextRunDate
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var scheduledJobReader = new SqliteCommand(
@@ -315,10 +310,9 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         // Act.
         await writer.UpdateScheduledJobLastRunDateAsync(
             "scheduled-job",
-            lastRunDate,
-            CancellationToken.None
+            lastRunDate
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var scheduledJobReader = new SqliteCommand(
@@ -344,10 +338,9 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
             "1",
             LogLevel.Critical,
             "Foo bar.",
-            exception,
-            CancellationToken.None
+            exception
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         var logEntryRetrievalCommand = new SqliteCommand(

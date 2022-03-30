@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -11,7 +10,7 @@ public class NoOpTests : BaseDependencyInjectionTest
 {
     public class NoOpJob : IJob
     {
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             return new ValueTask();
         }

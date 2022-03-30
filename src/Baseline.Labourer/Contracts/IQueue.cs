@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -10,6 +9,11 @@ namespace Baseline.Labourer;
 /// </summary>
 public interface IQueue
 {
+    /// <summary>
+    /// Gets whether or not the queue supports long polling. Defaults to false.
+    /// </summary>
+    bool SupportsLongPolling { get; }
+
     /// <summary>
     /// Bootstraps the queue implementation (for example running database migrations if the queue is database based).
     /// </summary>
@@ -22,25 +26,18 @@ public interface IQueue
     /// <param name="visibilityDelay">
     /// An optional delay used to stop a message being visible in a queue for a defined timespan.
     /// </param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    Task EnqueueAsync<T>(
-        T messageToQueue,
-        TimeSpan? visibilityDelay,
-        CancellationToken cancellationToken
-    );
+    Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay);
 
     /// <summary>
     /// Dequeues and returns a single message from the queue. This method long polls (i.e. waits a specified amount
     /// of time if no messages are available before returning) so there is no need to implement wait times on the
     /// consuming side.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token used to safely shut down the server.</param>
-    ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken);
+    ValueTask<QueuedJob?> DequeueAsync();
 
     /// <summary>
     /// Deletes a message from the queue provider.
     /// </summary>
     /// <param name="messageId">The message to remove from the queue.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken);
+    ValueTask DeleteMessageAsync(string messageId);
 }

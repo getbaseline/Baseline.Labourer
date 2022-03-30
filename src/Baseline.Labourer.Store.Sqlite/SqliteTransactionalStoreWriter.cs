@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
@@ -38,17 +35,14 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CommitAsync(CancellationToken cancellationToken)
+    public ValueTask CommitAsync()
     {
         _transaction.Commit();
         return ValueTask.CompletedTask;
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerAsync(
-        ServerInstance serverInstance,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerAsync(ServerInstance serverInstance)
     {
         var createServerCommand = new SqliteCommand(
             @"
@@ -71,10 +65,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateServerHeartbeatAsync(
-        string serverId,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateServerHeartbeatAsync(string serverId)
     {
         var createHeartbeatCommand = new SqliteCommand(
             @"
@@ -95,7 +86,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateWorkerAsync(Worker worker, CancellationToken cancellationToken)
+    public ValueTask CreateWorkerAsync(Worker worker)
     {
         var createWorkerCommand = new SqliteCommand(
             @"
@@ -116,10 +107,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateDispatchedJobAsync(
-        DispatchedJobDefinition definition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateDispatchedJobAsync(DispatchedJobDefinition definition)
     {
         var createDispatchedJobCommand = new SqliteCommand(
             @"
@@ -158,10 +146,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask CreateOrUpdateScheduledJobAsync(
-        ScheduledJobDefinition scheduledJobDefinition,
-        CancellationToken cancellationToken
-    )
+    public ValueTask CreateOrUpdateScheduledJobAsync(ScheduledJobDefinition scheduledJobDefinition)
     {
         var existsCommand = new SqliteCommand(
             "SELECT COUNT(1) FROM bl_lb_scheduled_jobs WHERE id = @Id",
@@ -261,7 +246,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask DeleteScheduledJobAsync(string id, CancellationToken cancellationToken)
+    public ValueTask DeleteScheduledJobAsync(string id)
     {
         var deleteScheduledJobCommand = new SqliteCommand(
             @"
@@ -282,8 +267,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         string jobId,
         LogLevel logLevel,
         string message,
-        Exception? exception,
-        CancellationToken cancellationToken
+        Exception? exception
     )
     {
         var logEntryCommand = new SqliteCommand(
@@ -302,7 +286,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
                 "@Exception",
                 exception == null
                   ? DBNull.Value
-                  : await SerializationUtils.SerializeToStringAsync(exception, cancellationToken)
+                  : await SerializationUtils.SerializeToStringAsync(exception)
             )
         );
         logEntryCommand.Parameters.Add(new SqliteParameter("@At", DateTime.UtcNow));
@@ -310,11 +294,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobRetriesAsync(
-        string jobId,
-        uint retries,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateJobRetriesAsync(string jobId, uint retries)
     {
         var updateJobRetriesCommand = new SqliteCommand(
             @"
@@ -336,12 +316,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateJobStateAsync(
-        string jobId,
-        JobStatus jobStatus,
-        DateTime? finishedDate,
-        CancellationToken cancellationToken = default
-    )
+    public ValueTask UpdateJobStateAsync(string jobId, JobStatus jobStatus, DateTime? finishedDate)
     {
         var updateJobStateCommand = new SqliteCommand(
             @"
@@ -369,11 +344,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobNextRunDateAsync(
-        string jobId,
-        DateTime nextRunDate,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateScheduledJobNextRunDateAsync(string jobId, DateTime nextRunDate)
     {
         var updateNextRunDateCommand = new SqliteCommand(
             @"
@@ -395,11 +366,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
     }
 
     /// <inheritdoc />
-    public ValueTask UpdateScheduledJobLastRunDateAsync(
-        string jobId,
-        DateTime? lastRunDate,
-        CancellationToken cancellationToken
-    )
+    public ValueTask UpdateScheduledJobLastRunDateAsync(string jobId, DateTime? lastRunDate)
     {
         var updateLastRunDateCommand = new SqliteCommand(
             @"

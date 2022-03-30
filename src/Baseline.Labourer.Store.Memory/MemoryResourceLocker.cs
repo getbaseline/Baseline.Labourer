@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 
@@ -30,11 +29,7 @@ public class MemoryResourceLocker : IResourceLocker
     }
 
     /// <inheritdoc />
-    public async Task<IAsyncDisposable> LockResourceAsync(
-        string resource,
-        TimeSpan @for,
-        CancellationToken cancellationToken
-    )
+    public async Task<IAsyncDisposable> LockResourceAsync(string resource, TimeSpan @for)
     {
         var lockId = StringGenerationUtils.GenerateUniqueRandomString();
 

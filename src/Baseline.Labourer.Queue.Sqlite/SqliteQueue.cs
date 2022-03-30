@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Data.Sqlite;
@@ -22,11 +21,10 @@ public class SqliteQueue : BaseSqliteBootstrapper<SqliteQueue>, IQueue
     }
 
     /// <inheritdoc />
-    public async Task EnqueueAsync<T>(
-        T messageToQueue,
-        TimeSpan? visibilityDelay,
-        CancellationToken cancellationToken
-    )
+    public bool SupportsLongPolling => false;
+
+    /// <inheritdoc />
+    public async Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
     {
         using var connection = NewConnection();
 
@@ -40,7 +38,7 @@ public class SqliteQueue : BaseSqliteBootstrapper<SqliteQueue>, IQueue
         enqueueCommand.Parameters.Add(
             new SqliteParameter(
                 "@Message",
-                await SerializationUtils.SerializeToStringAsync(messageToQueue, cancellationToken)
+                await SerializationUtils.SerializeToStringAsync(messageToQueue)
             )
         );
         enqueueCommand.Parameters.Add(
@@ -57,7 +55,7 @@ public class SqliteQueue : BaseSqliteBootstrapper<SqliteQueue>, IQueue
     }
 
     /// <inheritdoc />
-    public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+    public ValueTask<QueuedJob?> DequeueAsync()
     {
         using var connection = NewConnection();
         var transaction = connection.BeginTransaction();
@@ -75,7 +73,7 @@ public class SqliteQueue : BaseSqliteBootstrapper<SqliteQueue>, IQueue
     }
 
     /// <inheritdoc />
-    public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+    public ValueTask DeleteMessageAsync(string messageId)
     {
         using var connection = NewConnection();
 

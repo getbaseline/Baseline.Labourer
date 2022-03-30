@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
@@ -26,11 +25,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.CreateServerAsync(
-            new ServerInstance { Hostname = "foo", Key = "bar" },
-            CancellationToken.None
-        );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateServerAsync(new ServerInstance { Hostname = "foo", Key = "bar" });
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.Servers.Should().ContainSingle(s => s.Id == "foo-bar");
@@ -43,8 +39,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.CreateServerHeartbeatAsync("abc", CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateServerHeartbeatAsync("abc");
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.ServerHeartbeats["abc"].Should().HaveCount(1);
@@ -57,11 +53,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.CreateWorkerAsync(
-            new Worker { Id = "foo", ServerInstanceId = "foo" },
-            CancellationToken.None
-        );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateWorkerAsync(new Worker { Id = "foo", ServerInstanceId = "foo" });
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.ServerWorkers["foo"].Should().ContainSingle(w => w.Id == "foo");
@@ -75,10 +68,9 @@ public class MemoryTransactionStoreWriterTests
 
         // Act.
         await writer.CreateOrUpdateScheduledJobAsync(
-            new ScheduledJobDefinition { Name = "scheduled-job", CronExpression = "abc" },
-            CancellationToken.None
+            new ScheduledJobDefinition { Name = "scheduled-job", CronExpression = "abc" }
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.ScheduledJobs["scheduled-job:scheduled-job"].CronExpression
@@ -103,10 +95,9 @@ public class MemoryTransactionStoreWriterTests
         // Act.
         await writer.UpdateScheduledJobNextRunDateAsync(
             scheduledJob.Id,
-            DateTime.UtcNow.Date.AddDays(7),
-            CancellationToken.None
+            DateTime.UtcNow.Date.AddDays(7)
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.ScheduledJobs[scheduledJob.Id].NextRunDate
@@ -131,10 +122,9 @@ public class MemoryTransactionStoreWriterTests
         // Act.
         await writer.UpdateScheduledJobLastRunDateAsync(
             scheduledJob.Id,
-            DateTime.UtcNow.Date.AddDays(7),
-            CancellationToken.None
+            DateTime.UtcNow.Date.AddDays(7)
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.ScheduledJobs[scheduledJob.Id].LastRunDate
@@ -149,11 +139,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.CreateDispatchedJobAsync(
-            new DispatchedJobDefinition { Id = "bar" },
-            CancellationToken.None
-        );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CreateDispatchedJobAsync(new DispatchedJobDefinition { Id = "bar" });
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.DispatchedJobs.Should().ContainSingle(j => j.Id == "bar");
@@ -172,10 +159,9 @@ public class MemoryTransactionStoreWriterTests
         await writer.UpdateJobStateAsync(
             jobDefinition.Id,
             JobStatus.Complete,
-            DateTime.UtcNow.Date,
-            CancellationToken.None
+            DateTime.UtcNow.Date
         );
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.DispatchedJobs
@@ -198,8 +184,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.UpdateJobRetriesAsync(jobDefinition.Id, 25, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.UpdateJobRetriesAsync(jobDefinition.Id, 25);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.DispatchedJobs
@@ -217,8 +203,8 @@ public class MemoryTransactionStoreWriterTests
         await using var writer = _transactionManager.BeginTransaction();
 
         // Act.
-        await writer.DeleteScheduledJobAsync(scheduledJob.Id, CancellationToken.None);
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.DeleteScheduledJobAsync(scheduledJob.Id);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.AssertScheduledJobDoesNotExist(scheduledJob.Id);
@@ -237,13 +223,8 @@ public class MemoryTransactionStoreWriterTests
         {
             await using var writer = _transactionManager.BeginTransaction();
 
-            await writer.UpdateJobRetriesAsync(jobDefinition.Id, 25, CancellationToken.None);
-            await writer.UpdateJobStateAsync(
-                jobDefinition.Id,
-                JobStatus.Complete,
-                DateTime.UtcNow,
-                CancellationToken.None
-            );
+            await writer.UpdateJobRetriesAsync(jobDefinition.Id, 25);
+            await writer.UpdateJobStateAsync(jobDefinition.Id, JobStatus.Complete, DateTime.UtcNow);
 
             throw new Exception();
         }
@@ -273,36 +254,26 @@ public class MemoryTransactionStoreWriterTests
         // Act.
         await using var writer = _transactionManager.BeginTransaction();
 
-        await writer.CreateServerAsync(server, CancellationToken.None);
-        await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
-        await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
-        await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
-        await writer.CreateServerHeartbeatAsync(server.Id, CancellationToken.None);
-        await writer.CreateWorkerAsync(
-            new Worker { ServerInstanceId = server.Id },
-            CancellationToken.None
-        );
-        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob, CancellationToken.None);
+        await writer.CreateServerAsync(server);
+        await writer.CreateServerHeartbeatAsync(server.Id);
+        await writer.CreateServerHeartbeatAsync(server.Id);
+        await writer.CreateServerHeartbeatAsync(server.Id);
+        await writer.CreateServerHeartbeatAsync(server.Id);
+        await writer.CreateWorkerAsync(new Worker { ServerInstanceId = server.Id });
+        await writer.CreateOrUpdateScheduledJobAsync(scheduledJob);
         await writer.UpdateScheduledJobNextRunDateAsync(
             scheduledJob.Id,
-            DateTime.Now.AddDays(-1).Date,
-            CancellationToken.None
+            DateTime.Now.AddDays(-1).Date
         );
         await writer.UpdateScheduledJobNextRunDateAsync(
             scheduledJob.Id,
-            DateTime.Now.AddDays(1).Date,
-            CancellationToken.None
+            DateTime.Now.AddDays(1).Date
         );
-        await writer.CreateDispatchedJobAsync(dispatchedJob, CancellationToken.None);
-        await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 25, CancellationToken.None);
-        await writer.UpdateJobStateAsync(
-            dispatchedJob.Id,
-            JobStatus.Complete,
-            DateTime.UtcNow,
-            CancellationToken.None
-        );
+        await writer.CreateDispatchedJobAsync(dispatchedJob);
+        await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 25);
+        await writer.UpdateJobStateAsync(dispatchedJob.Id, JobStatus.Complete, DateTime.UtcNow);
 
-        await writer.CommitAsync(CancellationToken.None);
+        await writer.CommitAsync();
 
         // Assert.
         _memoryStoreDataContainer.AssertHasRegisteredAServer();

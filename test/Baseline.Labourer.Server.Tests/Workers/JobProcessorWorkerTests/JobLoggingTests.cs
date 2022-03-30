@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using Microsoft.Extensions.Logging;
@@ -72,11 +71,11 @@ public class JobLoggingTests : ServerTest
             _logger = logger;
         }
 
-        public async ValueTask HandleAsync(CancellationToken cancellationToken)
+        public async ValueTask HandleAsync()
         {
             _logger.LogInformation("Message one.");
 
-            await Task.Delay(1000, cancellationToken);
+            await Task.Delay(1000);
 
             _logger.LogInformation("Message two.");
         }

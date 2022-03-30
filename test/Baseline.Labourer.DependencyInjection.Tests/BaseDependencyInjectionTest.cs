@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +8,9 @@ using Xunit.Abstractions;
 
 namespace Baseline.Labourer.DependencyInjection.Tests;
 
-public class BaseDependencyInjectionTest
+public class BaseDependencyInjectionTest : IDisposable
 {
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly ILoggerFactory _loggerFactory;
     private IServiceProvider _serviceProvider;
 
@@ -30,7 +32,16 @@ public class BaseDependencyInjectionTest
         var serviceCollection = new ServiceCollection();
 
         serviceCollection.AddSingleton(_loggerFactory);
-        serviceCollection.AddBaselineLabourer(builder);
+        serviceCollection.AddBaselineLabourer(
+            (sp, b) =>
+            {
+                builder(sp, b);
+                b.ConfigureServer(
+                    serverBuilder =>
+                        serverBuilder.UseThisShutdownTokenSource(_cancellationTokenSource)
+                );
+            }
+        );
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }
@@ -40,5 +51,10 @@ public class BaseDependencyInjectionTest
     protected void RunServer()
     {
         Task.Run(async () => await Server.RunServerAsync());
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource?.Dispose();
     }
 }

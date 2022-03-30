@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Baseline.Labourer;
 
@@ -13,6 +12,5 @@ public interface IJob
     /// <summary>
     /// Executes the job.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    ValueTask HandleAsync(CancellationToken cancellationToken);
+    ValueTask HandleAsync();
 }

@@ -6,7 +6,7 @@ namespace Baseline.Labourer;
 /// <summary>
 /// A queued job representation with additional information related to processing them in memory.
 /// </summary>
-public class MemoryQueuedJob : QueuedJob
+public record MemoryQueuedJob : QueuedJob
 {
     /// <summary>
     /// Gets or sets the visibility delay of the memory queued job.

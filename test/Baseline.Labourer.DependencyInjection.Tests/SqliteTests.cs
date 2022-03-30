@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -15,7 +14,7 @@ public class SqliteTests : BaseDependencyInjectionTest
     {
         public static bool Ran = false;
 
-        public ValueTask HandleAsync(CancellationToken cancellationToken)
+        public ValueTask HandleAsync()
         {
             Ran = true;
             return ValueTask.CompletedTask;

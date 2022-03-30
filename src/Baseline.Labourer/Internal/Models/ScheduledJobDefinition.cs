@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using NCrontab;
 
@@ -51,14 +50,12 @@ public class ScheduledJobDefinition : JobDefinition
     /// </summary>
     /// <param name="resourceLocker">A resource locker implementation, used to actually lock this job.</param>
     /// <param name="for">The time the resource should be locked for, assuming the resource is not manually released.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     public async ValueTask<IAsyncDisposable> LockJobAsync(
         IResourceLocker resourceLocker,
-        TimeSpan @for,
-        CancellationToken cancellationToken
+        TimeSpan @for
     )
     {
-        return await resourceLocker.LockResourceAsync(Id, @for, cancellationToken);
+        return await resourceLocker.LockResourceAsync(Id, @for);
     }
 
     /// <summary>
@@ -66,16 +63,14 @@ public class ScheduledJobDefinition : JobDefinition
     /// </summary>
     /// <param name="writer">A transactional writer used to update the store.</param>
     /// <param name="dateTimeProvider">A date time provider used to retrieve the current time.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     public async Task UpdateLastRunDateAsync(
         ITransactionalStoreWriter writer,
-        IDateTimeProvider dateTimeProvider,
-        CancellationToken cancellationToken
+        IDateTimeProvider dateTimeProvider
     )
     {
         LastRunDate = dateTimeProvider.UtcNow();
 
-        await writer.UpdateScheduledJobLastRunDateAsync(Id, LastRunDate, cancellationToken);
+        await writer.UpdateScheduledJobLastRunDateAsync(Id, LastRunDate);
     }
 
     /// <summary>
@@ -83,17 +78,15 @@ public class ScheduledJobDefinition : JobDefinition
     /// </summary>
     /// <param name="writer">A transactional writer used to update the store.</param>
     /// <param name="dateTimeProvider">A date time provider used to retrieve the current time.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     public async Task UpdateNextRunDateAsync(
         ITransactionalStoreWriter writer,
-        IDateTimeProvider dateTimeProvider,
-        CancellationToken cancellationToken
+        IDateTimeProvider dateTimeProvider
     )
     {
         NextRunDate = CrontabSchedule
             .Parse(CronExpression)
             .GetNextOccurrence(dateTimeProvider.UtcNow());
 
-        await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate, cancellationToken);
+        await writer.UpdateScheduledJobNextRunDateAsync(Id, NextRunDate);
     }
 }

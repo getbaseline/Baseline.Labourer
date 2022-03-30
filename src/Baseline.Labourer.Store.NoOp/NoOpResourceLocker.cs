@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baseline.Labourer;
@@ -18,11 +17,7 @@ public class NoOpResourceLocker : IResourceLocker
     }
 
     /// <inheritdoc />
-    public Task<IAsyncDisposable> LockResourceAsync(
-        string resource,
-        TimeSpan @for,
-        CancellationToken cancellationToken
-    )
+    public Task<IAsyncDisposable> LockResourceAsync(string resource, TimeSpan @for)
     {
         return Task.FromResult((IAsyncDisposable)new NoOpAsyncDisposable());
     }

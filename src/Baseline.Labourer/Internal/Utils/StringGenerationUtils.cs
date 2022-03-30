@@ -5,7 +5,7 @@ namespace Baseline.Labourer.Internal;
 /// <summary>
 /// Contains numerous utilities related to the generation of strings.
 /// </summary>
-public class StringGenerationUtils
+public static class StringGenerationUtils
 {
     /// <summary>
     /// Generates a random string pretty much guaranteed to be unique.

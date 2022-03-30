@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
@@ -24,7 +23,7 @@ public class MemoryQueueTests
         var message = new { A = "b" };
 
         // Act.
-        await _memoryQueue.EnqueueAsync(message, null, CancellationToken.None);
+        await _memoryQueue.EnqueueAsync(message, null);
 
         // Assert.
         _memoryQueue.AssertMessageDispatched(j => j.SerializedDefinition == "{\"A\":\"b\"}");
@@ -37,7 +36,7 @@ public class MemoryQueueTests
         var message = new { A = "b" };
 
         // Act.
-        await _memoryQueue.EnqueueAsync(message, TimeSpan.FromMinutes(1), CancellationToken.None);
+        await _memoryQueue.EnqueueAsync(message, TimeSpan.FromMinutes(1));
 
         // Assert.
         _memoryQueue.AssertMessageDispatched(
@@ -48,9 +47,7 @@ public class MemoryQueueTests
 
         _dateTimeProvider.SetUtcNow(DateTime.UtcNow.AddMinutes(2));
 
-        var dequeuedMessage = (MemoryQueuedJob)(
-            await _memoryQueue.DequeueAsync(CancellationToken.None)
-        )!;
+        var dequeuedMessage = (MemoryQueuedJob)(await _memoryQueue.DequeueAsync())!;
 
         dequeuedMessage.SerializedDefinition.Should().Be("{\"A\":\"b\"}");
         dequeuedMessage.PreviousVisibilityDelay.Should().Be(TimeSpan.FromMinutes(1));

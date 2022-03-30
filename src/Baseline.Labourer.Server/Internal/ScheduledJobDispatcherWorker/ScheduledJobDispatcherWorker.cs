@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -44,12 +43,20 @@ internal class ScheduledJobDispatcherWorker : IWorker
         {
             try
             {
+                if (_serverContext.ShutdownTokenSource.IsCancellationRequested)
+                {
+                    _logger.LogInformation(
+                        _serverContext,
+                        "Shutdown request received. Ending scheduled job worker."
+                    );
+                    return;
+                }
+
                 var beforeDate = _dateTimeProvider.UtcNow().AddSeconds(1);
 
                 var jobsThatNeedRunning =
                     await _serverContext.Store.Reader.GetScheduledJobsDueToRunBeforeDateAsync(
-                        beforeDate,
-                        CancellationToken.None
+                        beforeDate
                     );
 
                 _logger.LogDebug(
@@ -64,8 +71,7 @@ internal class ScheduledJobDispatcherWorker : IWorker
                     {
                         await using var _ = await job.LockJobAsync(
                             _serverContext.Store.ResourceLocker,
-                            TimeSpan.FromSeconds(10),
-                            CancellationToken.None
+                            TimeSpan.FromSeconds(10)
                         );
 
                         _logger.LogInformation(
@@ -74,24 +80,13 @@ internal class ScheduledJobDispatcherWorker : IWorker
                             job.Id
                         );
 
-                        await _jobDispatcher.DispatchJobAsync(
-                            new DispatchedJobDefinition(job),
-                            CancellationToken.None
-                        );
+                        await _jobDispatcher.DispatchJobAsync(new DispatchedJobDefinition(job));
 
                         await using var writer =
                             _serverContext.Store.WriterTransactionManager.BeginTransaction();
-                        await job.UpdateNextRunDateAsync(
-                            writer,
-                            _dateTimeProvider,
-                            CancellationToken.None
-                        );
-                        await job.UpdateLastRunDateAsync(
-                            writer,
-                            _dateTimeProvider,
-                            CancellationToken.None
-                        );
-                        await writer.CommitAsync(CancellationToken.None);
+                        await job.UpdateNextRunDateAsync(writer, _dateTimeProvider);
+                        await job.UpdateLastRunDateAsync(writer, _dateTimeProvider);
+                        await writer.CommitAsync();
                     }
                     catch (ResourceLockedException)
                     {
@@ -106,15 +101,6 @@ internal class ScheduledJobDispatcherWorker : IWorker
                 await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(
                     _serverContext.ScheduledJobProcessorInterval
                 );
-            }
-            catch (TaskCanceledException e)
-                when (_serverContext.IsServerOwnedCancellationToken(e.CancellationToken))
-            {
-                _logger.LogInformation(
-                    _serverContext,
-                    "Shutdown request received. Ending scheduled job worker."
-                );
-                return;
             }
             catch (Exception e)
             {

@@ -1,11 +1,11 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Baseline.Labourer.Server.Tests;
 
@@ -15,27 +15,25 @@ public class BootTasksTests : ServerTest
     {
         public bool Bootstrapped { get; private set; }
 
+        public bool SupportsLongPolling => false;
+
         public ValueTask BootstrapAsync()
         {
             Bootstrapped = true;
             return new ValueTask();
         }
 
-        public Task EnqueueAsync<T>(
-            T messageToQueue,
-            TimeSpan? visibilityDelay,
-            CancellationToken cancellationToken
-        )
+        public Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask<QueuedJob?> DequeueAsync(CancellationToken cancellationToken)
+        public ValueTask<QueuedJob?> DequeueAsync()
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask DeleteMessageAsync(string messageId, CancellationToken cancellationToken)
+        public ValueTask DeleteMessageAsync(string messageId)
         {
             throw new NotImplementedException();
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Microsoft.Extensions.Logging;
@@ -15,17 +14,17 @@ public class JobContext
     /// <summary>
     /// Gets or sets the id of the message that this
     /// </summary>
-    public string OriginalMessageId { get; set; }
+    public string OriginalMessageId { get; }
 
     /// <summary>
     /// Gets or sets the context of the worker that the job is running in.
     /// </summary>
-    public WorkerContext WorkerContext { get; set; }
+    public WorkerContext WorkerContext { get; }
 
     /// <summary>
     /// Gets or sets the definition of the job that is being ran.
     /// </summary>
-    public DispatchedJobDefinition JobDefinition { get; set; }
+    public DispatchedJobDefinition JobDefinition { get; }
 
     public JobContext(
         string originalMessageId,
@@ -56,20 +55,14 @@ public class JobContext
     /// </summary>
     /// <param name="writer">A transactionized store writer to use.</param>
     /// <param name="status">The new status of the job.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task UpdateJobStateAsync(
-        ITransactionalStoreWriter writer,
-        JobStatus status,
-        CancellationToken cancellationToken
-    )
+    public async Task UpdateJobStateAsync(ITransactionalStoreWriter writer, JobStatus status)
     {
         // TODO: this will cause a lock. Move this functionality into the transaction manager.
         await writer.LogEntryForJobAsync(
             JobDefinition.Id,
             LogLevel.Information,
             $"Job status changed from {JobDefinition.Status} to {status}.",
-            null,
-            cancellationToken
+            null
         );
 
         JobDefinition.Status = status;
@@ -79,8 +72,7 @@ public class JobContext
             status,
             status is JobStatus.Complete or JobStatus.FailedExceededMaximumRetries
               ? (DateTime?)DateTime.UtcNow
-              : null,
-            cancellationToken
+              : null
         );
     }
 
@@ -88,44 +80,27 @@ public class JobContext
     /// Increments the number of retries the job has had.
     /// </summary>
     /// <param name="writer">A transactionized store writer to use.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task IncrementJobRetriesAsync(
-        ITransactionalStoreWriter writer,
-        CancellationToken cancellationToken
-    )
+    public async Task IncrementJobRetriesAsync(ITransactionalStoreWriter writer)
     {
         JobDefinition.Retries += 1;
 
-        await writer.UpdateJobRetriesAsync(
-            JobDefinition.Id,
-            JobDefinition.Retries,
-            cancellationToken
-        );
+        await writer.UpdateJobRetriesAsync(JobDefinition.Id, JobDefinition.Retries);
     }
 
     /// <summary>
     /// Removes the job from the queue to ensure it is not retried.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task RemoveMessageFromQueueAsync(CancellationToken cancellationToken)
+    public async Task RemoveMessageFromQueueAsync()
     {
-        await WorkerContext.ServerContext.Queue.DeleteMessageAsync(
-            OriginalMessageId,
-            cancellationToken
-        );
+        await WorkerContext.ServerContext.Queue.DeleteMessageAsync(OriginalMessageId);
     }
 
     /// <summary>
     /// Re-queues a job.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task RequeueJobAsync(CancellationToken cancellationToken)
+    public async Task RequeueJobAsync()
     {
-        await WorkerContext.ServerContext.Queue.EnqueueAsync(
-            JobDefinition,
-            RetryDelayForJob(),
-            cancellationToken
-        );
+        await WorkerContext.ServerContext.Queue.EnqueueAsync(JobDefinition, RetryDelayForJob());
     }
 
     /// <summary>
@@ -147,13 +122,11 @@ public class JobContext
     /// Locks the current job contained within this job context for a specified period of time or until the
     /// <see cref="IAsyncDisposable.DisposeAsync"/> function on the returned disposable is called.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public async Task<IAsyncDisposable> AcquireJobLockAsync(CancellationToken cancellationToken)
+    public async Task<IAsyncDisposable> AcquireJobLockAsync()
     {
         return await WorkerContext.ServerContext.Store.ResourceLocker.LockResourceAsync(
             JobDefinition.Id,
-            TimeSpan.FromSeconds(59),
-            cancellationToken
+            TimeSpan.FromSeconds(59)
         );
     }
 
