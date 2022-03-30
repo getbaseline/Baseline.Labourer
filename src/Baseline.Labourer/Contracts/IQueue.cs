@@ -10,6 +10,11 @@ namespace Baseline.Labourer;
 public interface IQueue
 {
     /// <summary>
+    /// Gets whether or not the queue supports long polling. Defaults to false.
+    /// </summary>
+    bool SupportsLongPolling { get; }
+
+    /// <summary>
     /// Bootstraps the queue implementation (for example running database migrations if the queue is database based).
     /// </summary>
     ValueTask BootstrapAsync();

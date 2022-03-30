@@ -14,17 +14,17 @@ public class JobContext
     /// <summary>
     /// Gets or sets the id of the message that this
     /// </summary>
-    public string OriginalMessageId { get; set; }
+    public string OriginalMessageId { get; }
 
     /// <summary>
     /// Gets or sets the context of the worker that the job is running in.
     /// </summary>
-    public WorkerContext WorkerContext { get; set; }
+    public WorkerContext WorkerContext { get; }
 
     /// <summary>
     /// Gets or sets the definition of the job that is being ran.
     /// </summary>
-    public DispatchedJobDefinition JobDefinition { get; set; }
+    public DispatchedJobDefinition JobDefinition { get; }
 
     public JobContext(
         string originalMessageId,

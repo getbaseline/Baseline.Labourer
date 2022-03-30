@@ -76,11 +76,27 @@ internal class JobProcessorWorker : IWorker
                 var dequeuedMessage = await _serverContext.Queue.DequeueAsync();
                 if (dequeuedMessage == null)
                 {
+                    // If the queue does not support long polling, then we want to implement some pause of our
+                    // own so we don't continuously loop and explode CPUs!
+                    if (!_serverContext.Queue.SupportsLongPolling)
+                    {
+                        await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(
+                            TimeSpan.FromSeconds(1)
+                        );
+                    }
+
                     continue;
                 }
 
                 await new JobMessageHandler(workerContext).HandleMessageAsync(dequeuedMessage);
             }
+        }
+        catch (TaskCanceledException e)
+        {
+            _logger.LogInformation(
+                workerContext,
+                "Shut down request received. Shutting down gracefully (hopefully)."
+            );
         }
         catch (Exception e)
         {

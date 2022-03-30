@@ -7,7 +7,7 @@ namespace Baseline.Labourer.Server;
 /// <summary>
 /// Configures how retries should be attempted.
 /// </summary>
-public class RetryConfiguration
+public record RetryConfiguration
 {
     /// <summary>
     /// Gets the configured delays for each retry.
@@ -47,5 +47,5 @@ public class RetryConfiguration
     /// <summary>
     /// Gets the default retry configuration.
     /// </summary>
-    public static RetryConfiguration Default => new RetryConfiguration(3, TimeSpan.FromSeconds(30));
+    public static RetryConfiguration Default => new(3, TimeSpan.FromSeconds(30));
 }

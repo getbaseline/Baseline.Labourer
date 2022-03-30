@@ -11,6 +11,9 @@ namespace Baseline.Labourer;
 public class NoOpQueue : IQueue
 {
     /// <inheritdoc />
+    public bool SupportsLongPolling => false;
+
+    /// <inheritdoc />
     public ValueTask BootstrapAsync()
     {
         return new ValueTask();

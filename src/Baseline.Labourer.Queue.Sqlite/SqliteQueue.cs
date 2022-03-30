@@ -21,6 +21,9 @@ public class SqliteQueue : BaseSqliteBootstrapper<SqliteQueue>, IQueue
     }
 
     /// <inheritdoc />
+    public bool SupportsLongPolling => false;
+
+    /// <inheritdoc />
     public async Task EnqueueAsync<T>(T messageToQueue, TimeSpan? visibilityDelay)
     {
         using var connection = NewConnection();

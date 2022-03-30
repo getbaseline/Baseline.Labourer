@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Baseline.Labourer.Server;
 
 namespace Baseline.Labourer;
@@ -14,6 +15,12 @@ public class LabourerServerBuilder
     /// </summary>
     internal RetryConfiguration DefaultRetryConfiguration { get; set; } =
         RetryConfiguration.Default;
+
+    /// <summary>
+    /// Gets or sets the cancellation source to use to gracefully shut down the server.
+    /// </summary>
+    internal CancellationTokenSource ShutdownTokenSource { get; set; } =
+        new CancellationTokenSource();
 
     /// <summary>
     /// Gets or sets the middlewares used for dispatched jobs.

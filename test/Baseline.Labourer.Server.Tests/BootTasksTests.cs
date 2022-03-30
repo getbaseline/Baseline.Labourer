@@ -1,11 +1,11 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Baseline.Labourer.Server.Tests;
 
@@ -14,6 +14,8 @@ public class BootTasksTests : ServerTest
     private class BootMemoryQueue : IQueue
     {
         public bool Bootstrapped { get; private set; }
+
+        public bool SupportsLongPolling => false;
 
         public ValueTask BootstrapAsync()
         {

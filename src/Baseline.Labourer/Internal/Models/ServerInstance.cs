@@ -3,7 +3,7 @@
 /// <summary>
 /// Server represents a single running instance of the Baseline.Labourer.Server project.
 /// </summary>
-public class ServerInstance
+public record ServerInstance
 {
     /// <summary>
     /// Gets the unique id of the server.
@@ -13,13 +13,16 @@ public class ServerInstance
     /// <summary>
     /// Gets or sets the hostname of the server that the server instance is running on.
     /// </summary>
-    public string Hostname { get; set; } = null!;
+    public string Hostname { get; init; } = null!;
 
     /// <summary>
     /// Gets or sets the uniquely identifitable key of the server.
     /// </summary>
-    public string Key { get; set; } = null!;
+    public string Key { get; init; } = null!;
 
     /// <inheritdoc />
-    public override string ToString() => $"server:{Id}";
+    public override string ToString()
+    {
+        return $"server:{Id}";
+    }
 }

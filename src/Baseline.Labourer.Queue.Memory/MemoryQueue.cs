@@ -26,6 +26,9 @@ public class MemoryQueue : IQueue
     }
 
     /// <inheritdoc />
+    public bool SupportsLongPolling => false;
+
+    /// <inheritdoc />
     public ValueTask BootstrapAsync()
     {
         return new ValueTask();
@@ -59,46 +62,33 @@ public class MemoryQueue : IQueue
     /// <inheritdoc />
     public async ValueTask<QueuedJob?> DequeueAsync()
     {
-        for (var i = 0; i < 30; i++)
+        try
         {
-            var released = false;
+            // This semaphore will prevent other queues from snatching up our messages!
+            await _semaphore.WaitAsync();
 
-            try
+            var firstMessage = Queue.FirstOrDefault(
+                q =>
+                    q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero)
+                    <= _dateTimeProvider.UtcNow()
+            );
+
+            if (firstMessage == null)
             {
-                // This semaphore will prevent other queues from snatching up our messages!
-                await _semaphore.WaitAsync();
-
-                var firstMessage = Queue.FirstOrDefault(
-                    q =>
-                        q.EnqueuedAt.Add(q.VisibilityDelay ?? TimeSpan.Zero)
-                        <= _dateTimeProvider.UtcNow()
-                );
-
-                if (firstMessage == null)
-                {
-                    released = true;
-                    _semaphore.Release();
-                    await Task.Delay(1000);
-                    continue;
-                }
-
-                firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
-                firstMessage.VisibilityDelay = (
-                    _dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt
-                ).Add(TimeSpan.FromSeconds(30));
-
-                return firstMessage;
+                return null;
             }
-            finally
-            {
-                if (!released)
-                {
-                    _semaphore.Release();
-                }
-            }
+
+            firstMessage.PreviousVisibilityDelay = firstMessage.VisibilityDelay;
+            firstMessage.VisibilityDelay = (
+                _dateTimeProvider.UtcNow() - firstMessage.EnqueuedAt
+            ).Add(TimeSpan.FromSeconds(30));
+
+            return firstMessage;
         }
-
-        return null;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     /// <inheritdoc />

@@ -11,73 +11,70 @@ namespace Baseline.Labourer.Server;
 /// <summary>
 /// ServerContext provides dependencies and information related to the entire server instance.
 /// </summary>
-public class ServerContext
+public record ServerContext
 {
     /// <summary>
     /// Gets or sets the configured activator used to create instances of jobs.
     /// </summary>
-    public IActivator Activator { get; set; }
+    public IActivator Activator { get; }
 
     /// <summary>
     /// Gets or sets any additional middlewares that should run on top of the ones provided by the library.
     /// </summary>
-    public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; set; }
+    public IReadOnlyCollection<Type> AdditionalDispatchedJobMiddlewares { get; }
 
     /// <summary>
     /// Gets or sets the default retry configuration for all jobs (that are not individually configured).
     /// </summary>
-    public RetryConfiguration DefaultRetryConfiguration { get; set; }
+    public RetryConfiguration DefaultRetryConfiguration { get; }
 
     /// <summary>
     /// Gets or sets the amount of job processing workers to run within this particular server.
     /// </summary>
-    public int JobProcessingWorkersToRun { get; set; } = 1;
+    public int JobProcessingWorkersToRun { get; } = 1;
 
     /// <summary>
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
-    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; }
+    public Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; }
 
     /// <summary>
     /// Gets or sets an optional logger factory instance to use to log messages to destinations configured by the
     /// user of the library.
     /// </summary>
-    public ILoggerFactory LoggerFactory { get; set; }
+    public ILoggerFactory LoggerFactory { get; }
 
     /// <summary>
     /// Gets or sets the queue instance to be utilised within the server.
     /// </summary>
-    public IQueue Queue { get; set; }
+    public IQueue Queue { get; }
 
     /// <summary>
     /// Gets or sets the interval between each run of the scheduled job processor.
     /// </summary>
-    public TimeSpan ScheduledJobProcessorInterval { get; set; }
+    public TimeSpan ScheduledJobProcessorInterval { get; }
 
     /// <summary>
     /// Gets or sets the server instance this context relates to.
     /// </summary>
-    public ServerInstance ServerInstance { get; set; }
+    public ServerInstance ServerInstance { get; }
 
     /// <summary>
     /// Gets or sets a <see cref="CancellationTokenSource"/> used to perform a graceful shutdown of all processing
     /// tasks.
     /// </summary>
-    public CancellationTokenSource ShutdownTokenSource { get; set; }
+    public CancellationTokenSource ShutdownTokenSource { get; }
 
     /// <summary>
     /// Gets or sets the store to be utilised within the server.
     /// </summary>
-    public IStore Store { get; set; }
+    public IStore Store { get; }
 
     public ServerContext(
         ServerInstance serverInstance,
         BaselineLabourerServerConfiguration labourerServerConfiguration
     )
     {
-        ArgumentNullException.ThrowIfNull(labourerServerConfiguration?.Queue);
-        ArgumentNullException.ThrowIfNull(labourerServerConfiguration?.Store);
-
         Activator = labourerServerConfiguration.Activator;
         AdditionalDispatchedJobMiddlewares = labourerServerConfiguration.DispatchedJobMiddlewares;
         DefaultRetryConfiguration = labourerServerConfiguration.DefaultRetryConfiguration;
@@ -107,15 +104,5 @@ public class ServerContext
     public bool HasAdditionalDispatchedJobMiddlewares()
     {
         return AdditionalDispatchedJobMiddlewares.Count > 0;
-    }
-
-    /// <summary>
-    /// Identifies and returns whether a specified cancellation token is one owned by the server (and used for things
-    /// such as safe shutdowns).
-    /// </summary>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    public bool IsServerOwnedCancellationToken(CancellationToken cancellationToken)
-    {
-        return ShutdownTokenSource.Token == cancellationToken;
     }
 }
