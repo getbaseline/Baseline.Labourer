@@ -5,6 +5,7 @@ using Baseline.Labourer.Tests.Scenarios.Setup;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Baseline.Labourer.Tests.Scenarios;
 
@@ -30,6 +31,9 @@ public class DispatchingAndExecutingJobs : BaseTest
         }
     }
 
+    public DispatchingAndExecutingJobs(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    { }
+
     [Theory]
     [InlineData(QueueProvider.Memory, StoreProvider.Memory)]
     [InlineData(QueueProvider.SQLite, StoreProvider.SQLite)]
@@ -52,7 +56,8 @@ public class DispatchingAndExecutingJobs : BaseTest
             () =>
             {
                 HundredsOfJobsCanBeDispatchedAndExecutedJob.Counter.Should().Be(1000);
-            }
+            },
+            100
         );
     }
 }

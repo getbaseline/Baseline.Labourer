@@ -45,18 +45,29 @@ public abstract class BaseTest : IAsyncLifetime
 
         await queue.BootstrapAsync();
         await store.BootstrapAsync();
-        
-        var loggerFactory = new LoggerFactory(b =>)
+
+        var loggerFactory = LoggerFactory.Create(
+            builder =>
+            {
+                builder.AddXUnit(_testOutputHelper);
+            }
+        );
 
         Client = new LabourerClient(
-            new BaselineLabourerClientConfiguration { Queue = queue, Store = store }
+            new BaselineLabourerClientConfiguration
+            {
+                Queue = queue,
+                Store = store,
+                LoggerFactory = () => loggerFactory
+            }
         );
         var server = new LabourerServer(
             new BaselineLabourerServerConfiguration
             {
                 Queue = queue,
                 Store = store,
-                ShutdownTokenSource = cancellationTokenSource
+                ShutdownTokenSource = cancellationTokenSource,
+                LoggerFactory = () => loggerFactory
             }
         );
 
@@ -76,7 +87,7 @@ public abstract class BaseTest : IAsyncLifetime
         return queue switch
         {
             QueueProvider.Memory => new MemoryQueue(),
-            QueueProvider.SQLite => new SqliteQueue($"Data Source={Guid.NewGuid()};Cache=Shared")
+            QueueProvider.SQLite => new SqliteQueue($"Data Source={_uniqueTestId};")
         };
     }
 
@@ -85,7 +96,7 @@ public abstract class BaseTest : IAsyncLifetime
         return store switch
         {
             StoreProvider.Memory => new MemoryStore(),
-            StoreProvider.SQLite => new SqliteStore($"Data Source={Guid.NewGuid()};Cache=Shared")
+            StoreProvider.SQLite => new SqliteStore($"Data Source={_uniqueTestId};")
         };
     }
 }

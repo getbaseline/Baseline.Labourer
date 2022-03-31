@@ -119,7 +119,7 @@ public class SqliteTransactionalStoreWriter : BaseSqliteInteractor, ITransaction
         );
         createDispatchedJobCommand.Parameters.Add(new SqliteParameter("@Id", definition.Id));
         createDispatchedJobCommand.Parameters.Add(
-            new SqliteParameter("@Status", (int)JobStatus.Created)
+            new SqliteParameter("@Status", JobStatus.Created.ToString())
         );
         createDispatchedJobCommand.Parameters.Add(new SqliteParameter("@Type", definition.Type));
         createDispatchedJobCommand.Parameters.Add(

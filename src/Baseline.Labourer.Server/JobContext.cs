@@ -57,7 +57,6 @@ public class JobContext
     /// <param name="status">The new status of the job.</param>
     public async Task UpdateJobStateAsync(ITransactionalStoreWriter writer, JobStatus status)
     {
-        // TODO: this will cause a lock. Move this functionality into the transaction manager.
         await writer.LogEntryForJobAsync(
             JobDefinition.Id,
             LogLevel.Information,

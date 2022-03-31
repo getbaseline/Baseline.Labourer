@@ -16,12 +16,19 @@ public abstract class BaseSqliteBootstrapper<T> : BaseSqliteInteractor
     public async ValueTask BootstrapAsync()
     {
         using var connection = NewConnection();
-        using var transaction = connection.BeginTransaction();
+        EnableWriteAheadLog(connection);
 
+        using var transaction = connection.BeginTransaction();
         CreateMigrationsTableIfNotExists(connection, transaction);
         await MigrateAsync(connection, transaction);
 
         transaction.Commit();
+    }
+
+    private void EnableWriteAheadLog(SqliteConnection connection)
+    {
+        var walCommand = new SqliteCommand("PRAGMA journal_mode = wal;", connection);
+        walCommand.ExecuteNonQuery();
     }
 
     private void CreateMigrationsTableIfNotExists(
