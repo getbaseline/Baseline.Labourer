@@ -1,4 +1,6 @@
-﻿namespace Baseline.Labourer;
+﻿using Baseline.Labourer.DependencyInjection;
+
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// Extension methods related to the <see cref="LabourerBuilder"/> class.

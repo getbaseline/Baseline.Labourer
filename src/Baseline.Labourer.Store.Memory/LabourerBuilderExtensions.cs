@@ -1,4 +1,6 @@
-﻿namespace Baseline.Labourer;
+﻿using Baseline.Labourer.DependencyInjection;
+
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
 /// Extension methods related to the memory store for inheritors of the <see cref="LabourerBuilder"/> class.

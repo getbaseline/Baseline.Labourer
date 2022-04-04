@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer.Internal;
+namespace Baseline.Labourer.Shared.Sqlite;
 
 /// <summary>
 /// Internal base class used to allow different projects to bootstrap SQLite.

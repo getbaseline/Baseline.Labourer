@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Tests.Scenarios.Setup;
+﻿namespace Baseline.Labourer.Tests.Scenarios.Internal;
 
 public enum StoreProvider
 {

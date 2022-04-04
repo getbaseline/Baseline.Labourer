@@ -1,4 +1,4 @@
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.NoOp;
 
 /// <summary>
 /// NoOpStoreWriterTransactionManager is an <see cref="IStoreWriterTransactionManager"/> that does literally nothing.

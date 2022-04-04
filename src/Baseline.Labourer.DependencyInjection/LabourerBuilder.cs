@@ -2,7 +2,7 @@ using System;
 using Baseline.Labourer.Server;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.DependencyInjection;
 
 /// <summary>
 /// An interim class used to build up the settings required to instantiate the Baseline.Labourer client and

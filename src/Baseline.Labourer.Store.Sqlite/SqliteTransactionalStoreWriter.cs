@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Shared.Sqlite;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// An <see cref="ITransactionalStoreWriter"/> implementation that persists its information in a SQLite database.

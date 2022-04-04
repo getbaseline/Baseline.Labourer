@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Utils;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
 /// Provides a memory based <see cref="IResourceLocker"/> implementation. As with the other components of the
@@ -19,7 +22,7 @@ public class MemoryResourceLocker : IResourceLocker
     public MemoryResourceLocker(MemoryStoreDataContainer memoryStoreDataContainer)
         : this(memoryStoreDataContainer, new DateTimeProvider()) { }
 
-    protected MemoryResourceLocker(
+    public MemoryResourceLocker(
         MemoryStoreDataContainer memoryStoreDataContainer,
         IDateTimeProvider dateTimeProvider
     )

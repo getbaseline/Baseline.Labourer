@@ -1,6 +1,6 @@
-﻿using Baseline.Labourer.Internal;
+﻿using Baseline.Labourer.Internal.Contracts;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// A store writer transaction manager that creates SQLite based transaction writers.

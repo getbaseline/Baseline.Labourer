@@ -2,9 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Extensions;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal;
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker;
 
 /// <summary>
 /// A worker that processes jobs that need to be ran.

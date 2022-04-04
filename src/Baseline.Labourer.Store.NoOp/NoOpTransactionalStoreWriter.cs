@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.NoOp;
 
 /// <summary>
 /// NoOpTransactionalStoreWriter is an <see cref="ITransactionalStoreWriter"/> that does literally nothing.

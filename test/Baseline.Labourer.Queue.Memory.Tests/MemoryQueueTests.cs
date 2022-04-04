@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Store.Memory.Tests;
 using FluentAssertions;
 using Xunit;
 
@@ -8,7 +8,7 @@ namespace Baseline.Labourer.Queue.Memory.Tests;
 
 public class MemoryQueueTests
 {
-    private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
+    private readonly TestDateTimeProvider _dateTimeProvider = new();
     private readonly TestMemoryQueue _memoryQueue;
 
     public MemoryQueueTests()

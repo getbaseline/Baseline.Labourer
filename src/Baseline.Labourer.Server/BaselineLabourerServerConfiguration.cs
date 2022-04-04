@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server;
@@ -66,6 +67,5 @@ public class BaselineLabourerServerConfiguration
     /// <summary>
     /// Gets a cancellation token source used to gracefully shutdown workers.
     /// </summary>
-    public CancellationTokenSource ShutdownTokenSource { get; set; } =
-        new CancellationTokenSource();
+    public CancellationTokenSource ShutdownTokenSource { get; set; } = new();
 }

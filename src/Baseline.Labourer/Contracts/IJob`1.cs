@@ -16,5 +16,5 @@ public interface IJob<in TParams>
     /// Executes the job.
     /// </summary>
     /// <param name="parameters">The job's parameters.</param>
-    Task HandleAsync(TParams parameters);
+    ValueTask HandleAsync(TParams parameters);
 }

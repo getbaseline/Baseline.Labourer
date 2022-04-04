@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal;
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker;
 
 /// <summary>
 /// JobLogger is an internal logger used to log messages and exceptions to the relevant job store whilst optionally

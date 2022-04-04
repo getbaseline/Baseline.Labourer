@@ -1,9 +1,9 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
+using Baseline.Labourer.Queue.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal;
+namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
 
 public class SqliteQueueWrapper : QueueWrapper
 {
@@ -11,21 +11,20 @@ public class SqliteQueueWrapper : QueueWrapper
 
     public SqliteQueueWrapper(Guid uniqueTestId) : base(uniqueTestId)
     {
-        var connectionString = "Data Source={_uniqueTestId};";
+        var connectionString = $"Data Source={uniqueTestId};";
 
         _connection = new SqliteConnection(connectionString);
         Queue = new SqliteQueue(connectionString);
     }
 
-    protected override async ValueTask BootstrapAsync()
+    public override async ValueTask BootstrapAsync()
     {
         await Queue.BootstrapAsync();
     }
 
-    protected override ValueTask DisposeAsync()
+    public override ValueTask DisposeAsync()
     {
         _connection.Dispose();
-        File.Delete(UniqueTestId.ToString());
 
         return ValueTask.CompletedTask;
     }

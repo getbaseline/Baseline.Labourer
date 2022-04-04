@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Baseline.Labourer.Tests.Scenarios.Configurations;
 using Baseline.Labourer.Tests.Scenarios.Internal;
-using Baseline.Labourer.Tests.Scenarios.Setup;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,9 +10,76 @@ namespace Baseline.Labourer.Tests.Scenarios;
 
 public class DispatchingAndExecutingJobs : BaseTest
 {
+    public DispatchingAndExecutingJobs(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    { }
+
+    /// <summary>
+    /// Dispatches hundreds of jobs and verifies that they are all executed.
+    /// </summary>
+    [Theory]
+    [ClassData(typeof(RunOnAllProvidersConfiguration))]
+    public async Task HundredsOfJobsCanBeDispatchedAndExecuted(
+        QueueProvider queueProvider,
+        StoreProvider storeProvider
+    )
+    {
+        // Arrange.
+        await BootstrapAsync(queueProvider, storeProvider);
+
+        // Act.
+        for (var i = 0; i < 500; i++)
+        {
+            await Client.DispatchJobAsync<HundredsOfJobsCanBeDispatchedAndExecutedJob>();
+        }
+
+        // Assert.
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                HundredsOfJobsCanBeDispatchedAndExecutedJob.Counter.Should().Be(500);
+            },
+            100
+        );
+        HundredsOfJobsCanBeDispatchedAndExecutedJob.Counter = 0;
+    }
+
+    /// <summary>
+    /// Dispatches hundreds of jobs that have parameters and verifies that they are all executed.
+    /// </summary>
+    [Theory]
+    [ClassData(typeof(RunOnAllProvidersConfiguration))]
+    public async Task HundredsOfJobsWithParametersCanBeDispatchedAndExecuted(
+        QueueProvider queueProvider,
+        StoreProvider storeProvider
+    )
+    {
+        // Arrange.
+        await BootstrapAsync(queueProvider, storeProvider);
+
+        // Act.
+        for (var i = 0; i < 500; i++)
+        {
+            await Client.DispatchJobAsync<
+                HundredsOfJobsWithParametersCanBeDispatchedAndExecutedParameters,
+                HundredsOfJobsWithParametersCanBeDispatchedAndExecutedJob
+            >(new HundredsOfJobsWithParametersCanBeDispatchedAndExecutedParameters("Bob", 50));
+        }
+
+        // Assert.
+        await AssertionUtils.RetryAsync(
+            () =>
+            {
+                HundredsOfJobsWithParametersCanBeDispatchedAndExecutedJob.Counter.Should().Be(500);
+            },
+            100
+        );
+        HundredsOfJobsWithParametersCanBeDispatchedAndExecutedJob.Counter = 0;
+    }
+
+    #region Job Classes
     public class HundredsOfJobsCanBeDispatchedAndExecutedJob : IJob
     {
-        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private static SemaphoreSlim _semaphore = new(1);
         public static int Counter;
 
         public async ValueTask HandleAsync()
@@ -31,33 +97,32 @@ public class DispatchingAndExecutingJobs : BaseTest
         }
     }
 
-    public DispatchingAndExecutingJobs(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-    { }
+    public record HundredsOfJobsWithParametersCanBeDispatchedAndExecutedParameters(
+        string Name,
+        int Age
+    );
 
-    [Theory]
-    [InlineData(QueueProvider.Memory, StoreProvider.Memory)]
-    [InlineData(QueueProvider.SQLite, StoreProvider.SQLite)]
-    public async Task HundredsOfJobsCanBeDispatchedAndExecuted(
-        QueueProvider queueProvider,
-        StoreProvider storeProvider
-    )
+    public class HundredsOfJobsWithParametersCanBeDispatchedAndExecutedJob
+        : IJob<HundredsOfJobsWithParametersCanBeDispatchedAndExecutedParameters>
     {
-        // Arrange.
-        await BootstrapAsync(queueProvider, storeProvider);
+        private static SemaphoreSlim _semaphore = new(1);
+        public static int Counter;
 
-        // Act.
-        for (int i = 0; i < 1000; i++)
+        public async ValueTask HandleAsync(
+            HundredsOfJobsWithParametersCanBeDispatchedAndExecutedParameters parameters
+        )
         {
-            await Client.DispatchJobAsync<HundredsOfJobsCanBeDispatchedAndExecutedJob>();
-        }
-
-        // Assert.
-        await AssertionUtils.RetryAsync(
-            () =>
+            try
             {
-                HundredsOfJobsCanBeDispatchedAndExecutedJob.Counter.Should().Be(1000);
-            },
-            100
-        );
+                await _semaphore.WaitAsync();
+
+                Counter++;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
     }
+    #endregion
 }

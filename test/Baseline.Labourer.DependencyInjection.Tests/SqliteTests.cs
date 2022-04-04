@@ -1,6 +1,6 @@
-using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Queue.Sqlite;
+using Baseline.Labourer.Store.Sqlite;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Xunit;

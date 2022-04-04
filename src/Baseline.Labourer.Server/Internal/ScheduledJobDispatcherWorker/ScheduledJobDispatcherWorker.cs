@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Extensions;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Server.Internal.JobProcessorWorker;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal;
+namespace Baseline.Labourer.Server.Internal.ScheduledJobDispatcherWorker;
 
 /// <summary>
 /// Queries scheduled jobs and dispatches those that need to be ran.
@@ -100,6 +105,13 @@ internal class ScheduledJobDispatcherWorker : IWorker
 
                 await _serverContext.ShutdownTokenSource.WaitForTimeOrCancellationAsync(
                     _serverContext.ScheduledJobProcessorInterval
+                );
+            }
+            catch (TaskCanceledException)
+            {
+                _logger.LogInformation(
+                    _serverContext,
+                    "Shut down request received. Shutting down gracefully (hopefully)."
                 );
             }
             catch (Exception e)

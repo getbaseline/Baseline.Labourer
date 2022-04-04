@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Tests;
+namespace Baseline.Labourer.DependencyInjection.Tests;
 
 public class AssertionUtils
 {

@@ -1,7 +1,8 @@
 using System;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
 
-namespace Baseline.Labourer.Tests;
+namespace Baseline.Labourer.Store.Memory.Tests;
 
 public class TestDateTimeProvider : IDateTimeProvider
 {

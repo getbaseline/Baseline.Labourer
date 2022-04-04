@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal;
+namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
 
 public abstract class QueueWrapper
 {
@@ -14,7 +14,13 @@ public abstract class QueueWrapper
         UniqueTestId = uniqueTestId;
     }
 
-    protected abstract ValueTask BootstrapAsync();
+    public virtual async ValueTask BootstrapAsync()
+    {
+        await Queue.BootstrapAsync();
+    }
 
-    protected abstract ValueTask DisposeAsync();
+    public virtual ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }

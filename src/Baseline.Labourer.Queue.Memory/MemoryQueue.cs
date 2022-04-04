@@ -4,19 +4,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Queue.Memory;
 
 /// <summary>
 /// <see cref="MemoryQueue"/> is an <see cref="IQueue"/> implementation that persists and processes queue messages in memory.
 /// </summary>
 public class MemoryQueue : IQueue
 {
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1); // We don't want to de-queue messages when we're potentially adding some!
+    private readonly SemaphoreSlim _semaphore = new(1); // We don't want to de-queue messages when we're potentially adding some!
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    protected List<MemoryQueuedJob> Queue { get; } = new List<MemoryQueuedJob>();
-    protected List<MemoryQueuedJob> RemovedQueue { get; } = new List<MemoryQueuedJob>();
+    protected List<MemoryQueuedJob> Queue { get; } = new();
+    protected List<MemoryQueuedJob> RemovedQueue { get; } = new();
 
     public MemoryQueue() : this(new DateTimeProvider()) { }
 

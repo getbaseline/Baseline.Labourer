@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Internal.Models;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -43,9 +43,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.CreateServerAsync(
-            new ServerInstance { Hostname = "foo", Key = "bar" }
-        );
+        await writer.CreateServerAsync(new ServerInstance { Hostname = "foo", Key = "bar" });
         await writer.CommitAsync();
 
         // Assert.
@@ -154,11 +152,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         // Act.
         await writer.CreateDispatchedJobAsync(dispatchedJob);
         await writer.UpdateJobRetriesAsync(dispatchedJob.Id, 10);
-        await writer.UpdateJobStateAsync(
-            dispatchedJob.Id,
-            JobStatus.Complete,
-            now
-        );
+        await writer.UpdateJobStateAsync(dispatchedJob.Id, JobStatus.Complete, now);
         await writer.CommitAsync();
 
         // Assert.
@@ -281,10 +275,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.UpdateScheduledJobNextRunDateAsync(
-            "scheduled-job",
-            nextRunDate
-        );
+        await writer.UpdateScheduledJobNextRunDateAsync("scheduled-job", nextRunDate);
         await writer.CommitAsync();
 
         // Assert.
@@ -308,10 +299,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.UpdateScheduledJobLastRunDateAsync(
-            "scheduled-job",
-            lastRunDate
-        );
+        await writer.UpdateScheduledJobLastRunDateAsync("scheduled-job", lastRunDate);
         await writer.CommitAsync();
 
         // Assert.
@@ -334,12 +322,7 @@ public class SqliteTransactionalStoreWriterTests : BaseSqliteTest
         );
 
         // Act.
-        await writer.LogEntryForJobAsync(
-            "1",
-            LogLevel.Critical,
-            "Foo bar.",
-            exception
-        );
+        await writer.LogEntryForJobAsync("1", LogLevel.Critical, "Foo bar.", exception);
         await writer.CommitAsync();
 
         // Assert.

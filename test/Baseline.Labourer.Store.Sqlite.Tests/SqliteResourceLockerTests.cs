@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Exceptions;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Xunit;
@@ -10,7 +10,7 @@ namespace Baseline.Labourer.Store.Sqlite.Tests;
 public class SqliteResourceLockerTests : BaseSqliteTest
 {
     private readonly string _resourceId = Guid.NewGuid().ToString();
-    private readonly TestDateTimeProvider _testDateTimeProvider = new TestDateTimeProvider();
+    private readonly TestDateTimeProvider _testDateTimeProvider = new();
     private readonly SqliteResourceLocker _resourceLocker;
 
     public SqliteResourceLockerTests()
@@ -26,10 +26,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
 
         // Act.
         var func = async () =>
-            await _resourceLocker.LockResourceAsync(
-                _resourceId,
-                TimeSpan.FromHours(1)
-            );
+            await _resourceLocker.LockResourceAsync(_resourceId, TimeSpan.FromHours(1));
 
         // Assert.
         await func.Should().ThrowExactlyAsync<ResourceLockedException>();
@@ -43,10 +40,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
 
         // Act.
         var func = async () =>
-            await _resourceLocker.LockResourceAsync(
-                _resourceId,
-                TimeSpan.FromHours(1)
-            );
+            await _resourceLocker.LockResourceAsync(_resourceId, TimeSpan.FromHours(1));
 
         // Assert.
         await func.Should().NotThrowAsync();
@@ -60,10 +54,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
 
         // Act.
         var func = async () =>
-            await _resourceLocker.LockResourceAsync(
-                _resourceId,
-                TimeSpan.FromHours(1)
-            );
+            await _resourceLocker.LockResourceAsync(_resourceId, TimeSpan.FromHours(1));
 
         // Assert.
         await func.Should().NotThrowAsync();
@@ -76,10 +67,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         _testDateTimeProvider.SetUtcNow(DateTime.Today);
 
         // Act.
-        await _resourceLocker.LockResourceAsync(
-            _resourceId,
-            TimeSpan.FromMinutes(1)
-        );
+        await _resourceLocker.LockResourceAsync(_resourceId, TimeSpan.FromMinutes(1));
 
         // Assert.
         var countCommand = new SqliteCommand(
@@ -99,10 +87,7 @@ public class SqliteResourceLockerTests : BaseSqliteTest
         _testDateTimeProvider.SetUtcNow(DateTime.Today);
 
         // Act.
-        var result = await _resourceLocker.LockResourceAsync(
-            _resourceId,
-            TimeSpan.FromMinutes(1)
-        );
+        var result = await _resourceLocker.LockResourceAsync(_resourceId, TimeSpan.FromMinutes(1));
         await result.DisposeAsync();
 
         // Assert.

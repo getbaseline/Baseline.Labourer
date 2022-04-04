@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
+using Baseline.Labourer.Shared.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Queue.Sqlite;
 
 /// <summary>
 /// SqliteQueue is a queue implementation that utilises a SQLite backing store.

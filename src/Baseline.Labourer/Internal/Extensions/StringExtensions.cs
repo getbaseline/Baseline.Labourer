@@ -1,4 +1,4 @@
-﻿namespace Baseline.Labourer.Internal;
+﻿namespace Baseline.Labourer.Internal.Extensions;
 
 /// <summary>
 /// A set of extensions related to strings.

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Baseline.Labourer.Exceptions;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Shared.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// SqliteResourceLocker locks resources by entering rows in a SQLite database.

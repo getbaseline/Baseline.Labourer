@@ -3,7 +3,7 @@ using System.Linq;
 using Baseline.Labourer.Server;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.DependencyInjection;
 
 /// <summary>
 /// An <see cref="IActivator"/> implementation that resolves and activates types from the configured service

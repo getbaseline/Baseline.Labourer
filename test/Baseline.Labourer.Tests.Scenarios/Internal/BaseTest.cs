@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server;
-using Baseline.Labourer.Tests.Scenarios.Setup;
+using Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,8 +13,12 @@ public abstract class BaseTest : IAsyncLifetime
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Guid _uniqueTestId = Guid.NewGuid();
-    private List<Func<Task>> _onDispose = new List<Func<Task>>();
+    private readonly CancellationTokenSource _cancellationTokenSource =
+        new CancellationTokenSource();
 
+    protected QueueWrapper QueueWrapper { get; private set; }
+    protected StoreWrapper StoreWrapper { get; private set; }
+    protected TestDateTimeProvider TestDateTimeProvider { get; } = new();
     protected ILabourerClient Client { get; set; }
 
     protected BaseTest(ITestOutputHelper testOutputHelper)
@@ -31,20 +33,18 @@ public abstract class BaseTest : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        foreach (var disposalTask in _onDispose)
-        {
-            await disposalTask();
-        }
+        await QueueWrapper.DisposeAsync();
+        await StoreWrapper.DisposeAsync();
+        _cancellationTokenSource.Cancel();
     }
 
     protected async Task BootstrapAsync(QueueProvider queueProvider, StoreProvider storeProvider)
     {
-        var cancellationTokenSource = new CancellationTokenSource();
-        var queue = Queue(queueProvider);
-        var store = Store(storeProvider);
+        QueueWrapper = Queue(queueProvider);
+        StoreWrapper = Store(storeProvider);
 
-        await queue.BootstrapAsync();
-        await store.BootstrapAsync();
+        await QueueWrapper.BootstrapAsync();
+        await StoreWrapper.BootstrapAsync();
 
         var loggerFactory = LoggerFactory.Create(
             builder =>
@@ -56,47 +56,46 @@ public abstract class BaseTest : IAsyncLifetime
         Client = new LabourerClient(
             new BaselineLabourerClientConfiguration
             {
-                Queue = queue,
-                Store = store,
+                DateTimeProvider = TestDateTimeProvider,
+                Queue = QueueWrapper.Queue,
+                Store = StoreWrapper.Store,
                 LoggerFactory = () => loggerFactory
             }
         );
         var server = new LabourerServer(
             new BaselineLabourerServerConfiguration
             {
-                Queue = queue,
-                Store = store,
-                ShutdownTokenSource = cancellationTokenSource,
-                LoggerFactory = () => loggerFactory
+                DateTimeProvider = TestDateTimeProvider,
+                Queue = QueueWrapper.Queue,
+                Store = StoreWrapper.Store,
+                ShutdownTokenSource = _cancellationTokenSource,
+                LoggerFactory = () => loggerFactory,
+                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
             }
         );
 
+#pragma warning disable CS4014
         Task.Run(async () => await server.RunServerAsync());
-
-        _onDispose.Add(
-            () =>
-            {
-                cancellationTokenSource.Cancel();
-                return Task.CompletedTask;
-            }
-        );
+#pragma warning restore CS4014
     }
 
-    protected IQueue Queue(QueueProvider queue)
+    private QueueWrapper Queue(QueueProvider queue)
     {
         return queue switch
         {
-            QueueProvider.Memory => new MemoryQueue(),
-            QueueProvider.SQLite => new SqliteQueue($"Data Source={_uniqueTestId};")
+            QueueProvider.Memory => new MemoryQueueWrapper(_uniqueTestId),
+            QueueProvider.SQLite => new SqliteQueueWrapper(_uniqueTestId),
+            _ => throw new ArgumentOutOfRangeException(nameof(queue), queue, null)
         };
     }
 
-    protected IStore Store(StoreProvider store)
+    private StoreWrapper Store(StoreProvider store)
     {
         return store switch
         {
-            StoreProvider.Memory => new MemoryStore(),
-            StoreProvider.SQLite => new SqliteStore($"Data Source={_uniqueTestId};")
+            StoreProvider.Memory => new MemoryStoreWrapper(_uniqueTestId),
+            StoreProvider.SQLite => new SqliteStoreWrapper(_uniqueTestId),
+            _ => throw new ArgumentOutOfRangeException(nameof(store), store, null)
         };
     }
 }

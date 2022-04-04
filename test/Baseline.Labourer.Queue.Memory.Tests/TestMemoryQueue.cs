@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Internal.Models;
 using FluentAssertions;
 
-namespace Baseline.Labourer.Tests;
+namespace Baseline.Labourer.Queue.Memory.Tests;
 
 public class TestMemoryQueue : MemoryQueue
 {

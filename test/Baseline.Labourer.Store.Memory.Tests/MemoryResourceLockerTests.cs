@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -9,14 +9,13 @@ namespace Baseline.Labourer.Store.Memory.Tests;
 
 public class MemoryResourceLockerTests
 {
-    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer =
-        new TestMemoryStoreDataContainer();
-    private readonly TestDateTimeProvider _dateTimeProvider = new TestDateTimeProvider();
-    private readonly TestMemoryResourceLocker _memoryResourceLocker;
+    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer = new();
+    private readonly TestDateTimeProvider _dateTimeProvider = new();
+    private readonly MemoryResourceLocker _memoryResourceLocker;
 
     public MemoryResourceLockerTests()
     {
-        _memoryResourceLocker = new TestMemoryResourceLocker(
+        _memoryResourceLocker = new MemoryResourceLocker(
             _memoryStoreDataContainer,
             _dateTimeProvider
         );
@@ -27,10 +26,7 @@ public class MemoryResourceLockerTests
     {
         // Act.
         await using (
-            var _ = await _memoryResourceLocker.LockResourceAsync(
-                "abc",
-                TimeSpan.FromSeconds(100)
-            )
+            var _ = await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(100))
         )
         {
             _memoryStoreDataContainer.Locks["abc"].Should().ContainSingle(l => l.Released == null);
@@ -51,10 +47,7 @@ public class MemoryResourceLockerTests
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync(
-                "abc",
-                TimeSpan.FromSeconds(1)
-            );
+            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1));
 
         // Assert.
         await sut.Should().ThrowExactlyAsync<ResourceLockedException>();
@@ -73,10 +66,7 @@ public class MemoryResourceLockerTests
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync(
-                "abc",
-                TimeSpan.FromSeconds(1)
-            );
+            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1));
 
         // Assert.
         await sut.Should().NotThrowAsync<ResourceLockedException>();
@@ -97,10 +87,7 @@ public class MemoryResourceLockerTests
 
         // Act.
         Func<Task> sut = async () =>
-            await _memoryResourceLocker.LockResourceAsync(
-                "abc",
-                TimeSpan.FromSeconds(1)
-            );
+            await _memoryResourceLocker.LockResourceAsync("abc", TimeSpan.FromSeconds(1));
 
         // Assert.
         await sut.Should().NotThrowAsync<ResourceLockedException>();

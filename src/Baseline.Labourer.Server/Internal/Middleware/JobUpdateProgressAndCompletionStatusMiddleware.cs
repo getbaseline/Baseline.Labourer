@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer.Server.Internal;
+namespace Baseline.Labourer.Server.Internal.Middleware;
 
 /// <summary>
 /// Middleware for updating the status of the relevant job based on events that occur.

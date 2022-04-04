@@ -2,7 +2,7 @@
 using Baseline.Labourer.Server;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.DependencyInjection;
 
 /// <summary>
 /// Extension methods of the <see cref="IServiceCollection"/> interface to fluently add the Baseline.Labourer
