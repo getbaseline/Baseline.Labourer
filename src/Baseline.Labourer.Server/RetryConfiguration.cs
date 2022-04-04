@@ -47,5 +47,5 @@ public record RetryConfiguration
     /// <summary>
     /// Gets the default retry configuration.
     /// </summary>
-    public static RetryConfiguration Default => new(3, TimeSpan.FromSeconds(30));
+    public static RetryConfiguration Default => new(2, TimeSpan.FromSeconds(30));
 }

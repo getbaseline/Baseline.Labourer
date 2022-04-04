@@ -246,7 +246,7 @@ public class SchedulingJobs : BaseTest
         );
     }
 
-    #region Job Classes
+    #region Test Classes
     public class ScheduledJobCanBeCreatedAndGetExecutedJob : IJob
     {
         private readonly SemaphoreSlim _semaphore = new(1);

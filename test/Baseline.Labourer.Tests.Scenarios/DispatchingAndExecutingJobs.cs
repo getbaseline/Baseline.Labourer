@@ -76,7 +76,7 @@ public class DispatchingAndExecutingJobs : BaseTest
         HundredsOfJobsWithParametersCanBeDispatchedAndExecutedJob.Counter = 0;
     }
 
-    #region Job Classes
+    #region Test Classes
     public class HundredsOfJobsCanBeDispatchedAndExecutedJob : IJob
     {
         private static SemaphoreSlim _semaphore = new(1);

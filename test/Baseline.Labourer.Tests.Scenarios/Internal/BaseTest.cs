@@ -38,7 +38,11 @@ public abstract class BaseTest : IAsyncLifetime
         _cancellationTokenSource.Cancel();
     }
 
-    protected async Task BootstrapAsync(QueueProvider queueProvider, StoreProvider storeProvider)
+    protected async Task BootstrapAsync(
+        QueueProvider queueProvider,
+        StoreProvider storeProvider,
+        Action<BaselineLabourerServerConfiguration>? serverConfigurer = null
+    )
     {
         QueueWrapper = Queue(queueProvider);
         StoreWrapper = Store(storeProvider);
@@ -62,17 +66,18 @@ public abstract class BaseTest : IAsyncLifetime
                 LoggerFactory = () => loggerFactory
             }
         );
-        var server = new LabourerServer(
-            new BaselineLabourerServerConfiguration
-            {
-                DateTimeProvider = TestDateTimeProvider,
-                Queue = QueueWrapper.Queue,
-                Store = StoreWrapper.Store,
-                ShutdownTokenSource = _cancellationTokenSource,
-                LoggerFactory = () => loggerFactory,
-                ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
-            }
-        );
+
+        var serverConfiguration = new BaselineLabourerServerConfiguration
+        {
+            DateTimeProvider = TestDateTimeProvider,
+            Queue = QueueWrapper.Queue,
+            Store = StoreWrapper.Store,
+            ShutdownTokenSource = _cancellationTokenSource,
+            LoggerFactory = () => loggerFactory,
+            ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
+        };
+        serverConfigurer?.Invoke(serverConfiguration);
+        var server = new LabourerServer(serverConfiguration);
 
 #pragma warning disable CS4014
         Task.Run(async () => await server.RunServerAsync());
