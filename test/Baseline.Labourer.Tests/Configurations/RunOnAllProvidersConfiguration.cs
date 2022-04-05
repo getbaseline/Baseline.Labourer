@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using Baseline.Labourer.Tests.Scenarios.Internal;
+using Baseline.Labourer.Tests.Internal;
 
-namespace Baseline.Labourer.Tests.Scenarios.Configurations;
+namespace Baseline.Labourer.Tests.Configurations;
 
 public class RunOnAllProvidersConfiguration : IEnumerable<object[]>
 {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Memory;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public class MemoryStoreWrapper : StoreWrapper
 {

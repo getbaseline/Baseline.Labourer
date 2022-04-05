@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server;
-using Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+using Baseline.Labourer.Tests.Internal.Wrappers;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal;
+namespace Baseline.Labourer.Tests.Internal;
 
 public abstract class BaseTest : IAsyncLifetime
 {
@@ -74,7 +74,8 @@ public abstract class BaseTest : IAsyncLifetime
             Store = StoreWrapper.Store,
             ShutdownTokenSource = _cancellationTokenSource,
             LoggerFactory = () => loggerFactory,
-            ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500)
+            ScheduledJobProcessorInterval = TimeSpan.FromMilliseconds(500),
+            DefaultRetryConfiguration = new RetryConfiguration(2, TimeSpan.Zero)
         };
         serverConfigurer?.Invoke(serverConfiguration);
         var server = new LabourerServer(serverConfiguration);

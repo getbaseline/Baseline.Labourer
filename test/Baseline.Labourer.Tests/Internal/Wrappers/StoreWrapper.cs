@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public abstract class StoreWrapper
 {

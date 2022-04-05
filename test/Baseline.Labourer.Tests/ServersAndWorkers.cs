@@ -1,16 +1,20 @@
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests.Scenarios.Configurations;
-using Baseline.Labourer.Tests.Scenarios.Internal;
+using Baseline.Labourer.Tests.Configurations;
+using Baseline.Labourer.Tests.Internal;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Tests.Scenarios;
+namespace Baseline.Labourer.Tests;
 
 public class ServersAndWorkers : BaseTest
 {
     public ServersAndWorkers(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
+    /// <summary>
+    /// Tests that on boot of the server a server instance and all workers are registered within the relevant store.
+    /// TODO: Utilise reader methods to test this from an actual users perspective. At the minute - nobody cares whether these are registered or not!
+    /// </summary>
     [Theory]
     [ClassData(typeof(RunOnAllProvidersConfiguration))]
     public async Task RegistersServersAndWorkersOnBootOfServer(

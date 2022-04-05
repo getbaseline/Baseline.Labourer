@@ -1,13 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests.Scenarios.Configurations;
-using Baseline.Labourer.Tests.Scenarios.Internal;
+using Baseline.Labourer.Tests.Configurations;
+using Baseline.Labourer.Tests.Internal;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Tests.Scenarios;
+namespace Baseline.Labourer.Tests;
 
 public class SchedulingJobs : BaseTest
 {
@@ -246,7 +246,7 @@ public class SchedulingJobs : BaseTest
         );
     }
 
-    #region Test Classes
+    #region Test Dependencies
     public class ScheduledJobCanBeCreatedAndGetExecutedJob : IJob
     {
         private readonly SemaphoreSlim _semaphore = new(1);

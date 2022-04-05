@@ -2,7 +2,7 @@ using System;
 using Baseline.Labourer.Internal;
 using Baseline.Labourer.Internal.Contracts;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal;
+namespace Baseline.Labourer.Tests.Internal;
 
 public class TestDateTimeProvider : IDateTimeProvider
 {

@@ -6,7 +6,7 @@ using Baseline.Labourer.Internal.Models;
 using Baseline.Labourer.Store.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public class SqliteStoreWrapper : StoreWrapper
 {

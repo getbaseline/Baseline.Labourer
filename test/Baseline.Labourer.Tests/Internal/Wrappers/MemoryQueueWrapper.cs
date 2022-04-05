@@ -1,7 +1,7 @@
 using System;
 using Baseline.Labourer.Queue.Memory;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public class MemoryQueueWrapper : QueueWrapper
 {

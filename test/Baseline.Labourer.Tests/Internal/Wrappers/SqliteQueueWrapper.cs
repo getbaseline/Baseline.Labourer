@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Baseline.Labourer.Queue.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public class SqliteQueueWrapper : QueueWrapper
 {

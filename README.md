@@ -1,8 +1,6 @@
 # 👋 Baseline.Labourer
 
-Job and worker framework for modern .NET applications.
-
-> This library is currently a WORK IN PROGRESS and should not be used.
+Modern, expressive, easy to use job framework for .NET.
 
 ## 🗿 Licensing
 
@@ -10,4 +8,4 @@ Baseline.Labourer is licensed under the [PolyForm Noncommercial License 1.0.0](h
 
 Full terms of the licenses (which are the terms you agree to when you use this software) are available in this repository's LICENSE file located here: [https://github.com/getbaseline/Baseline.Labourer/blob/main/LICENSE](https://github.com/getbaseline/Baseline.Labourer/blob/main/LICENSE).
 
-Commercial licenses free of the aforementioned restrictions and with additional support are available. 
+Commercial licenses free of the aforementioned restrictions and with additional support are available.

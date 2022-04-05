@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Tests.Scenarios.Internal.Wrappers;
+namespace Baseline.Labourer.Tests.Internal.Wrappers;
 
 public abstract class QueueWrapper
 {

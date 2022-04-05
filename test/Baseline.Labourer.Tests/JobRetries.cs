@@ -1,18 +1,22 @@
 using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Server;
-using Baseline.Labourer.Tests.Scenarios.Configurations;
-using Baseline.Labourer.Tests.Scenarios.Internal;
+using Baseline.Labourer.Tests.Configurations;
+using Baseline.Labourer.Tests.Internal;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Baseline.Labourer.Tests.Scenarios;
+namespace Baseline.Labourer.Tests;
 
 public class JobRetries : BaseTest
 {
     public JobRetries(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
+    /// <summary>
+    /// Tests that a job can be retried up to the globally configured amount of retries before the server retries
+    /// no more and marks the job as catastrophically failed.
+    /// </summary>
     [Theory]
     [ClassData(typeof(RunOnAllProvidersConfiguration))]
     public async Task RetriesAJobUpToItsConfiguredAmountOfRetries_ThenMarksItAsACatastrophicFailure(
@@ -49,6 +53,9 @@ public class JobRetries : BaseTest
             0;
     }
 
+    /// <summary>
+    /// Tests that even if a job fails for X iterations, it can still complete successfully.
+    /// </summary>
     [Theory]
     [ClassData(typeof(RunOnAllProvidersConfiguration))]
     public async Task CompletesAJobEvenIfItFailsACoupleOfTimesFirst(
@@ -82,6 +89,9 @@ public class JobRetries : BaseTest
         CompletesAJobEvenIfItFailsACoupleOfTimesFirstJob.Completed = false;
     }
 
+    /// <summary>
+    /// Verifies that individual retry configurations can be configured per job type.
+    /// </summary>
     [Theory]
     [ClassData(typeof(RunOnAllProvidersConfiguration))]
     public async Task CanChangeTheRetryConfigurationPerJob(
@@ -119,7 +129,7 @@ public class JobRetries : BaseTest
         CanChangeTheRetryConfigurationPerJobJob.Counter = 0;
     }
 
-    #region Test Classes
+    #region Test Dependencies
 
     public class RetriesAJobUpToItsConfiguredAmountOfRetries_ThenMarksItAsACatastrophicFailureJob
         : IJob

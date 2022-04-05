@@ -47,7 +47,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{9B8EEE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baseline.Labourer.Shared.Sqlite", "src\Baseline.Labourer.Shared.Sqlite\Baseline.Labourer.Shared.Sqlite.csproj", "{B61116CC-B9C5-4FC9-9ED7-18B64BF1FCC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baseline.Labourer.Tests.Scenarios", "test\Baseline.Labourer.Tests.Scenarios\Baseline.Labourer.Tests.Scenarios.csproj", "{04814A2C-3CFA-4D3F-B518-AAFF5E2FEF74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baseline.Labourer.Tests", "test\Baseline.Labourer.Tests\Baseline.Labourer.Tests.csproj", "{04814A2C-3CFA-4D3F-B518-AAFF5E2FEF74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
