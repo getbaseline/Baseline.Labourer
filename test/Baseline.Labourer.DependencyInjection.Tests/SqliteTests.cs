@@ -27,7 +27,7 @@ public class SqliteTests : BaseDependencyInjectionTest
     public async Task It_Can_Create_And_Run_Using_The_Sqlite_Queue_And_Store()
     {
         // Arrange.
-        var connectionString = $"";
+        var connectionString = $"Data Source=InMemory;Mode=Memory;Cache=Shared";
 
         var connection = new SqliteConnection(connectionString);
         connection.Open();
