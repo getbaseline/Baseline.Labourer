@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
 /// Memory based transactional store writer. Ensures all writes within a given context are atomic and all succeed or all fail.

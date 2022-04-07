@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using FluentAssertions;
 
-namespace Baseline.Labourer.Tests;
+namespace Baseline.Labourer.Store.Memory.Tests;
 
 public class TestMemoryStoreDataContainer : MemoryStoreDataContainer
 {

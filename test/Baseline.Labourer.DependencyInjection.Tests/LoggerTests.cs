@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Queue.NoOp;
+using Baseline.Labourer.Store.NoOp;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Xunit;

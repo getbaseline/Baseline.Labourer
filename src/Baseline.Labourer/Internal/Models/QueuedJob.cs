@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Baseline.Labourer.Internal.Utils;
 
-namespace Baseline.Labourer.Internal;
+namespace Baseline.Labourer.Internal.Models;
 
 /// <summary>
 /// Model that represents a job in a queue.

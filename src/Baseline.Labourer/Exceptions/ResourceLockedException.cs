@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Exceptions;
 
 /// <summary>
 /// An exception that is thrown when a resource is locked and any attempts to wait for an unlock failed.

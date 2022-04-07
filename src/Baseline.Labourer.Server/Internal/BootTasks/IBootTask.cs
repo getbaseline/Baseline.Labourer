@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Server;
+namespace Baseline.Labourer.Server.Internal.BootTasks;
 
 /// <summary>
 /// Defines a contract that all boot tasks must implement. Boot tasks are things that are ran on the boot of the

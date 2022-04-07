@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.NoOp;
 
 /// <summary>
 /// NoOpResourceLocker is an <see cref="IResourceLocker"/> implementation that literally does nothing.

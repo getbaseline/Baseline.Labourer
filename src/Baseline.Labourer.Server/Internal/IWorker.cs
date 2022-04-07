@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Baseline.Labourer.Server;
+namespace Baseline.Labourer.Server.Internal;
 
 /// <summary>
 /// IWorker defines what all server workers must implement.

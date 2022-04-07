@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
 /// Store reader implementation for the memory store.

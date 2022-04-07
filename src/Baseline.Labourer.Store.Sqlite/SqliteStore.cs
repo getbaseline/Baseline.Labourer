@@ -1,6 +1,8 @@
 ﻿using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Contracts;
+using Baseline.Labourer.Shared.Sqlite;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// An <see cref="IStore"/> implementation that persists its data in a SQLite database.

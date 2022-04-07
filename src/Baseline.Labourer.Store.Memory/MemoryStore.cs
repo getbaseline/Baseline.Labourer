@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Memory;
 
 /// <summary>
 /// Provides a memory based <see cref="IStore"/> with all relevant store contract implementations contained within.

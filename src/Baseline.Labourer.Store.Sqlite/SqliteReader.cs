@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Shared.Sqlite;
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.Sqlite;
 
 /// <summary>
 /// SQLite backed reader.
@@ -55,9 +56,9 @@ public class SqliteReader : BaseSqliteInteractor, IStoreReader
                     LastRunDate = reader.IsDBNull(3) ? null : reader.GetDateTime(3),
                     NextRunDate = reader.GetDateTime(4),
                     Type = reader.GetString(5),
-                    HasParameters = reader.IsDBNull(6),
-                    ParametersType = reader.GetString(6),
-                    SerializedParameters = reader.GetString(7),
+                    HasParameters = !reader.IsDBNull(6),
+                    ParametersType = reader.IsDBNull(6) ? null : reader.GetString(6),
+                    SerializedParameters = reader.IsDBNull(6) ? null : reader.GetString(7),
                     CreatedAt = reader.GetDateTime(8),
                     UpdatedAt = reader.GetDateTime(9)
                 }

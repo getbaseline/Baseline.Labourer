@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Baseline.Labourer.Internal.Models;
 
 namespace Baseline.Labourer.Internal;
 

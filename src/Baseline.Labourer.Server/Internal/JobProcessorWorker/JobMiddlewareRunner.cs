@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Baseline.Labourer.Server.Internal.Middleware;
 using Microsoft.Extensions.Logging;
 
-namespace Baseline.Labourer.Server.Internal;
+namespace Baseline.Labourer.Server.Internal.JobProcessorWorker;
 
 /// <summary>
 /// Runs the relevant middlewares for dispatched jobs.
 /// </summary>
 internal class JobMiddlewareRunner
 {
-    private static readonly List<IJobMiddleware> SystemJobMiddlewares = new List<IJobMiddleware>
+    private static readonly List<IJobMiddleware> SystemJobMiddlewares = new()
     {
         new JobUpdateProgressAndCompletionStatusMiddleware(),
         new JobFailureRetryMiddleware()

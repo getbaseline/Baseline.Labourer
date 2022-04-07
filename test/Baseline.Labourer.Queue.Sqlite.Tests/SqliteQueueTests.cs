@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Store.Sqlite.Tests;
-using Baseline.Labourer.Tests;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Xunit;

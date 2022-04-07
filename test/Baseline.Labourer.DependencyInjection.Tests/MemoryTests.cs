@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Queue.Memory;
+using Baseline.Labourer.Store.Memory;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;

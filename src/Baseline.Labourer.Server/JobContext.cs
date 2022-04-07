@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Internal.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Baseline.Labourer.Server;
@@ -57,7 +58,6 @@ public class JobContext
     /// <param name="status">The new status of the job.</param>
     public async Task UpdateJobStateAsync(ITransactionalStoreWriter writer, JobStatus status)
     {
-        // TODO: this will cause a lock. Move this functionality into the transaction manager.
         await writer.LogEntryForJobAsync(
             JobDefinition.Id,
             LogLevel.Information,

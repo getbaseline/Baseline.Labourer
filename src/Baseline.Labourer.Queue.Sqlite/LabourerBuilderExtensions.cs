@@ -1,4 +1,6 @@
-﻿namespace Baseline.Labourer;
+﻿using Baseline.Labourer.DependencyInjection;
+
+namespace Baseline.Labourer.Queue.Sqlite;
 
 /// <summary>
 /// Extension methods related to the SQLite queue for inherits of the <see cref="LabourerBuilder"/> class.

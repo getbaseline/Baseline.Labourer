@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Baseline.Labourer.Server;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.DependencyInjection;
 
 /// <summary>
 /// Extension methods to fluently configure the <see cref="LabourerServerBuilder" /> class.

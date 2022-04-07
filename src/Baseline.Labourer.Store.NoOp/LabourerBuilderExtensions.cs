@@ -1,4 +1,6 @@
-﻿namespace Baseline.Labourer;
+﻿using Baseline.Labourer.DependencyInjection;
+
+namespace Baseline.Labourer.Store.NoOp;
 
 /// <summary>
 /// Extension methods related to the NoOp store for inheritors of the <see cref="LabourerBuilder"/> class.

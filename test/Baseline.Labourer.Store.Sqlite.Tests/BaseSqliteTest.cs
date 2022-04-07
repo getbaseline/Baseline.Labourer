@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
+using Baseline.Labourer.Queue.Sqlite;
 using Microsoft.Data.Sqlite;
 using Xunit;
 

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.Store.NoOp;
 
 /// <summary>
 /// NoOpStore is an <see cref="IStore"/> implementation that does literally nothing. Useful for testing if you

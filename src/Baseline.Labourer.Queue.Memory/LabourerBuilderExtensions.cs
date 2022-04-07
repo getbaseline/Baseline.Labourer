@@ -1,4 +1,6 @@
-﻿namespace Baseline.Labourer;
+﻿using Baseline.Labourer.DependencyInjection;
+
+namespace Baseline.Labourer.Queue.Memory;
 
 /// <summary>
 /// Extension methods related to the memory queue for inheritors of the <see cref="LabourerBuilder"/> class.

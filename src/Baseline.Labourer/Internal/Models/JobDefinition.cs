@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Baseline.Labourer.Internal;
+namespace Baseline.Labourer.Internal.Models;
 
 /// <summary>
 /// JobDefinition is a base class that represents part of a job and its parameters defined by a consumer of the

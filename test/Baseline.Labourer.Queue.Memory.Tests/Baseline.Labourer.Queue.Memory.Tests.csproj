@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Baseline.Labourer.Queue.Memory\Baseline.Labourer.Queue.Memory.csproj" />
+      <ProjectReference Include="..\Baseline.Labourer.Store.Memory.Tests\Baseline.Labourer.Store.Memory.Tests.csproj" />
       <ProjectReference Include="..\Baseline.Labourer.Tests\Baseline.Labourer.Tests.csproj" />
     </ItemGroup>
 

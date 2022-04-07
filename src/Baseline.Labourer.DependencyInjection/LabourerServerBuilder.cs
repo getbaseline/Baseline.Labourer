@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Baseline.Labourer.Server;
 
-namespace Baseline.Labourer;
+namespace Baseline.Labourer.DependencyInjection;
 
 /// <summary>
 /// An interim builder object used to fluently configure the Baseline.Labourer server.
@@ -20,12 +20,12 @@ public class LabourerServerBuilder
     /// Gets or sets the cancellation source to use to gracefully shut down the server.
     /// </summary>
     internal CancellationTokenSource ShutdownTokenSource { get; set; } =
-        new CancellationTokenSource();
+        new();
 
     /// <summary>
     /// Gets or sets the middlewares used for dispatched jobs.
     /// </summary>
-    internal List<Type> DispatchedJobMiddlewares { get; set; } = new List<Type>();
+    internal List<Type> DispatchedJobMiddlewares { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the number of job processing workers to run.
@@ -36,7 +36,7 @@ public class LabourerServerBuilder
     /// Gets or sets the custom retries for specific job types.
     /// </summary>
     internal Dictionary<Type, RetryConfiguration> JobRetryConfigurations { get; set; } =
-        new Dictionary<Type, RetryConfiguration>();
+        new();
 
     /// <summary>
     /// Gets or sets the interval between each run of the scheduled job processor.

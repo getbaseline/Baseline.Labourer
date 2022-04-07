@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace Baseline.Labourer.Internal;
+namespace Baseline.Labourer.Shared.Sqlite;
 
 /// <summary>
 /// Internal base class used to allow different projects to bootstrap SQLite.
@@ -16,12 +16,19 @@ public abstract class BaseSqliteBootstrapper<T> : BaseSqliteInteractor
     public async ValueTask BootstrapAsync()
     {
         using var connection = NewConnection();
-        using var transaction = connection.BeginTransaction();
+        EnableWriteAheadLog(connection);
 
+        using var transaction = connection.BeginTransaction();
         CreateMigrationsTableIfNotExists(connection, transaction);
         await MigrateAsync(connection, transaction);
 
         transaction.Commit();
+    }
+
+    private void EnableWriteAheadLog(SqliteConnection connection)
+    {
+        var walCommand = new SqliteCommand("PRAGMA journal_mode = wal;", connection);
+        walCommand.ExecuteNonQuery();
     }
 
     private void CreateMigrationsTableIfNotExists(

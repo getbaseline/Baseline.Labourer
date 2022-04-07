@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Baseline.Labourer.Queue.NoOp;
+using Baseline.Labourer.Store.NoOp;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Baseline.Labourer.Internal;
-using Baseline.Labourer.Tests;
+using Baseline.Labourer.Internal.Models;
+using Baseline.Labourer.Internal.Utils;
 using FluentAssertions;
 using Xunit;
 
@@ -9,8 +10,7 @@ namespace Baseline.Labourer.Store.Memory.Tests;
 
 public class MemoryTransactionStoreWriterTests
 {
-    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer =
-        new TestMemoryStoreDataContainer();
+    private readonly TestMemoryStoreDataContainer _memoryStoreDataContainer = new();
     private readonly MemoryStoreWriterTransactionManager _transactionManager;
 
     public MemoryTransactionStoreWriterTests()
